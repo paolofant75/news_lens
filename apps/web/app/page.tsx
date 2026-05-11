@@ -17,9 +17,9 @@ export default function Home() {
         </div>
 
         <div className="pt-8 flex gap-4 flex-wrap justify-center">
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          <a href="/dashboard" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
             Get Started
-          </button>
+          </a>
           <button className="px-6 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition">
             Documentation
           </button>
