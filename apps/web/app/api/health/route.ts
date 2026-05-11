@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server'
 async function checkSupabase() {
   const start = Date.now()
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/health`)
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/health?apikey=${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+    const res = await fetch(url)
     const text = await res.text()
     const isOk = res.ok || text.toLowerCase().includes('ok')
     return { ok: isOk, ms: Date.now() - start, message: `HTTP ${res.status} — ${text.slice(0, 120)}` }
