@@ -151,12 +151,14 @@ export const TAXONOMY: TaxNode[] = [
   },
 ]
 
-export function countArticlesForNode(node: TaxNode, articles: { title: string; summary: string; source: string }[]): number {
-  if (node.keywords.length === 0) return 0
-  return articles.filter((a) => {
-    const text = (a.title + ' ' + a.summary + ' ' + a.source).toLowerCase()
-    return node.keywords.some((kw) => text.includes(kw.toLowerCase()))
-  }).length
+export function getAllKeywords(node: TaxNode): string[] {
+  const kws = [...node.keywords]
+  if (node.children) {
+    for (const child of node.children) {
+      kws.push(...getAllKeywords(child))
+    }
+  }
+  return [...new Set(kws)]
 }
 
 export function buildCounts(
@@ -165,7 +167,11 @@ export function buildCounts(
   const counts: Record<string, number> = {}
   function traverse(nodes: TaxNode[]) {
     for (const n of nodes) {
-      counts[n.id] = countArticlesForNode(n, articles)
+      const allKws = getAllKeywords(n)
+      counts[n.id] = allKws.length === 0 ? 0 : articles.filter((a) => {
+        const text = (a.title + ' ' + a.summary + ' ' + a.source).toLowerCase()
+        return allKws.some((kw) => text.includes(kw.toLowerCase()))
+      }).length
       if (n.children) traverse(n.children)
     }
   }

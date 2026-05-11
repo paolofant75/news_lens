@@ -3,7 +3,7 @@ import { encodeArticleId } from '../../lib/encode'
 import { translateBatch } from '../../lib/translate'
 import { cookies } from 'next/headers'
 import PageLayout from '../../components/page-layout'
-import { TAXONOMY } from '../../lib/taxonomy'
+import { TAXONOMY, getAllKeywords } from '../../lib/taxonomy'
 import NewsArticleGrid from '../../components/news-article-grid'
 
 const CATEGORIES = [
@@ -113,10 +113,10 @@ export default async function NewsPage({
 
   const sportKws = sport ? (SPORT_KEYWORDS[sport] ?? []) : []
 
-  // Trova keywords del nodo tassonomia attivo
+  // Trova keywords del nodo tassonomia attivo (inclusi tutti i figli ricorsivamente)
   function findTaxNode(id: string, nodes = TAXONOMY): string[] {
     for (const n of nodes) {
-      if (n.id === id) return n.keywords
+      if (n.id === id) return getAllKeywords(n)
       if (n.children) {
         const found = findTaxNode(id, n.children)
         if (found.length) return found
