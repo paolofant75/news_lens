@@ -43,8 +43,8 @@ export default function WorldMap({ counts, activeArea, onSelectArea }: Props) {
       >
         <ZoomableGroup>
           <Geographies geography={GEO_URL}>
-            {({ geographies }) =>
-              geographies.map((geo) => (
+            {({ geographies }: { geographies: any[] }) =>
+              geographies.map((geo: any) => (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
