@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { VeritasResult } from '../../lib/veritas'
+import LoadingQuote from '../../components/loading-quote'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -28,6 +29,11 @@ export default function VeritasPage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<VeritasResult | null>(null)
   const [error, setError] = useState('')
+  const [palette, setPalette] = useState('noir')
+
+  useEffect(() => {
+    setPalette(document.documentElement.getAttribute('data-palette') ?? 'noir')
+  }, [])
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -85,14 +91,8 @@ export default function VeritasPage() {
           </button>
         </form>
 
-        {/* Loading */}
-        {loading && (
-          <div className="text-center py-20">
-            <div className="text-5xl mb-4 animate-pulse">⚖️</div>
-            <p style={{ color: 'var(--text-2)' }}>Claude sta analizzando le fonti...</p>
-            <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>~15-20 secondi</p>
-          </div>
-        )}
+        {/* Loading popup */}
+        {loading && <LoadingQuote palette={palette} />}
 
         {error && (
           <div className="rounded-xl p-5 text-center" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444' }}>

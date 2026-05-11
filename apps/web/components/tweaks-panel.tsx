@@ -23,7 +23,6 @@ const FONTS = [
   { id: 'atlas',  label: 'Atlas',  sub: 'Newsreader · editoriale' },
 ]
 
-const LAYOUTS = ['Magazine', 'Grid', 'Wire']
 
 type Props = {
   palette: string
@@ -34,7 +33,6 @@ export default function TweaksPanel({ palette, font }: Props) {
   const [open, setOpen] = useState(false)
   const [currentPalette, setCurrentPalette] = useState(palette)
   const [currentFont, setCurrentFont] = useState(font)
-  const [layout, setLayout] = useState('Grid')
   const router = useRouter()
 
   async function applyTheme(newPalette: string, newFont: string) {
@@ -140,26 +138,6 @@ export default function TweaksPanel({ palette, font }: Props) {
             </div>
           </div>
 
-          {/* Layout */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>Layout feed</p>
-            <div className="flex gap-1.5">
-              {LAYOUTS.map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setLayout(l)}
-                  className="flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors"
-                  style={{
-                    background: layout === l ? 'var(--accent)' : 'var(--bg-card)',
-                    color: layout === l ? '#fff' : 'var(--text)',
-                    border: '1px solid var(--border)',
-                  }}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-          </div>
 
         </div>
       )}

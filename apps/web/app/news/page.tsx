@@ -4,6 +4,7 @@ import { translateBatch } from '../../lib/translate'
 import { cookies } from 'next/headers'
 import PageLayout from '../../components/page-layout'
 import { TAXONOMY } from '../../lib/taxonomy'
+import NewsArticleGrid from '../../components/news-article-grid'
 
 const CATEGORIES = [
   { label: 'Tutte', slug: '', icon: '' },
@@ -215,49 +216,11 @@ export default async function NewsPage({
 
         {/* Articoli */}
         <div className="flex-1 min-w-0">
-            <p className="text-sm mb-5" style={{ color: 'var(--text-3)' }}>
-              {filtered.length} articoli · {new Set(filtered.map((a) => a.source)).size} fonti
-            </p>
-            {filtered.length === 0 ? (
-              <div className="text-center py-20" style={{ color: 'var(--text-3)' }}>Nessun articolo trovato.</div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {filteredT.map((article, i) => {
-                  const analysisId = encodeArticleId(article.originalTitle ?? article.title)
-                  return (
-                    <div key={i} className="group rounded-xl overflow-hidden transition-all hover:opacity-90"
-                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                      <a href={`/articolo/${analysisId}`} className="block p-5">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>{article.source}</span>
-                          <span className="text-xs" style={{ color: 'var(--text-3)' }}>{timeAgo(article.pubDate)}</span>
-                        </div>
-                        <h2 className="font-semibold mb-2 leading-snug line-clamp-3" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
-                          {article.title}
-                        </h2>
-                        {article.summary && (
-                          <p className="text-sm line-clamp-2 mb-3" style={{ color: 'var(--text-2)' }}>{article.summary}</p>
-                        )}
-                        <div className="flex flex-wrap gap-1.5">
-                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>{article.category}</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>{article.geo}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${biasColor(article.sourceBias)}`} style={{ background: 'var(--bg-s)' }}>{article.sourceBias}</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>★ {article.sourceReliability}</span>
-                        </div>
-                      </a>
-                      <div className="px-5 pb-4 flex items-center justify-between pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-                        <a href={`/articolo/${analysisId}`} className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
-                          ⚖️ Analisi Veritas
-                        </a>
-                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--text-3)' }}>
-                          Originale ↗
-                        </a>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+            <NewsArticleGrid
+              articles={filteredT}
+              count={filtered.length}
+              sourceCount={new Set(filtered.map((a) => a.source)).size}
+            />
           </div>
       </div>
     </PageLayout>
