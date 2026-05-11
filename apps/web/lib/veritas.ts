@@ -18,9 +18,18 @@ export type SourceAnalysis = {
   nota: string
 }
 
+export type FiveWs = {
+  who: string
+  what: string
+  where: string
+  when: string
+  why: string
+}
+
 export type VeritasResult = {
   query: string
   articolo_consolidato: string
+  five_ws: FiveWs
   sources: SearchArticle[]
   analisi: SourceAnalysis[]
 }
@@ -145,7 +154,14 @@ ISTRUZIONI TASSATIVE:
 Rispondi SOLO con JSON valido, senza testo aggiuntivo:
 
 {
-  "articolo_consolidato": "testo articolo professionale in italiano",
+  "articolo_consolidato": "testo articolo professionale",
+  "five_ws": {
+    "who": "Soggetti principali coinvolti (persone, organizzazioni, governi)",
+    "what": "Cosa è accaduto esattamente",
+    "where": "Luogo/luoghi dell'evento",
+    "when": "Quando è accaduto con date/orari precisi",
+    "why": "Motivo/causa/contesto dell'evento"
+  },
   "analisi": [
     {
       "fonte": "nome fonte esatto",
@@ -175,8 +191,20 @@ Rispondi SOLO con JSON valido, senza testo aggiuntivo:
     const data = await res.json()
     const text = data.content?.[0]?.text ?? '{}'
     const json = JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim())
-    return { query, articolo_consolidato: json.articolo_consolidato, sources: articles, analisi: json.analisi ?? [] }
+    return {
+      query,
+      articolo_consolidato: json.articolo_consolidato,
+      five_ws: json.five_ws ?? { who: '', what: '', where: '', when: '', why: '' },
+      sources: articles,
+      analisi: json.analisi ?? [],
+    }
   } catch {
-    return { query, articolo_consolidato: 'Analisi non disponibile al momento.', sources: articles, analisi: [] }
+    return {
+      query,
+      articolo_consolidato: 'Analisi non disponibile al momento.',
+      five_ws: { who: '', what: '', where: '', when: '', why: '' },
+      sources: articles,
+      analisi: [],
+    }
   }
 }

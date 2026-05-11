@@ -19,6 +19,73 @@ const CATEGORIES = [
   { label: 'Cronaca', slug: 'cronaca', icon: '📰' },
 ]
 
+const SPORTS = [
+  { label: 'Tutti gli sport', slug: '' },
+  // Olimpici estivi
+  { label: 'Atletica', slug: 'athletics' }, { label: 'Nuoto', slug: 'swimming' },
+  { label: 'Calcio', slug: 'football' }, { label: 'Basket', slug: 'basketball' },
+  { label: 'Tennis', slug: 'tennis' }, { label: 'Ciclismo', slug: 'cycling' },
+  { label: 'Ginnastica', slug: 'gymnastics' }, { label: 'Boxe', slug: 'boxing' },
+  { label: 'Judo', slug: 'judo' }, { label: 'Pallavolo', slug: 'volleyball' },
+  { label: 'Rugby', slug: 'rugby' }, { label: 'Golf', slug: 'golf' },
+  { label: 'Tiro con l\'arco', slug: 'archery' }, { label: 'Scherma', slug: 'fencing' },
+  { label: 'Canoa', slug: 'canoe' }, { label: 'Vela', slug: 'sailing' },
+  { label: 'Equitazione', slug: 'equestrian' }, { label: 'Sollevamento', slug: 'weightlifting' },
+  { label: 'Lotta', slug: 'wrestling' }, { label: 'Taekwondo', slug: 'taekwondo' },
+  { label: 'Badminton', slug: 'badminton' }, { label: 'Ping Pong', slug: 'table-tennis' },
+  { label: 'Tiro a segno', slug: 'shooting' }, { label: 'Triathlon', slug: 'triathlon' },
+  { label: 'Baseball', slug: 'baseball' }, { label: 'Skateboard', slug: 'skateboard' },
+  { label: 'Surf', slug: 'surfing' },
+  // Olimpici invernali
+  { label: 'Sci alpino', slug: 'skiing' }, { label: 'Biathlon', slug: 'biathlon' },
+  { label: 'Hockey ghiaccio', slug: 'ice-hockey' }, { label: 'Pattinaggio', slug: 'skating' },
+  { label: 'Snowboard', slug: 'snowboard' },
+  // Altri
+  { label: 'Formula 1', slug: 'f1' }, { label: 'MotoGP', slug: 'motogp' },
+  { label: 'Cricket', slug: 'cricket' }, { label: 'NFL', slug: 'nfl' },
+  { label: 'MMA/UFC', slug: 'mma' },
+]
+
+const SPORT_KEYWORDS: Record<string, string[]> = {
+  athletics: ['athletics', 'sprinter', 'marathon', 'track and field', 'atletica'],
+  swimming: ['swimming', 'swimmer', 'nuoto', 'freestyle', 'backstroke'],
+  football: ['football', 'soccer', 'premier league', 'serie a', 'champions league', 'fifa', 'calcio'],
+  basketball: ['basketball', 'nba', 'basket'],
+  tennis: ['tennis', 'wimbledon', 'grand slam', 'atp', 'wta'],
+  cycling: ['cycling', 'tour de france', 'ciclismo', 'velodrome'],
+  gymnastics: ['gymnastics', 'ginnastica', 'gymnast'],
+  boxing: ['boxing', 'boxer', 'pugilato', 'bout'],
+  judo: ['judo'],
+  volleyball: ['volleyball', 'pallavolo'],
+  rugby: ['rugby'],
+  golf: ['golf', 'pga', 'masters'],
+  archery: ['archery', 'archer'],
+  fencing: ['fencing', 'scherma'],
+  canoe: ['canoe', 'kayak', 'canoa'],
+  sailing: ['sailing', 'vela', 'yacht'],
+  equestrian: ['equestrian', 'horse', 'dressage', 'show jumping'],
+  weightlifting: ['weightlifting', 'sollevamento pesi'],
+  wrestling: ['wrestling', 'lotta'],
+  taekwondo: ['taekwondo'],
+  badminton: ['badminton'],
+  'table-tennis': ['table tennis', 'ping pong'],
+  shooting: ['shooting sport', 'tiro a segno', 'tiro a volo'],
+  triathlon: ['triathlon'],
+  baseball: ['baseball', 'mlb'],
+  skateboard: ['skateboarding', 'skateboard'],
+  surfing: ['surfing', 'surf'],
+  skiing: ['skiing', 'slalom', 'ski', 'downhill'],
+  biathlon: ['biathlon'],
+  'ice-hockey': ['ice hockey', 'nhl', 'hockey su ghiaccio'],
+  skating: ['figure skating', 'speed skating', 'pattinaggio'],
+  snowboard: ['snowboard'],
+  f1: ['formula 1', 'formula one', 'f1', 'grand prix', 'ferrari', 'red bull racing'],
+  motogp: ['motogp', 'moto gp', 'rossi'],
+  cricket: ['cricket'],
+  nfl: ['nfl', 'american football', 'super bowl'],
+  mma: ['mma', 'ufc', 'mixed martial arts'],
+}
+
 const GEO = [
   { label: 'Tutto il mondo', slug: '', icon: '🌐' },
   { label: 'Europa', slug: 'europa', icon: '🇪🇺' },
@@ -34,18 +101,23 @@ export const revalidate = 300
 export default async function NewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; area?: string }>
+  searchParams: Promise<{ categoria?: string; area?: string; sport?: string }>
 }) {
-  const { categoria, area } = await searchParams
+  const { categoria, area, sport } = await searchParams
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
 
   const allArticles = await fetchArticles()
 
+  const sportKws = sport ? (SPORT_KEYWORDS[sport] ?? []) : []
+
   const filtered = allArticles.filter((a) => {
     const catOk = !categoria || a.category === categoria
     const geoOk = !area || a.geo === area
-    return catOk && geoOk
+    const sportOk = !sport || sportKws.some((kw) =>
+      (a.title + ' ' + a.summary).toLowerCase().includes(kw)
+    )
+    return catOk && geoOk && sportOk
   })
 
   // Traduci i titoli/summary nella lingua selezionata (max 50, con cache Redis)
@@ -61,12 +133,14 @@ export default async function NewsPage({
     return acc
   }, {} as Record<string, number>)
 
-  function buildUrl(newCat?: string, newArea?: string) {
+  function buildUrl(newCat?: string, newArea?: string, newSport?: string) {
     const params = new URLSearchParams()
     const c = newCat !== undefined ? newCat : (categoria ?? '')
     const g = newArea !== undefined ? newArea : (area ?? '')
+    const s = newSport !== undefined ? newSport : (sport ?? '')
     if (c) params.set('categoria', c)
     if (g) params.set('area', g)
+    if (s) params.set('sport', s)
     const q = params.toString()
     return q ? `/news?${q}` : '/news'
   }
@@ -90,6 +164,24 @@ export default async function NewsPage({
             ))}
           </div>
         </div>
+
+        {/* Sottocategorie sport */}
+        {categoria === 'sport' && (
+          <div className="overflow-x-auto pb-2 mb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div className="flex gap-1.5 min-w-max">
+              {SPORTS.map((s) => (
+                <a key={s.slug} href={buildUrl(categoria, area, s.slug)}
+                  className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-opacity hover:opacity-80"
+                  style={s.slug === (sport ?? '')
+                    ? { background: 'var(--accent-2, #3b82f6)', color: '#fff' }
+                    : { background: 'var(--bg-card)', color: 'var(--text-3)', border: '1px solid var(--border)' }}
+                >
+                  {s.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-6">
           {/* Sidebar geo */}

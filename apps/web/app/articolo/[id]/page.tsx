@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { searchAllSources, analyzeWithVeritas, extractQueryFromUrl } from '../../../lib/veritas'
 import { decodeArticleId } from '../../../lib/encode'
 import type { SourceAnalysis } from '../../../lib/veritas'
+import FiveWsCard from '../../../components/five-ws-card'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -33,6 +34,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   const { id } = await params
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
+  const palette = cookieStore.get('nlv_palette')?.value ?? 'noir'
 
   let query = ''
   try {
@@ -71,6 +73,13 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
           <h1 className="text-2xl font-bold text-white mb-1">Analisi: <span className="text-blue-400">{query}</span></h1>
           <p className="text-sm text-gray-500">{totalSources} fonti analizzate da Veritas{langLabel}</p>
         </div>
+
+        {/* Five Ws Card */}
+        {result.five_ws?.who && (
+          <div className="mb-8">
+            <FiveWsCard five_ws={result.five_ws} title={query} palette={palette} />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
