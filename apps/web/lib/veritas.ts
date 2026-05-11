@@ -69,10 +69,10 @@ async function searchGuardian(query: string): Promise<SearchArticle[]> {
   } catch { return [] }
 }
 
-async function searchGNews(query: string): Promise<SearchArticle[]> {
+async function searchGNews(query: string, lang = 'en'): Promise<SearchArticle[]> {
   try {
     const res = await fetch(
-      `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&token=${process.env.GNEWS_API_KEY}&max=8&lang=en`
+      `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&token=${process.env.GNEWS_API_KEY}&max=6&lang=${lang}`
     )
     const data = await res.json()
     if (!data.articles) return []
@@ -113,7 +113,10 @@ export function cleanSearchQuery(title: string): string {
   return words.slice(0, 8).join(' ')
 }
 
-async function expandQuery(query: string): Promise<string[]> {
+type MultiLangTerms = { en: string; es: string; fr: string; de: string; ru: string; ar: string }
+
+async function expandQueryMultiLang(query: string): Promise<MultiLangTerms> {
+  const fallback: MultiLangTerms = { en: query, es: query, fr: query, de: query, ru: query, ar: query }
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -124,35 +127,39 @@ async function expandQuery(query: string): Promise<string[]> {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 120,
+        max_tokens: 200,
         messages: [{
           role: 'user',
-          content: `You are a news search expert. Given a query (any language), return a JSON array of exactly 3 English search terms suitable for news APIs, ordered from most specific to most general. Return ONLY valid JSON, no other text.\n\nQuery: "${query}"\n\nExample: "prezzo petrolio" → ["oil price crude", "OPEC production cut", "energy market"]`,
+          content: `News search expert: translate this query into 6 languages for news API searches. Return ONLY valid JSON with keys en/es/fr/de/ru/ar. Each value is the best 3-word search term in that language.\n\nQuery: "${query}"\n\nExample for "prezzo petrolio": {"en":"oil price crude","es":"precio petróleo mercado","fr":"prix pétrole brut","de":"Ölpreis Markt","ru":"цена нефти","ar":"سعر النفط"}`,
         }],
       }),
     })
     const data = await res.json()
     const text = (data.content?.[0]?.text ?? '').replace(/```json?\n?|\n?```/g, '').trim()
-    const arr = JSON.parse(text)
-    if (Array.isArray(arr) && arr.length > 0) {
-      return arr.slice(0, 3).filter((x: unknown) => typeof x === 'string' && x.length > 0)
+    const parsed = JSON.parse(text)
+    if (parsed && typeof parsed === 'object' && parsed.en) {
+      return { ...fallback, ...parsed }
     }
   } catch { /* fall through */ }
-  return [query]
+  return fallback
 }
 
 export async function searchAllSources(query: string): Promise<SearchArticle[]> {
-  // Espandi la query in inglese con termini correlati
-  const terms = await expandQuery(query)
+  // Traduci e espandi la query in 6 lingue
+  const terms = await expandQueryMultiLang(query)
 
-  // Cerca con tutti i termini in parallelo su tutte le API
-  const searches = await Promise.allSettled(
-    terms.flatMap((term) => [
-      searchNewsAPI(term),
-      searchGuardian(term),
-      searchGNews(term),
-    ])
-  )
+  // Cerca in parallelo: NewsAPI+Guardian in EN, GNews in 6 lingue
+  const searches = await Promise.allSettled([
+    searchNewsAPI(terms.en),
+    searchGuardian(terms.en),
+    searchGNews(terms.en, 'en'),
+    searchGNews(terms.es, 'es'),
+    searchGNews(terms.fr, 'fr'),
+    searchGNews(terms.de, 'de'),
+    searchGNews(terms.ru, 'ru'),
+    searchGNews(terms.ar, 'ar'),
+  ])
+
   const all = searches
     .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
@@ -170,7 +177,7 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
     if (!bySource.has(key)) bySource.set(key, x)
   }
 
-  return Array.from(bySource.values()).slice(0, 14)
+  return Array.from(bySource.values()).slice(0, 16)
 }
 
 export async function analyzeWithVeritas(query: string, articles: SearchArticle[], lang = 'it'): Promise<VeritasResult> {
@@ -186,9 +193,10 @@ FONTI DISPONIBILI:
 ${articlesText}
 
 ISTRUZIONI TASSATIVE:
-1. L'articolo consolidato deve essere scritto come un pezzo giornalistico professionale in ${LANG_NAMES[lang] ?? lang}: fatti verificati, dati precisi, citazioni dirette quando disponibili, contesto storico se necessario. 4-5 paragrafi densi e informativi.
-2. NON commentare le fonti nell'articolo. NON scrivere frasi come "va segnalato che alcune fonti...", "alcune fonti risultano fuori contesto...", "la copertura è limitata a...". L'articolo parla SOLO dei fatti della notizia.
-3. Per l'analisi delle fonti: valuta esclusivamente le fonti che trattano direttamente l'argomento. Per quelle non pertinenti assegna completezza=0, bias=0, tipo_bias="non pertinente".
+1. Le fonti possono essere in lingue diverse (inglese, spagnolo, francese, tedesco, russo, arabo) — leggile tutte e sintetizza i fatti nella lingua richiesta.
+2. L'articolo consolidato deve essere scritto come un pezzo giornalistico professionale in ${LANG_NAMES[lang] ?? lang}: fatti verificati, dati precisi, citazioni dirette quando disponibili, contesto storico se necessario. 4-5 paragrafi densi e informativi.
+3. NON commentare le fonti nell'articolo. NON scrivere frasi come "va segnalato che alcune fonti...", "alcune fonti risultano fuori contesto...", "la copertura è limitata a...". L'articolo parla SOLO dei fatti della notizia.
+4. Per l'analisi delle fonti: valuta esclusivamente le fonti che trattano direttamente l'argomento. Per quelle non pertinenti assegna completezza=0, bias=0, tipo_bias="non pertinente". Indica nella nota la lingua originale della fonte se non è inglese.
 
 Rispondi SOLO con JSON valido, senza testo aggiuntivo:
 
