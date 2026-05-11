@@ -2,7 +2,7 @@
 
 **Aggregatore globale di notizie con analisi AI anti-bias**
 
-> Piattaforma web (+ mobile in futuro) che aggrega notizie dal mondo, le mostra su una mappa interattiva, e usa l'intelligenza artificiale per analizzare i bias narrativi confrontando la stessa notizia tra fonti diverse.
+> Piattaforma web (+ mobile) che aggrega notizie dal mondo, le mostra su una mappa interattiva, e usa l'intelligenza artificiale per analizzare i bias narrativi confrontando la stessa notizia tra fonti diverse.
 
 ---
 
