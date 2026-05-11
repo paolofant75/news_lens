@@ -37,6 +37,12 @@ export default function Navbar() {
             Notizie
           </Link>
           <Link
+            href="/veritas"
+            className={`transition-colors hover:text-white font-semibold ${pathname === '/veritas' ? 'text-blue-400' : 'text-blue-500'}`}
+          >
+            ⚖️ Veritas
+          </Link>
+          <Link
             href="/mappa"
             className={`transition-colors hover:text-white ${pathname === '/mappa' ? 'text-white' : 'text-gray-400'}`}
           >
