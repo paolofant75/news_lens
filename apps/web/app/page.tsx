@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { fetchArticles, timeAgo } from '../lib/rss'
+import { translateBatch } from '../lib/translate'
+import { cookies } from 'next/headers'
 
 const NAV_ITEMS = [
   { href: '/news',      icon: '📰', label: 'Notizie',       badge: null },
@@ -24,10 +26,20 @@ const CATEGORIES = [
 export const revalidate = 300
 
 export default async function HomePage() {
+  const cookieStore = await cookies()
+  const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
+
   const articles = await fetchArticles()
-  const top = articles.slice(0, 12)
-  const featured = articles[0]
-  const secondary = articles.slice(1, 5)
+  const raw12 = articles.slice(0, 12)
+
+  const translated12 = await translateBatch(
+    raw12.map((a) => ({ title: a.title, summary: a.summary })),
+    lang
+  )
+  const top = raw12.map((a, i) => ({ ...a, title: translated12[i]?.title ?? a.title, summary: translated12[i]?.summary ?? a.summary }))
+
+  const featured = top[0]
+  const secondary = top.slice(1, 5)
 
   const catCounts = CATEGORIES.reduce((acc, c) => {
     acc[c.slug] = articles.filter((a) => a.category === c.slug).length

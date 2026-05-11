@@ -1,4 +1,5 @@
 import { relevanceScore } from './classify'
+import { LANG_NAMES } from './translate'
 
 export type SearchArticle = {
   title: string
@@ -124,7 +125,7 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
   return Array.from(bySource.values()).slice(0, 12)
 }
 
-export async function analyzeWithVeritas(query: string, articles: SearchArticle[]): Promise<VeritasResult> {
+export async function analyzeWithVeritas(query: string, articles: SearchArticle[], lang = 'it'): Promise<VeritasResult> {
   const articlesText = articles
     .map((a, i) => `[${i + 1}] FONTE: ${a.source}\nTITOLO: ${a.title}\nCONTENUTO: ${a.content}`)
     .join('\n\n---\n\n')
@@ -137,7 +138,7 @@ FONTI DISPONIBILI:
 ${articlesText}
 
 ISTRUZIONI TASSATIVE:
-1. L'articolo consolidato deve essere scritto come un pezzo giornalistico professionale in italiano: fatti verificati, dati precisi, citazioni dirette quando disponibili, contesto storico se necessario. 4-5 paragrafi densi e informativi.
+1. L'articolo consolidato deve essere scritto come un pezzo giornalistico professionale in ${LANG_NAMES[lang] ?? lang}: fatti verificati, dati precisi, citazioni dirette quando disponibili, contesto storico se necessario. 4-5 paragrafi densi e informativi.
 2. NON commentare le fonti nell'articolo. NON scrivere frasi come "va segnalato che alcune fonti...", "alcune fonti risultano fuori contesto...", "la copertura è limitata a...". L'articolo parla SOLO dei fatti della notizia.
 3. Per l'analisi delle fonti: valuta esclusivamente le fonti che trattano direttamente l'argomento. Per quelle non pertinenti assegna completezza=0, bias=0, tipo_bias="non pertinente".
 

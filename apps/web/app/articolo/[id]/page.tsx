@@ -43,7 +43,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   }
 
   const articles = await searchAllSources(query)
-  const result = await analyzeWithVeritas(query, articles)
+  const result = await analyzeWithVeritas(query, articles, lang)
 
   // Unisci fonti con la loro analisi, filtra non pertinenti, ordina per score
   const sourcesWithAnalysis = result.sources

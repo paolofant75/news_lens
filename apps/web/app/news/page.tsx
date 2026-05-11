@@ -1,5 +1,7 @@
 import { fetchArticles, timeAgo, biasColor } from '../../lib/rss'
 import { encodeArticleId } from '../../lib/encode'
+import { translateBatch } from '../../lib/translate'
+import { cookies } from 'next/headers'
 
 const CATEGORIES = [
   { label: 'Tutte', slug: '', icon: '' },
@@ -34,6 +36,9 @@ export default async function NewsPage({
   searchParams: Promise<{ categoria?: string; area?: string }>
 }) {
   const { categoria, area } = await searchParams
+  const cookieStore = await cookies()
+  const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
+
   const allArticles = await fetchArticles()
 
   const filtered = allArticles.filter((a) => {
@@ -41,6 +46,13 @@ export default async function NewsPage({
     const geoOk = !area || a.geo === area
     return catOk && geoOk
   })
+
+  // Traduci i titoli/summary nella lingua selezionata (max 50, con cache Redis)
+  const translated = await translateBatch(
+    filtered.slice(0, 50).map((a) => ({ title: a.title, summary: a.summary })),
+    lang
+  )
+  const filteredT = filtered.slice(0, 50).map((a, i) => ({ ...a, title: translated[i]?.title ?? a.title, summary: translated[i]?.summary ?? a.summary }))
 
   // Conteggio per area geografica
   const geoCounts = GEO.reduce((acc, g) => {
@@ -128,7 +140,7 @@ export default async function NewsPage({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {filtered.map((article, i) => {
+                {filteredT.map((article, i) => {
                   const analysisId = encodeArticleId(article.title)
                   return (
                     <div key={i} className="group rounded-xl border border-gray-800 bg-gray-900 hover:border-gray-600 hover:bg-gray-800 transition-all overflow-hidden">
