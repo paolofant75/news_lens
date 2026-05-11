@@ -3,6 +3,7 @@ import { searchAllSources, analyzeWithVeritas, extractQueryFromUrl, cleanSearchQ
 import { decodeArticleId } from '../../../lib/encode'
 import type { SourceAnalysis } from '../../../lib/veritas'
 import FiveWsCard from '../../../components/five-ws-card'
+import Approfondimenti from '../../../components/approfondimenti'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -235,6 +236,13 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
         </div>
+
+        {/* Approfondimenti */}
+        {result.approfondimenti?.length > 0 && (
+          <div className="mt-2 px-0">
+            <Approfondimenti items={result.approfondimenti} />
+          </div>
+        )}
       </div>
     </div>
   )

@@ -31,6 +31,7 @@ export type VeritasResult = {
   five_ws: FiveWs
   sources: SearchArticle[]
   analisi: SourceAnalysis[]
+  approfondimenti: string[]
 }
 
 async function searchNewsAPI(query: string): Promise<SearchArticle[]> {
@@ -218,8 +219,21 @@ Rispondi SOLO con JSON valido, senza testo aggiuntivo:
       "tipo_bias": "neutro",
       "nota": "una frase breve e oggettiva sulla copertura"
     }
+  ],
+  "approfondimenti": [
+    "Titolo approfondimento 1 — angolatura diversa (es. storica, economica, geopolitica, sociale, tecnologica)",
+    "Titolo approfondimento 2 — punto di vista completamente differente dal primo",
+    "Titolo approfondimento 3",
+    "Titolo approfondimento 4",
+    "Titolo approfondimento 5"
   ]
-}`
+}
+
+ISTRUZIONI PER approfondimenti:
+- Genera esattamente 5 titoli di ricerca correlati all'argomento, brevi (max 7 parole), in ${LANG_NAMES[lang] ?? lang}
+- Devono coprire angolature molto diverse: storica, economica, geopolitica, scientifica/tecnica, sociale/umana
+- Derivano dagli spunti presenti nelle fonti; se le fonti non offrono spunti sufficienti, usare la conoscenza AI per suggerire approfondimenti pertinenti e interessanti
+- Ogni titolo deve funzionare come query di ricerca autonoma`
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -244,6 +258,7 @@ Rispondi SOLO con JSON valido, senza testo aggiuntivo:
       five_ws: json.five_ws ?? { who: '', what: '', where: '', when: '', why: '' },
       sources: articles,
       analisi: json.analisi ?? [],
+      approfondimenti: Array.isArray(json.approfondimenti) ? json.approfondimenti.slice(0, 5) : [],
     }
   } catch {
     return {
@@ -252,6 +267,7 @@ Rispondi SOLO con JSON valido, senza testo aggiuntivo:
       five_ws: { who: '', what: '', where: '', when: '', why: '' },
       sources: articles,
       analisi: [],
+      approfondimenti: [],
     }
   }
 }

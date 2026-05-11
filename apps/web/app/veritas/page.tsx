@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import type { VeritasResult } from '../../lib/veritas'
 import LoadingQuote from '../../components/loading-quote'
+import Approfondimenti from '../../components/approfondimenti'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -161,6 +162,11 @@ export default function VeritasPage() {
                 })}
               </div>
             </div>
+
+            {/* Approfondimenti */}
+            {result.approfondimenti?.length > 0 && (
+              <Approfondimenti items={result.approfondimenti} />
+            )}
           </div>
         )}
       </div>
