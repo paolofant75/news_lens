@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { fetchArticles } from '../lib/rss'
+import CountryPanel from './country-panel'
 
 const NAV_ITEMS = [
   { href: '/news',      icon: '📰', label: 'Notizie',       badge: null },
@@ -59,6 +60,11 @@ export default async function Sidebar() {
               </Link>
             ))}
           </nav>
+        </div>
+
+        {/* Cerca per paese */}
+        <div>
+          <CountryPanel />
         </div>
 
         {/* Categorie */}

@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import "tailwindcss";
 
 /* ── Palette: Noir (default dark) ── */
 :root {
@@ -68,10 +68,16 @@
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font-b);
+  font-family: var(--font-b) !important;
   transition: background-color 0.2s, color 0.2s;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-h);
+h1, h2, h3, h4, h5, h6,
+.font-heading {
+  font-family: var(--font-h) !important;
+}
+
+/* Ensure font vars cascade to all children */
+* {
+  font-family: inherit;
 }

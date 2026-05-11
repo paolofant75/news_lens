@@ -103,7 +103,7 @@ export default function VeritasPage() {
         {result && (
           <div className="space-y-8">
             {/* Articolo consolidato */}
-            <div className="rounded-2xl p-8" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)', borderOpacity: 0.4 }}>
+            <div className="rounded-2xl p-8" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)' }}>
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-2xl">📰</span>
                 <div>

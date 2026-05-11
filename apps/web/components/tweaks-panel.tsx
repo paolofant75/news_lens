@@ -29,7 +29,6 @@ const FONTS = [
 ]
 
 const LAYOUTS = ['Magazine', 'Grid', 'Wire']
-const DENSITIES = ['Comfy', 'Dense']
 
 type Props = {
   palette: string
@@ -41,7 +40,6 @@ export default function TweaksPanel({ palette, font }: Props) {
   const [currentPalette, setCurrentPalette] = useState(palette)
   const [currentFont, setCurrentFont] = useState(font)
   const [layout, setLayout] = useState('Grid')
-  const [density, setDensity] = useState('Comfy')
   const router = useRouter()
 
   async function applyTheme(newPalette: string, newFont: string) {
@@ -168,26 +166,6 @@ export default function TweaksPanel({ palette, font }: Props) {
             </div>
           </div>
 
-          {/* Density */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>Densità</p>
-            <div className="flex gap-1.5">
-              {DENSITIES.map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setDensity(d)}
-                  className="flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors"
-                  style={{
-                    background: density === d ? 'var(--accent)' : 'var(--bg-card)',
-                    color: density === d ? '#fff' : 'var(--text)',
-                    border: '1px solid var(--border)',
-                  }}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </>
