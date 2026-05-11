@@ -4,9 +4,9 @@ async function checkSupabase() {
   const start = Date.now()
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/health`)
-    const data = await res.json()
-    const isOk = data.status === 'ok' || res.ok
-    return { ok: isOk, ms: Date.now() - start, message: data.status ?? 'ok' }
+    const text = await res.text()
+    const isOk = text.toLowerCase().includes('ok')
+    return { ok: isOk, ms: Date.now() - start, message: `HTTP ${res.status} — ${text.slice(0, 120)}` }
   } catch (e) {
     return { ok: false, ms: Date.now() - start, error: String(e) }
   }
