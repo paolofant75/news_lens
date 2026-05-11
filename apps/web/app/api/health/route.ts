@@ -3,14 +3,9 @@ import { NextResponse } from 'next/server'
 async function checkSupabase() {
   const start = Date.now()
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`, {
-      headers: {
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-      },
-    })
-    const text = await res.text()
-    return { ok: res.ok, ms: Date.now() - start, message: `HTTP ${res.status}: ${text.slice(0, 100)}` }
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/health`)
+    const data = await res.json()
+    return { ok: res.ok, ms: Date.now() - start, message: data.status ?? 'ok' }
   } catch (e) {
     return { ok: false, ms: Date.now() - start, error: String(e) }
   }
