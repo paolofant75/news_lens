@@ -1,3 +1,5 @@
+import { fetchArticles, timeAgo } from '../../lib/rss'
+
 const CATEGORIES = [
   { label: 'Tutte', slug: '' },
   { label: 'Ultime notizie', slug: 'breaking' },
@@ -13,23 +15,25 @@ const CATEGORIES = [
   { label: 'Cronaca', slug: 'cronaca' },
 ]
 
+export const revalidate = 300
+
 export default async function NewsPage({
   searchParams,
 }: {
   searchParams: Promise<{ categoria?: string }>
 }) {
   const { categoria } = await searchParams
-  const currentCat = CATEGORIES.find((c) => c.slug === categoria) ?? CATEGORIES[0]
+  const currentCat = CATEGORIES.find((c) => c.slug === (categoria ?? '')) ?? CATEGORIES[0]
+  const articles = await fetchArticles()
 
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Titolo */}
         <h1 className="text-3xl font-bold mb-6">
           {currentCat.slug === '' ? 'Tutte le notizie' : currentCat.label}
         </h1>
 
-        {/* Filtri categoria */}
+        {/* Filtri */}
         <div className="flex flex-wrap gap-2 mb-8">
           {CATEGORIES.map((cat) => (
             <a
@@ -46,22 +50,32 @@ export default async function NewsPage({
           ))}
         </div>
 
-        {/* Placeholder articoli */}
+        {/* Contatore */}
+        <p className="text-sm text-gray-500 mb-6">{articles.length} articoli da {new Set(articles.map(a => a.source)).size} fonti</p>
+
+        {/* Articoli */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <div className="h-3 bg-gray-700 rounded mb-3 w-1/3 animate-pulse" />
-              <div className="h-5 bg-gray-700 rounded mb-2 animate-pulse" />
-              <div className="h-5 bg-gray-700 rounded mb-4 w-3/4 animate-pulse" />
-              <div className="h-3 bg-gray-800 rounded mb-2 animate-pulse" />
-              <div className="h-3 bg-gray-800 rounded w-2/3 animate-pulse" />
-            </div>
+          {articles.map((article, i) => (
+            <a
+              key={i}
+              href={article.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group rounded-xl border border-gray-800 bg-gray-900 p-5 hover:border-gray-600 hover:bg-gray-800 transition-all"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-blue-400">{article.source}</span>
+                <span className="text-xs text-gray-500">{timeAgo(article.pubDate)}</span>
+              </div>
+              <h2 className="font-semibold text-white mb-2 leading-snug group-hover:text-blue-300 transition-colors line-clamp-3">
+                {article.title}
+              </h2>
+              {article.summary && (
+                <p className="text-sm text-gray-400 line-clamp-2">{article.summary}</p>
+              )}
+            </a>
           ))}
         </div>
-
-        <p className="text-center text-gray-600 mt-12 text-sm">
-          Connessione ai feed RSS in corso — Passo 2
-        </p>
       </div>
     </div>
   )
