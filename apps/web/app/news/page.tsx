@@ -1,4 +1,5 @@
 import { fetchArticles, timeAgo, biasColor } from '../../lib/rss'
+import { encodeArticleId } from '../../lib/encode'
 
 const CATEGORIES = [
   { label: 'Tutte', slug: '', icon: '' },
@@ -128,7 +129,7 @@ export default async function NewsPage({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {filtered.map((article, i) => {
-                  const analysisId = Buffer.from(article.title).toString('base64url')
+                  const analysisId = encodeArticleId(article.title)
                   return (
                     <div key={i} className="group rounded-xl border border-gray-800 bg-gray-900 hover:border-gray-600 hover:bg-gray-800 transition-all overflow-hidden">
                       <a href={`/articolo/${analysisId}`} className="block p-5">

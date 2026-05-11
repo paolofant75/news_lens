@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { encodeArticleId } from '../../lib/encode'
 
 type GlobePoint = {
   lat: number
@@ -140,7 +141,7 @@ export default function GlobeClient({ points }: Props) {
                 <p className="text-white font-semibold leading-snug mb-3">{selected.title}</p>
                 <div className="flex gap-3">
                   <a
-                    href={`/articolo/${Buffer.from(selected.title).toString('base64url')}`}
+                    href={`/articolo/${encodeArticleId(selected.title)}`}
                     className="text-xs px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                   >
                     ⚖️ Analisi Veritas

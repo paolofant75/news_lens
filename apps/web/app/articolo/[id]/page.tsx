@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { searchAllSources, analyzeWithVeritas, extractQueryFromUrl } from '../../../lib/veritas'
+import { decodeArticleId } from '../../../lib/encode'
 import type { SourceAnalysis } from '../../../lib/veritas'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
@@ -35,7 +36,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
   let query = ''
   try {
-    const decoded = Buffer.from(id, 'base64url').toString('utf-8')
+    const decoded = decodeArticleId(id)
     query = decoded.startsWith('http') ? extractQueryFromUrl(decoded) : decoded
   } catch {
     query = id
