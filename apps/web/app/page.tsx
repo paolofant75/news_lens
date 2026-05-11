@@ -1,63 +1,220 @@
 import Link from 'next/link'
+import { fetchArticles, timeAgo } from '../lib/rss'
 
-const CATEGORIES = [
-  { label: 'Ultime notizie', slug: 'breaking', icon: '🔴', desc: 'Breaking news in tempo reale' },
-  { label: 'Conflitti e crisi', slug: 'conflitti', icon: '⚔️', desc: 'Guerra, tensioni, crisi internazionali' },
-  { label: 'Politica', slug: 'politica', icon: '🏛️', desc: 'Governi, elezioni, diplomazia' },
-  { label: 'Economia e finanza', slug: 'economia', icon: '📈', desc: 'Mercati, banche, commercio globale' },
-  { label: 'Tecnologia e AI', slug: 'tecnologia', icon: '🤖', desc: 'Innovazione, big tech, intelligenza artificiale' },
-  { label: 'Scienza', slug: 'scienza', icon: '🔬', desc: 'Ricerca, scoperte, spazio' },
-  { label: 'Salute', slug: 'salute', icon: '🏥', desc: 'Medicina, epidemie, benessere' },
-  { label: 'Ambiente e clima', slug: 'ambiente', icon: '🌍', desc: 'Cambiamento climatico, energia, natura' },
-  { label: 'Sport', slug: 'sport', icon: '⚽', desc: 'Calcio, olimpiadi, competizioni mondiali' },
-  { label: 'Cultura e società', slug: 'cultura', icon: '🎭', desc: 'Arte, cinema, tendenze sociali' },
-  { label: 'Cronaca', slug: 'cronaca', icon: '📰', desc: 'Fatti del giorno da tutto il mondo' },
+const NAV_ITEMS = [
+  { href: '/news',      icon: '📰', label: 'Notizie',       badge: null },
+  { href: '/veritas',   icon: '⚖️', label: 'Veritas',       badge: 'AI' },
+  { href: '/mappa',     icon: '🌍', label: 'Mappa Globale', badge: null },
+  { href: '/dashboard', icon: '📡', label: 'API Status',    badge: null },
 ]
 
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Hero */}
-      <section className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <h1 className="text-5xl font-bold tracking-tight mb-4">
-          News Lens Veritas
-        </h1>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
-          Notizie globali da centinaia di fonti. Analisi anti-bias con AI.
-        </p>
-        <div className="flex gap-4 justify-center flex-wrap">
-          <Link
-            href="/news"
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
-          >
-            Esplora le notizie
-          </Link>
-          <Link
-            href="/mappa"
-            className="px-6 py-3 border border-gray-700 hover:bg-gray-900 rounded-lg font-semibold transition-colors"
-          >
-            Mappa mondiale
-          </Link>
-        </div>
-      </section>
+const CATEGORIES = [
+  { slug: 'breaking',   icon: '🔴', label: 'Breaking' },
+  { slug: 'conflitti',  icon: '⚔️', label: 'Conflitti' },
+  { slug: 'politica',   icon: '🏛️', label: 'Politica' },
+  { slug: 'economia',   icon: '📈', label: 'Economia' },
+  { slug: 'tecnologia', icon: '🤖', label: 'Tecnologia' },
+  { slug: 'scienza',    icon: '🔬', label: 'Scienza' },
+  { slug: 'salute',     icon: '🏥', label: 'Salute' },
+  { slug: 'ambiente',   icon: '🌿', label: 'Ambiente' },
+  { slug: 'sport',      icon: '⚽', label: 'Sport' },
+  { slug: 'cultura',    icon: '🎭', label: 'Cultura' },
+]
 
-      {/* Categorie */}
-      <section className="max-w-7xl mx-auto px-4 pb-16">
-        <h2 className="text-2xl font-bold mb-6 text-gray-100">Categorie</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {CATEGORIES.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/news?categoria=${cat.slug}`}
-              className="group p-5 rounded-xl border border-gray-800 bg-gray-900 hover:border-gray-600 hover:bg-gray-800 transition-all"
-            >
-              <div className="text-3xl mb-3">{cat.icon}</div>
-              <h3 className="font-semibold text-white mb-1">{cat.label}</h3>
-              <p className="text-sm text-gray-400">{cat.desc}</p>
-            </Link>
-          ))}
+export const revalidate = 300
+
+export default async function HomePage() {
+  const articles = await fetchArticles()
+  const top = articles.slice(0, 12)
+  const featured = articles[0]
+  const secondary = articles.slice(1, 5)
+
+  const catCounts = CATEGORIES.reduce((acc, c) => {
+    acc[c.slug] = articles.filter((a) => a.category === c.slug).length
+    return acc
+  }, {} as Record<string, number>)
+
+  return (
+    <div className="flex min-h-screen" style={{ background: 'var(--bg)' }}>
+
+      {/* ── Sidebar ── */}
+      <aside
+        className="hidden lg:flex flex-col w-56 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto"
+        style={{ background: 'var(--bg-s)', borderRight: '1px solid var(--border)' }}
+      >
+        <div className="p-4 space-y-6">
+          {/* Workspace */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2 px-2" style={{ color: 'var(--text-3)' }}>Workspace</p>
+            <nav className="space-y-0.5">
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:opacity-80"
+                  style={{ color: 'var(--text-2)' }}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </span>
+                  {item.badge && (
+                    <span className="text-xs px-1.5 py-0.5 rounded font-semibold text-white" style={{ background: 'var(--accent)' }}>
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Categorie */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2 px-2" style={{ color: 'var(--text-3)' }}>Categorie</p>
+            <nav className="space-y-0.5">
+              {CATEGORIES.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/news?categoria=${cat.slug}`}
+                  className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm transition-colors hover:opacity-80"
+                  style={{ color: 'var(--text-2)' }}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span>{cat.icon}</span>
+                    <span>{cat.label}</span>
+                  </span>
+                  <span className="text-xs" style={{ color: 'var(--text-3)' }}>{catCounts[cat.slug] ?? 0}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
-      </section>
+
+        {/* Footer sidebar */}
+        <div className="mt-auto p-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-3)' }}>
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span>Live · {articles.length} storie</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── Contenuto principale ── */}
+      <main className="flex-1 min-w-0">
+        <div className="max-w-5xl mx-auto px-4 py-8">
+
+          {/* Hero — notizia in evidenza */}
+          {featured && (
+            <div className="mb-10">
+              <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-3)' }}>
+                Today's Brief
+              </p>
+              <div
+                className="rounded-2xl p-8"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: 'var(--accent)' }}>
+                    {featured.category}
+                  </span>
+                  <span className="text-xs" style={{ color: 'var(--text-3)' }}>
+                    {featured.source} · {timeAgo(featured.pubDate)}
+                  </span>
+                </div>
+                <h1
+                  className="text-3xl font-bold leading-tight mb-3"
+                  style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}
+                >
+                  {featured.title}
+                </h1>
+                {featured.summary && (
+                  <p className="text-base mb-6 leading-relaxed" style={{ color: 'var(--text-2)' }}>
+                    {featured.summary}
+                  </p>
+                )}
+                <div className="flex gap-3">
+                  <Link
+                    href={`/articolo/${Buffer.from(featured.title).toString('base64url')}`}
+                    className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                    style={{ background: 'var(--accent)' }}
+                  >
+                    ⚖️ Analisi Veritas
+                  </Link>
+                  <a
+                    href={featured.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-opacity hover:opacity-80"
+                    style={{ background: 'var(--bg-s)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
+                  >
+                    Originale ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Griglia secondaria */}
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
+                Ultime notizie
+              </p>
+              <Link href="/news" className="text-xs hover:opacity-80" style={{ color: 'var(--accent)' }}>
+                Vedi tutte →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {secondary.map((article, i) => (
+                <Link
+                  key={i}
+                  href={`/news`}
+                  className="group p-5 rounded-xl transition-all hover:opacity-90"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>{article.source}</span>
+                    <span className="text-xs" style={{ color: 'var(--text-3)' }}>{timeAgo(article.pubDate)}</span>
+                  </div>
+                  <h3 className="font-semibold leading-snug line-clamp-2" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
+                    {article.title}
+                  </h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Feed compact */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-3)' }}>
+              Feed in diretta
+            </p>
+            <div className="space-y-px" style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
+              {top.slice(4).map((article, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-4 px-5 py-3.5 transition-all hover:opacity-80"
+                  style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}
+                >
+                  <span className="text-xs w-20 shrink-0 font-semibold truncate" style={{ color: 'var(--accent)' }}>
+                    {article.source}
+                  </span>
+                  <a
+                    href={article.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 text-sm truncate hover:underline"
+                    style={{ color: 'var(--text)' }}
+                  >
+                    {article.title}
+                  </a>
+                  <span className="text-xs shrink-0" style={{ color: 'var(--text-3)' }}>{timeAgo(article.pubDate)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }

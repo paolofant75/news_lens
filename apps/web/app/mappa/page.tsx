@@ -36,7 +36,7 @@ export default async function MappaPage() {
         link: article.link,
         category: article.category,
         color: CATEGORY_COLORS[article.category] ?? '#94a3b8',
-        size: Math.max(0.4, article.sourceReliability / 15),
+        size: Math.max(0.6, article.sourceReliability / 9),
         reliability: article.sourceReliability,
       })
     }

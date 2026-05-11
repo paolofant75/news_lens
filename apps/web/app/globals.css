@@ -1,46 +1,77 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
+/* ── Palette: Noir (default dark) ── */
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --primary: #1e3a8a;
-  --success: #15803d;
-  --warning: #ca8a04;
-  --danger: #b91c1c;
+  --bg:        #0a0a0a;
+  --bg-s:      #111111;
+  --bg-card:   #161616;
+  --border:    #222222;
+  --text:      #f1f1f1;
+  --text-2:    #9ca3af;
+  --text-3:    #6b7280;
+  --accent:    #eab308;
+  --accent-2:  #3b82f6;
+  --font-h:    var(--font-geist-sans), sans-serif;
+  --font-b:    var(--font-geist-sans), sans-serif;
+}
+
+/* ── Palette: Bureau (warm editorial) ── */
+[data-palette="bureau"] {
+  --bg:        #f7f4ef;
+  --bg-s:      #edeae3;
+  --bg-card:   #f2ede6;
+  --border:    #d4cfc7;
+  --text:      #1a1a1a;
+  --text-2:    #5c4f42;
+  --text-3:    #9c8878;
+  --accent:    #c0392b;
+  --accent-2:  #e67e22;
+}
+
+/* ── Palette: Arctic (clean light) ── */
+[data-palette="arctic"] {
+  --bg:        #ffffff;
+  --bg-s:      #f8fafc;
+  --bg-card:   #f1f5f9;
+  --border:    #e2e8f0;
+  --text:      #0f172a;
+  --text-2:    #475569;
+  --text-3:    #94a3b8;
+  --accent:    #0f4c81;
+  --accent-2:  #f59e0b;
+}
+
+/* ── Font: Tribune ── */
+[data-font="tribune"] {
+  --font-h: 'Instrument Serif', Georgia, serif;
+  --font-b: var(--font-geist-sans), sans-serif;
+}
+
+/* ── Font: Atlas ── */
+[data-font="atlas"] {
+  --font-h: 'Newsreader', Georgia, serif;
+  --font-b: 'Space Grotesk', sans-serif;
+}
+
+/* ── Font: Beacon ── */
+[data-font="beacon"] {
+  --font-h: 'Source Serif 4', Georgia, serif;
+  --font-b: 'IBM Plex Sans', sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #f5f5f5;
-  }
-}
-
-html.dark {
-  --background: #0a0a0a;
-  --foreground: #f5f5f5;
-}
-
-html.light {
-  --background: #ffffff;
-  --foreground: #000000;
-}
-
-* {
-  @apply border-gray-200 dark:border-gray-800;
-}
-
 body {
-  @apply bg-background text-foreground;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-b);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-h);
 }

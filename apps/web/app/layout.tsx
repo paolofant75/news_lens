@@ -1,41 +1,39 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { ClientThemeProvider } from "./theme-provider";
-import Navbar from "../components/navbar";
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
+import './globals.css'
+import { ClientThemeProvider } from './theme-provider'
+import Navbar from '../components/navbar'
+import ThemeStore from '../components/theme-store'
+import { cookies } from 'next/headers'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "News Lens Veritas",
-  description: "Global news aggregator with AI-powered anti-bias analysis",
-};
+  title: 'News Lens Veritas',
+  description: 'Global news aggregator with AI-powered anti-bias analysis',
+}
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies()
+  const palette = cookieStore.get('nlv_palette')?.value ?? 'noir'
+  const font = cookieStore.get('nlv_font')?.value ?? 'geist'
+
   return (
     <html
-      lang="en"
+      lang="it"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
+      data-palette={palette}
+      data-font={font}
     >
-      <body className="min-h-full flex flex-col bg-white dark:bg-black text-black dark:text-white transition-colors">
+      <body className="min-h-full flex flex-col transition-colors" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
         <ClientThemeProvider>
+          <ThemeStore palette={palette} font={font} />
           <Navbar />
           {children}
         </ClientThemeProvider>
       </body>
     </html>
-  );
+  )
 }
