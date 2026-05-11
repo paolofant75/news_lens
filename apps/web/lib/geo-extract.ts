@@ -6,7 +6,7 @@ export type CountryPoint = {
 }
 
 const COUNTRIES: { names: string[]; lat: number; lng: number; label: string; code: string }[] = [
-  { names: ['united states', 'usa', ' us ', 'washington', 'trump', 'white house', 'pentagon', 'congress', 'american'], lat: 38, lng: -97, label: 'USA', code: 'US' },
+  { names: ['united states', 'usa', ' us ', 'washington', 'trump', 'white house', 'pentagon', 'congress', 'american', 'alabama', 'alaska', 'arizona', 'california', 'colorado', 'florida', 'georgia', 'illinois', 'iowa', 'kansas', 'kentucky', 'louisiana', 'michigan', 'minnesota', 'mississippi', 'missouri', 'nevada', 'new jersey', 'new mexico', 'new york', 'north carolina', 'ohio', 'oklahoma', 'oregon', 'pennsylvania', 'tennessee', 'texas', 'virginia', 'wisconsin', 'u.s. senate', 'u.s. house', 'supreme court', 'federal reserve', 'republican', 'democrat', 'fbi', 'cia', 'doj'], lat: 38, lng: -97, label: 'USA', code: 'US' },
   { names: ['russia', 'moscow', 'kremlin', 'putin'], lat: 60, lng: 100, label: 'Russia', code: 'RU' },
   { names: ['china', 'beijing', 'shanghai', 'xi jinping', 'chinese'], lat: 35, lng: 105, label: 'Cina', code: 'CN' },
   { names: ['ukraine', 'kyiv', 'zelensky', 'ukraini'], lat: 49, lng: 32, label: 'Ucraina', code: 'UA' },
@@ -14,7 +14,7 @@ const COUNTRIES: { names: string[]; lat: number; lng: number; label: string; cod
   { names: ['iran', 'tehran', 'iranian', 'tehran'], lat: 32, lng: 53, label: 'Iran', code: 'IR' },
   { names: ['france', 'paris', 'macron', 'french'], lat: 46, lng: 2, label: 'Francia', code: 'FR' },
   { names: ['germany', 'berlin', 'german', 'bundesrat'], lat: 51, lng: 10, label: 'Germania', code: 'DE' },
-  { names: ['united kingdom', 'london', 'britain', 'british', 'downing street', 'starmer'], lat: 55, lng: -3, label: 'UK', code: 'GB' },
+  { names: ['united kingdom', 'london', 'britain', 'british', 'downing street', 'starmer', 'premier league', 'fa cup', 'wembley', 'tottenham', 'arsenal', 'chelsea', 'liverpool', 'manchester', 'leeds', 'everton', 'newcastle', 'aston villa', 'west ham', 'english football', 'scotland', 'wales', 'northern ireland', 'nhs', 'uk parliament', 'house of commons'], lat: 55, lng: -3, label: 'UK', code: 'GB' },
   { names: ['india', 'new delhi', 'modi', 'mumbai', 'indian'], lat: 20, lng: 78, label: 'India', code: 'IN' },
   { names: ['north korea', 'kim jong', 'pyongyang'], lat: 40, lng: 127, label: 'Corea del Nord', code: 'KP' },
   { names: ['south korea', 'seoul', 'korean'], lat: 37, lng: 127, label: 'Corea del Sud', code: 'KR' },
@@ -66,7 +66,7 @@ const GEO_FALLBACKS: Record<string, CountryPoint> = {
   'asia':          { lat: 30, lng: 100, label: 'Asia', code: 'AS' },
   'africa':        { lat: 5, lng: 25, label: 'Africa', code: 'AF' },
   'oceania':       { lat: -25, lng: 140, label: 'Oceania', code: 'OC' },
-  'mondo':         { lat: 40, lng: 0, label: 'Mondo', code: 'WO' },
+  'mondo':         { lat: 20, lng: -30, label: 'Mondo', code: 'WO' },
 }
 
 export function getCountryOrFallback(title: string, summary: string, geo: string): CountryPoint {

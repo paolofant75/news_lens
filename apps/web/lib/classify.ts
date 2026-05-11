@@ -94,8 +94,8 @@ export function geoClassify(title: string, summary: string): string {
   const t = (title + ' ' + summary).toLowerCase()
   if (/israel|palestin|iran|iraq|syria|saudi arabia|lebanon|jordan|yemen|persian gulf|middle east|hamas|hezbollah|gaza|west bank|tehran|riyadh/.test(t)) return 'medio-oriente'
   if (/\bchina\b|japan|india|\bsouth korea\b|\bnorth korea\b|taiwan|hong kong|singapore|myanmar|thailand|vietnam|beijing|tokyo|new delhi|pakistan|bangladesh/.test(t)) return 'asia'
-  if (/russia|ukraine|european union|\beu summit\b|brussels|nato|france|germany|italy|spain|\bunited kingdom\b|\buk\b|britain|poland|hungary|türkiye|turkey|nordic|scandinavia/.test(t)) return 'europa'
-  if (/united states|white house|washington d\.c\.|congress|trump|biden|harris|pentagon|canada|mexico|brazil|argentina|colombia|latin america|chile|venezuela/.test(t)) return 'americhe'
+  if (/russia|ukraine|european union|\beu summit\b|brussels|nato|france|germany|italy|spain|\bunited kingdom\b|\buk\b|britain|poland|hungary|türkiye|turkey|nordic|scandinavia|premier league|fa cup|bundesliga|serie a|la liga|ligue 1|tottenham|arsenal|chelsea|liverpool|manchester|leeds|everton|newcastle/.test(t)) return 'europa'
+  if (/united states|white house|washington d\.c\.|congress|trump|biden|harris|pentagon|canada|mexico|brazil|argentina|colombia|latin america|chile|venezuela|alabama|alaska|arizona|california|florida|georgia|illinois|michigan|new york|ohio|texas|tennessee|virginia|supreme court|federal reserve|republican|democrat|fbi|cia/.test(t)) return 'americhe'
   if (/\bafrica\b|nigeria|ethiopia|kenya|south africa|egypt|sudan|ghana|tanzania|congo|somalia|senegal|morocco|tunisia|sahel/.test(t)) return 'africa'
   if (/australia|new zealand|\bpacific islands\b|oceania|papua new guinea/.test(t)) return 'oceania'
   return 'mondo'
