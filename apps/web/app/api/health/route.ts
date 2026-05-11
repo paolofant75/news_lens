@@ -9,7 +9,8 @@ async function checkSupabase() {
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
       },
     })
-    return { ok: res.ok, ms: Date.now() - start }
+    const text = await res.text()
+    return { ok: res.ok, ms: Date.now() - start, message: `HTTP ${res.status}: ${text.slice(0, 100)}` }
   } catch (e) {
     return { ok: false, ms: Date.now() - start, error: String(e) }
   }
