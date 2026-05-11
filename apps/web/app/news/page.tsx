@@ -1,4 +1,4 @@
-import { fetchArticles, timeAgo } from '../../lib/rss'
+import { fetchArticles, timeAgo, biasColor } from '../../lib/rss'
 
 const CATEGORIES = [
   { label: 'Tutte', slug: '', icon: '' },
@@ -142,9 +142,15 @@ export default async function NewsPage({
                         {article.summary && (
                           <p className="text-sm text-gray-400 line-clamp-2 mb-3">{article.summary}</p>
                         )}
-                        <div className="flex gap-1.5 mb-2">
+                        <div className="flex flex-wrap gap-1.5 mb-2">
                           <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{article.category}</span>
                           <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-500">{article.geo}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full bg-gray-800 ${biasColor(article.sourceBias)}`}>
+                            {article.sourceBias}
+                          </span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-500">
+                            ★ {article.sourceReliability}
+                          </span>
                         </div>
                       </a>
                       <div className="px-5 pb-4 flex items-center justify-between border-t border-gray-800 pt-3">
