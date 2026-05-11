@@ -3,6 +3,7 @@ import { encodeArticleId } from '../../lib/encode'
 import { translateBatch } from '../../lib/translate'
 import { cookies } from 'next/headers'
 import PageLayout from '../../components/page-layout'
+import { TAXONOMY } from '../../lib/taxonomy'
 
 const CATEGORIES = [
   { label: 'Tutte', slug: '', icon: '' },
@@ -101,9 +102,9 @@ export const revalidate = 300
 export default async function NewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; area?: string; sport?: string }>
+  searchParams: Promise<{ categoria?: string; area?: string; sport?: string; taxonomy?: string }>
 }) {
-  const { categoria, area, sport } = await searchParams
+  const { categoria, area, sport, taxonomy } = await searchParams
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
 
@@ -111,13 +112,29 @@ export default async function NewsPage({
 
   const sportKws = sport ? (SPORT_KEYWORDS[sport] ?? []) : []
 
+  // Trova keywords del nodo tassonomia attivo
+  function findTaxNode(id: string, nodes = TAXONOMY): string[] {
+    for (const n of nodes) {
+      if (n.id === id) return n.keywords
+      if (n.children) {
+        const found = findTaxNode(id, n.children)
+        if (found.length) return found
+      }
+    }
+    return []
+  }
+  const taxKws = taxonomy ? findTaxNode(taxonomy) : []
+
   const filtered = allArticles.filter((a) => {
     const catOk = !categoria || a.category === categoria
     const geoOk = !area || a.geo === area
     const sportOk = !sport || sportKws.some((kw) =>
       (a.title + ' ' + a.summary).toLowerCase().includes(kw)
     )
-    return catOk && geoOk && sportOk
+    const taxOk = taxKws.length === 0 || taxKws.some((kw) =>
+      (a.title + ' ' + a.summary + ' ' + a.source).toLowerCase().includes(kw.toLowerCase())
+    )
+    return catOk && geoOk && sportOk && taxOk
   })
 
   // Traduci i titoli/summary nella lingua selezionata (max 50, con cache Redis)
@@ -153,21 +170,28 @@ export default async function NewsPage({
 
   return (
     <PageLayout>
-      <div className="max-w-5xl mx-auto px-4 py-6">
+      <div className="max-w-5xl mx-auto px-4 py-4">
 
-        {/* Categorie */}
-        <div className="overflow-x-auto pb-2 mb-6" style={{ borderBottom: '1px solid var(--border)' }}>
-          <div className="flex gap-1.5 min-w-max">
-            {CATEGORIES.map((cat) => (
-              <a key={cat.slug} href={buildUrl(cat.slug, area)}
-                className="px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-opacity hover:opacity-80"
-                style={cat.slug === (categoria ?? '')
+        {/* GEO IN ALTO */}
+        <div className="overflow-x-auto pb-3 mb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+          <div className="flex gap-1.5 min-w-max items-center">
+            <span className="text-xs font-semibold uppercase tracking-widest mr-2 shrink-0" style={{ color: 'var(--text-3)' }}>Area:</span>
+            {GEO.map((g) => (
+              <a key={g.slug} href={buildUrl(categoria, g.slug)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-opacity hover:opacity-80"
+                style={g.slug === (area ?? '')
                   ? { background: 'var(--accent)', color: '#fff' }
                   : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
               >
-                {cat.icon && <span className="mr-1">{cat.icon}</span>}{cat.label}
+                <span>{g.icon}</span>
+                <span>{g.label}</span>
+                <span className="text-xs opacity-70">{geoCounts[g.slug]}</span>
               </a>
             ))}
+            <a href="/mappa" className="px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-opacity hover:opacity-80 ml-2"
+              style={{ color: 'var(--accent)', border: '1px solid var(--border)' }}>
+              🗺️ Mappa
+            </a>
           </div>
         </div>
 
@@ -179,7 +203,7 @@ export default async function NewsPage({
                 <a key={s.slug} href={buildUrl(categoria, area, s.slug)}
                   className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-opacity hover:opacity-80"
                   style={s.slug === (sport ?? '')
-                    ? { background: 'var(--accent-2, #3b82f6)', color: '#fff' }
+                    ? { background: 'var(--accent)', color: '#fff' }
                     : { background: 'var(--bg-card)', color: 'var(--text-3)', border: '1px solid var(--border)' }}
                 >
                   {s.label}
@@ -189,33 +213,8 @@ export default async function NewsPage({
           </div>
         )}
 
-        <div className="flex gap-6">
-          {/* Sidebar geo */}
-          <aside className="w-44 shrink-0 hidden md:block">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3 px-1" style={{ color: 'var(--text-3)' }}>Area geografica</p>
-            <div className="flex flex-col gap-0.5">
-              {GEO.map((g) => (
-                <a key={g.slug} href={buildUrl(categoria, g.slug)}
-                  className="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-opacity hover:opacity-80"
-                  style={g.slug === (area ?? '')
-                    ? { background: 'var(--accent)', color: '#fff' }
-                    : { color: 'var(--text-2)' }}
-                >
-                  <span>{g.icon} {g.label}</span>
-                  <span className="text-xs" style={{ color: g.slug === (area ?? '') ? 'rgba(255,255,255,0.7)' : 'var(--text-3)' }}>
-                    {geoCounts[g.slug]}
-                  </span>
-                </a>
-              ))}
-            </div>
-            <a href="/mappa" className="mt-4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-opacity hover:opacity-80"
-              style={{ color: 'var(--accent)', border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-              🗺️ Vedi su mappa
-            </a>
-          </aside>
-
-          {/* Articoli */}
-          <div className="flex-1 min-w-0">
+        {/* Articoli */}
+        <div className="flex-1 min-w-0">
             <p className="text-sm mb-5" style={{ color: 'var(--text-3)' }}>
               {filtered.length} articoli · {new Set(filtered.map((a) => a.source)).size} fonti
             </p>
@@ -260,7 +259,6 @@ export default async function NewsPage({
               </div>
             )}
           </div>
-        </div>
       </div>
     </PageLayout>
   )

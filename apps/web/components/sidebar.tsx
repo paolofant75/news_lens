@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { fetchArticles } from '../lib/rss'
 import CountryPanel from './country-panel'
+import TaxonomyTree from './taxonomy-tree'
+import { buildCounts } from '../lib/taxonomy'
 
 const NAV_ITEMS = [
   { href: '/news',      icon: '📰', label: 'Notizie',       badge: null },
@@ -11,13 +13,15 @@ const NAV_ITEMS = [
 
 export default async function Sidebar() {
   const articles = await fetchArticles()
+  const counts = buildCounts(articles)
 
   return (
     <aside
-      className="hidden lg:flex flex-col w-56 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto"
+      className="hidden lg:flex flex-col w-60 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto"
       style={{ background: 'var(--bg-s)', borderRight: '1px solid var(--border)' }}
     >
-      <div className="p-4 space-y-5">
+      <div className="p-3 space-y-4">
+
         {/* Workspace */}
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-2 px-2" style={{ color: 'var(--text-3)' }}>
@@ -48,6 +52,14 @@ export default async function Sidebar() {
         {/* Cerca per paese */}
         <div>
           <CountryPanel />
+        </div>
+
+        {/* Tassonomia */}
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-2 px-2" style={{ color: 'var(--text-3)' }}>
+            Categorie
+          </p>
+          <TaxonomyTree counts={counts} />
         </div>
       </div>
 
