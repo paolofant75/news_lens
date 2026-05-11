@@ -13,7 +13,7 @@ export type SourceAnalysis = {
   indice: number
   completezza: number
   bias: number
-  tipo_bias: 'neutro' | 'politico' | 'sensazionalistico' | 'omissivo' | 'parziale'
+  tipo_bias: 'neutro' | 'politico' | 'sensazionalistico' | 'omissivo' | 'parziale' | 'non pertinente'
   nota: string
 }
 
