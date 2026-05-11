@@ -1,11 +1,15 @@
-export default function MappaPage() {
-  return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-6xl mb-4">🌍</div>
-        <h1 className="text-3xl font-bold mb-2">Mappa mondiale</h1>
-        <p className="text-gray-400">In arrivo — Passo 3</p>
-      </div>
-    </div>
-  )
+import MapClient from './map-client'
+import { fetchArticles } from '../../lib/rss'
+
+export const revalidate = 300
+
+export default async function MappaPage() {
+  const articles = await fetchArticles()
+
+  const counts: Record<string, number> = {}
+  for (const a of articles) {
+    counts[a.geo] = (counts[a.geo] ?? 0) + 1
+  }
+
+  return <MapClient articles={articles} counts={counts} />
 }
