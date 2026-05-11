@@ -1,5 +1,4 @@
 {
-  "extends": ["//"],
   "globalDependencies": ["**/.env.example"],
   "tasks": {
     "dev": {
