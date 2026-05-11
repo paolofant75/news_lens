@@ -1,3 +1,5 @@
+import { relevanceScore } from './classify'
+
 export type SearchArticle = {
   title: string
   link: string
@@ -97,8 +99,15 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
     ...(b.status === 'fulfilled' ? b.value : []),
     ...(c.status === 'fulfilled' ? c.value : []),
   ]
+
+  // Filtro rilevanza: rimuove articoli non pertinenti alla query (es. "Europa League" per query "europa")
+  const filtered = all.filter((x) => {
+    const score = relevanceScore(x.title + ' ' + x.content, query)
+    return score >= 0.3
+  })
+
   const seen = new Set<string>()
-  return all
+  return filtered
     .filter((x) => {
       const key = x.title.toLowerCase().slice(0, 50)
       if (seen.has(key)) return false
