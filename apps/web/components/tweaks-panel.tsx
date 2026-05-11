@@ -7,25 +7,20 @@ const PALETTES = [
   {
     id: 'noir',
     label: 'Noir',
+    desc: 'Scuro',
     colors: ['#0a0a0a', '#eab308', '#3b82f6', '#f1f1f1'],
   },
   {
     id: 'bureau',
     label: 'Bureau',
+    desc: 'Chiaro',
     colors: ['#f7f4ef', '#c0392b', '#e67e22', '#1a1a1a'],
-  },
-  {
-    id: 'arctic',
-    label: 'Arctic',
-    colors: ['#ffffff', '#0f4c81', '#f59e0b', '#0f172a'],
   },
 ]
 
 const FONTS = [
-  { id: 'geist',   label: 'Geist',   sub: 'Geist Sans · Mono' },
-  { id: 'tribune', label: 'Tribune', sub: 'Instrument · Geist' },
-  { id: 'atlas',   label: 'Atlas',   sub: 'Newsreader · Space Grotesk' },
-  { id: 'beacon',  label: 'Beacon',  sub: 'Source Serif · IBM Plex' },
+  { id: 'geist',  label: 'Geist',  sub: 'Sans-serif moderno' },
+  { id: 'atlas',  label: 'Atlas',  sub: 'Newsreader · editoriale' },
 ]
 
 const LAYOUTS = ['Magazine', 'Grid', 'Wire']

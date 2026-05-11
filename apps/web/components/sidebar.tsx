@@ -9,25 +9,8 @@ const NAV_ITEMS = [
   { href: '/dashboard', icon: '📡', label: 'API Status',    badge: null },
 ]
 
-const CATEGORIES = [
-  { slug: 'breaking',   icon: '🔴', label: 'Breaking' },
-  { slug: 'conflitti',  icon: '⚔️', label: 'Conflitti' },
-  { slug: 'politica',   icon: '🏛️', label: 'Politica' },
-  { slug: 'economia',   icon: '📈', label: 'Economia' },
-  { slug: 'tecnologia', icon: '🤖', label: 'Tecnologia' },
-  { slug: 'scienza',    icon: '🔬', label: 'Scienza' },
-  { slug: 'salute',     icon: '🏥', label: 'Salute' },
-  { slug: 'ambiente',   icon: '🌿', label: 'Ambiente' },
-  { slug: 'sport',      icon: '⚽', label: 'Sport' },
-  { slug: 'cultura',    icon: '🎭', label: 'Cultura' },
-]
-
 export default async function Sidebar() {
   const articles = await fetchArticles()
-  const catCounts = CATEGORIES.reduce((acc, c) => {
-    acc[c.slug] = articles.filter((a) => a.category === c.slug).length
-    return acc
-  }, {} as Record<string, number>)
 
   return (
     <aside
@@ -65,31 +48,6 @@ export default async function Sidebar() {
         {/* Cerca per paese */}
         <div>
           <CountryPanel />
-        </div>
-
-        {/* Categorie */}
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2 px-2" style={{ color: 'var(--text-3)' }}>
-            Categorie
-          </p>
-          <nav className="space-y-0.5">
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/news?categoria=${cat.slug}`}
-                className="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm transition-all hover:opacity-80"
-                style={{ color: 'var(--text-2)' }}
-              >
-                <span className="flex items-center gap-2.5">
-                  <span>{cat.icon}</span>
-                  <span>{cat.label}</span>
-                </span>
-                <span className="text-xs tabular-nums" style={{ color: 'var(--text-3)' }}>
-                  {catCounts[cat.slug] ?? 0}
-                </span>
-              </Link>
-            ))}
-          </nav>
         </div>
       </div>
 

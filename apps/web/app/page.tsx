@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { fetchArticles, timeAgo } from '../lib/rss'
 import { translateBatch } from '../lib/translate'
 import { cookies } from 'next/headers'
+import HomeNewsFeed from '../components/home-news-feed'
+import { encodeArticleId } from '../lib/encode'
 
 const NAV_ITEMS = [
   { href: '/news',      icon: '📰', label: 'Notizie',       badge: null },
@@ -146,7 +148,7 @@ export default async function HomePage() {
                 )}
                 <div className="flex gap-3">
                   <Link
-                    href={`/articolo/${Buffer.from(featured.title).toString('base64url')}`}
+                    href={`/articolo/${encodeArticleId(featured.title)}`}
                     className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
                     style={{ background: 'var(--accent)' }}
                   >
@@ -196,35 +198,8 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Feed compact */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-3)' }}>
-              Feed in diretta
-            </p>
-            <div className="space-y-px" style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
-              {top.slice(4).map((article, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-4 px-5 py-3.5 transition-all hover:opacity-80"
-                  style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}
-                >
-                  <span className="text-xs w-20 shrink-0 font-semibold truncate" style={{ color: 'var(--accent)' }}>
-                    {article.source}
-                  </span>
-                  <a
-                    href={article.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 text-sm truncate hover:underline"
-                    style={{ color: 'var(--text)' }}
-                  >
-                    {article.title}
-                  </a>
-                  <span className="text-xs shrink-0" style={{ color: 'var(--text-3)' }}>{timeAgo(article.pubDate)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Feed con toggle griglia/lista */}
+          <HomeNewsFeed articles={top.slice(4)} />
         </div>
       </main>
     </div>
