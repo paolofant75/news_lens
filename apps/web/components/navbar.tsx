@@ -31,8 +31,8 @@ export default async function Navbar() {
           </div>
         </Link>
 
-        {/* Nav */}
-        <nav className="flex items-center gap-5 text-sm">
+        {/* Nav — hidden on mobile (use bottom tab bar) */}
+        <nav className="hidden md:flex items-center gap-5 text-sm">
           <Link href="/news" className="hover:opacity-80 transition-opacity" style={{ color: 'var(--text-2)' }}>
             Notizie
           </Link>

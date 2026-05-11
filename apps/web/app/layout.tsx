@@ -4,6 +4,7 @@ import './globals.css'
 import { ClientThemeProvider } from './theme-provider'
 import Navbar from '../components/navbar'
 import ThemeStore from '../components/theme-store'
+import MobileNav from '../components/mobile-nav'
 import { cookies } from 'next/headers'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -32,6 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ThemeStore palette={palette} font={font} />
           <Navbar />
           {children}
+          <MobileNav />
         </ClientThemeProvider>
       </body>
     </html>
