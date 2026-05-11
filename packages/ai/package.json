@@ -1,0 +1,16 @@
+{
+  "name": "@news-lens-veritas/ai",
+  "version": "0.1.0",
+  "description": "AI provider abstraction layer",
+  "main": "index.ts",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.28.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@news-lens-veritas/core",
+  "version": "0.1.0",
+  "description": "Core types and utilities",
+  "main": "index.ts",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

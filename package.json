@@ -1,0 +1,20 @@
+{
+  "name": "news-lens-veritas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Global news aggregator with AI-powered anti-bias analysis",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

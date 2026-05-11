@@ -1,0 +1,19 @@
+{
+  "extends": ["//"],
+  "globalDependencies": ["**/.env.example"],
+  "tasks": {
+    "dev": {
+      "cache": false
+    },
+    "build": {
+      "outputs": [".next/**", "dist/**"],
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "type-check": {
+      "outputs": []
+    }
+  }
+}
