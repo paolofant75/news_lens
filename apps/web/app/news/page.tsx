@@ -171,57 +171,66 @@ export default async function NewsPage({
 
   return (
     <PageLayout>
-      <div className="max-w-5xl mx-auto px-4 py-4">
+      <div className="flex min-h-screen">
 
-        {/* GEO IN ALTO */}
-        <div className="overflow-x-auto pb-3 mb-4" style={{ borderBottom: '1px solid var(--border)' }}>
-          <div className="flex gap-1.5 min-w-max items-center">
-            <span className="text-xs font-semibold uppercase tracking-widest mr-2 shrink-0" style={{ color: 'var(--text-3)' }}>Area:</span>
-            {GEO.map((g) => (
-              <a key={g.slug} href={buildUrl(categoria, g.slug)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-opacity hover:opacity-80"
-                style={g.slug === (area ?? '')
-                  ? { background: 'var(--accent)', color: '#fff' }
-                  : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
-              >
-                <span>{g.icon}</span>
-                <span>{g.label}</span>
-                <span className="text-xs opacity-70">{geoCounts[g.slug]}</span>
-              </a>
-            ))}
-            <a href="/mappa" className="px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-opacity hover:opacity-80 ml-2"
-              style={{ color: 'var(--accent)', border: '1px solid var(--border)' }}>
-              🗺️ Mappa
+        {/* GEO — colonna sinistra */}
+        <aside
+          className="hidden lg:flex flex-col w-36 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto py-4 px-2 gap-1"
+          style={{ borderRight: '1px solid var(--border)', background: 'var(--bg-s)' }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest mb-1 px-1" style={{ color: 'var(--text-3)' }}>Area</p>
+          {GEO.map((g) => (
+            <a
+              key={g.slug}
+              href={buildUrl(categoria, g.slug)}
+              className="flex flex-col items-center gap-0.5 px-2 py-2.5 rounded-xl text-xs font-medium text-center transition-opacity hover:opacity-80"
+              style={g.slug === (area ?? '')
+                ? { background: 'var(--accent)', color: '#fff' }
+                : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
+            >
+              <span className="text-lg leading-none">{g.icon}</span>
+              <span className="leading-tight mt-0.5">{g.label}</span>
+              <span className="opacity-60 text-[10px]">{geoCounts[g.slug]}</span>
             </a>
-          </div>
-        </div>
+          ))}
+          <a
+            href="/mappa"
+            className="flex flex-col items-center gap-0.5 px-2 py-2.5 rounded-xl text-xs text-center transition-opacity hover:opacity-80 mt-1"
+            style={{ color: 'var(--accent)', border: '1px solid var(--border)', background: 'var(--bg-card)' }}
+          >
+            <span className="text-lg leading-none">🗺️</span>
+            <span>Mappa</span>
+          </a>
+        </aside>
 
-        {/* Sottocategorie sport */}
-        {categoria === 'sport' && (
-          <div className="overflow-x-auto pb-2 mb-4" style={{ borderBottom: '1px solid var(--border)' }}>
-            <div className="flex gap-1.5 min-w-max">
-              {SPORTS.map((s) => (
-                <a key={s.slug} href={buildUrl(categoria, area, s.slug)}
-                  className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-opacity hover:opacity-80"
-                  style={s.slug === (sport ?? '')
-                    ? { background: 'var(--accent)', color: '#fff' }
-                    : { background: 'var(--bg-card)', color: 'var(--text-3)', border: '1px solid var(--border)' }}
-                >
-                  {s.label}
-                </a>
-              ))}
+        {/* Contenuto principale */}
+        <div className="flex-1 min-w-0 px-4 py-4">
+
+          {/* Sottocategorie sport */}
+          {categoria === 'sport' && (
+            <div className="overflow-x-auto pb-2 mb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+              <div className="flex gap-1.5 min-w-max">
+                {SPORTS.map((s) => (
+                  <a key={s.slug} href={buildUrl(categoria, area, s.slug)}
+                    className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-opacity hover:opacity-80"
+                    style={s.slug === (sport ?? '')
+                      ? { background: 'var(--accent)', color: '#fff' }
+                      : { background: 'var(--bg-card)', color: 'var(--text-3)', border: '1px solid var(--border)' }}
+                  >
+                    {s.label}
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Articoli */}
-        <div className="flex-1 min-w-0">
-            <NewsArticleGrid
-              articles={filteredT}
-              count={filtered.length}
-              sourceCount={new Set(filtered.map((a) => a.source)).size}
-            />
-          </div>
+          {/* Articoli */}
+          <NewsArticleGrid
+            articles={filteredT}
+            count={filtered.length}
+            sourceCount={new Set(filtered.map((a) => a.source)).size}
+          />
+        </div>
       </div>
     </PageLayout>
   )

@@ -105,6 +105,7 @@ export default function TaxonomyTree({ counts, activeId }: Props) {
       params.delete('taxonomy')
     } else {
       params.set('taxonomy', id)
+      params.delete('categoria')
     }
     router.push(`/news?${params.toString()}`)
   }

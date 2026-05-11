@@ -32,58 +32,79 @@ function generateSVG(title: string, fw: FiveWs, palette: string): string {
   const textColor = isDark ? '#f1f1f1' : '#1a1a1a'
   const textSecondary = isDark ? '#9ca3af' : '#5c4f42'
   const border = isDark ? '#2a2a2a' : '#d4cfc7'
+  const headerText = isDark ? '#000000' : '#ffffff'
+  const headerTextSub = isDark ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.75)'
 
-  const titleLines = wrapText(title, 55)
-  const W = 800
-  const titleH = titleLines.length * 38
+  const W = 1080
+  const H = 1920
+  const pad = 60
+
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+  // Title: font 44, ~36 chars/line
+  const titleLines = wrapText(title, 36)
+  const titleY = 220
+  const titleBlockH = titleLines.length * 54
+
+  // Cards: 5 cards filling space below title to footer
+  const cardsTop = titleY + titleBlockH + 60
+  const cardsBottom = H - 120
+  const cardH = Math.floor((cardsBottom - cardsTop) / 5) - 10
+  const lineH = 28
+
   const rows = [
-    { key: 'WHO',   val: fw.who },
-    { key: 'WHAT',  val: fw.what },
-    { key: 'WHERE', val: fw.where },
-    { key: 'WHEN',  val: fw.when },
-    { key: 'WHY',   val: fw.why },
+    { key: 'WHO',   label: 'CHI',   val: fw.who },
+    { key: 'WHAT',  label: 'COSA',  val: fw.what },
+    { key: 'WHERE', label: 'DOVE',  val: fw.where },
+    { key: 'WHEN',  label: 'QUANDO',val: fw.when },
+    { key: 'WHY',   label: 'PERCHÉ',val: fw.why },
   ]
-  const rowHeight = 70
-  const H = 100 + 30 + titleH + 20 + rows.length * rowHeight + 80
 
-  const rowsHtml = rows.map((r, i) => {
-    const y = 100 + 30 + titleH + 20 + i * rowHeight
-    const valLines = wrapText(r.val || '–', 58)
+  const cardsHtml = rows.map((r, i) => {
+    const y = cardsTop + i * (cardH + 10)
+    const valLines = wrapText(r.val || '–', 52)
+    const maxLines = Math.floor((cardH - 70) / lineH)
     return `
-      <rect x="40" y="${y}" width="${W - 80}" height="${rowHeight - 8}" rx="8" fill="${surface}" stroke="${border}" stroke-width="1"/>
-      <text x="60" y="${y + 24}" font-family="Georgia, serif" font-size="11" font-weight="700" fill="${accent}" letter-spacing="2">${r.key}</text>
-      ${valLines.slice(0, 2).map((line, li) =>
-        `<text x="130" y="${y + 24 + li * 18}" font-family="Georgia, serif" font-size="13" fill="${textColor}">${line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</text>`
+      <rect x="${pad}" y="${y}" width="${W - pad * 2}" height="${cardH}" rx="16" fill="${surface}" stroke="${border}" stroke-width="1.5"/>
+      <rect x="${pad}" y="${y}" width="8" height="${cardH}" rx="4" fill="${accent}"/>
+      <text x="${pad + 28}" y="${y + 42}" font-family="Georgia, serif" font-size="13" font-weight="700" fill="${accent}" letter-spacing="3">${r.key} · ${r.label}</text>
+      <line x1="${pad + 28}" y1="${y + 55}" x2="${W - pad - 20}" y2="${y + 55}" stroke="${border}" stroke-width="1"/>
+      ${valLines.slice(0, maxLines).map((line, li) =>
+        `<text x="${pad + 28}" y="${y + 80 + li * lineH}" font-family="Georgia, serif" font-size="20" fill="${textColor}">${esc(line)}</text>`
       ).join('')}
     `
   }).join('')
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <!-- Background -->
   <rect width="${W}" height="${H}" fill="${bg}"/>
 
-  <!-- Header bar -->
-  <rect x="0" y="0" width="${W}" height="80" fill="${accent}"/>
-  <text x="30" y="32" font-family="Georgia, serif" font-size="18" font-weight="700" fill="${isDark ? '#000' : '#fff'}" letter-spacing="1">⚖ VERITAS LENS</text>
-  <text x="30" y="55" font-family="Georgia, serif" font-size="12" fill="${isDark ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)'}">News, refracted · Five Ws Analysis</text>
-  <text x="${W - 30}" y="46" text-anchor="end" font-family="Georgia, serif" font-size="11" fill="${isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)'}">${new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}</text>
+  <!-- Header -->
+  <rect x="0" y="0" width="${W}" height="160" fill="${accent}"/>
+  <text x="${pad}" y="68" font-family="Georgia, serif" font-size="28" font-weight="700" fill="${headerText}" letter-spacing="2">⚖ VERITAS LENS</text>
+  <text x="${pad}" y="104" font-family="Georgia, serif" font-size="18" fill="${headerTextSub}">News, refracted · Five Ws Analysis</text>
+  <text x="${W - pad}" y="104" text-anchor="end" font-family="Georgia, serif" font-size="16" fill="${headerTextSub}">${new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })}</text>
+
+  <!-- Accent line -->
+  <rect x="0" y="160" width="${W}" height="4" fill="${accent}" opacity="0.3"/>
 
   <!-- Title -->
-  <line x1="40" y1="100" x2="${W - 40}" y2="100" stroke="${border}" stroke-width="1"/>
+  <line x1="${pad}" y1="${titleY - 24}" x2="${W - pad}" y2="${titleY - 24}" stroke="${border}" stroke-width="1.5"/>
   ${titleLines.map((line, i) =>
-    `<text x="40" y="${132 + i * 38}" font-family="Georgia, serif" font-size="26" font-weight="700" fill="${textColor}">${line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</text>`
+    `<text x="${pad}" y="${titleY + i * 54}" font-family="Georgia, serif" font-size="44" font-weight="700" fill="${textColor}">${esc(line)}</text>`
   ).join('')}
+  <line x1="${pad}" y1="${titleY + titleBlockH + 20}" x2="${W - pad}" y2="${titleY + titleBlockH + 20}" stroke="${border}" stroke-width="1.5"/>
 
-  <!-- 5Ws rows -->
-  ${rowsHtml}
+  <!-- 5W Cards -->
+  ${cardsHtml}
 
   <!-- Footer -->
-  <rect x="0" y="${H - 44}" width="${W}" height="44" fill="${surface}"/>
-  <line x1="0" y1="${H - 44}" x2="${W}" y2="${H - 44}" stroke="${border}" stroke-width="1"/>
-  <text x="30" y="${H - 16}" font-family="Georgia, serif" font-size="11" fill="${textSecondary}">Generato da Veritas Lens · news-lens-psi.vercel.app</text>
-  <circle cx="${W - 30}" cy="${H - 22}" r="8" fill="${accent}"/>
-  <text x="${W - 30}" y="${H - 18}" text-anchor="middle" font-family="Georgia" font-size="10" font-weight="bold" fill="${isDark ? '#000' : '#fff'}">V</text>
+  <rect x="0" y="${H - 100}" width="${W}" height="100" fill="${surface}"/>
+  <line x1="0" y1="${H - 100}" x2="${W}" y2="${H - 100}" stroke="${border}" stroke-width="1.5"/>
+  <text x="${pad}" y="${H - 52}" font-family="Georgia, serif" font-size="18" fill="${textSecondary}">Generato da Veritas Lens</text>
+  <text x="${pad}" y="${H - 24}" font-family="Georgia, serif" font-size="14" fill="${textSecondary}" opacity="0.6">news-lens-psi.vercel.app</text>
+  <circle cx="${W - pad}" cy="${H - 50}" r="28" fill="${accent}"/>
+  <text x="${W - pad}" y="${H - 42}" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="${headerText}">V</text>
 </svg>`
 }
 

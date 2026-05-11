@@ -156,11 +156,11 @@ Rispondi SOLO con JSON valido, senza testo aggiuntivo:
 {
   "articolo_consolidato": "testo articolo professionale",
   "five_ws": {
-    "who": "Soggetti principali coinvolti (persone, organizzazioni, governi)",
-    "what": "Cosa è accaduto esattamente",
-    "where": "Luogo/luoghi dell'evento",
-    "when": "Quando è accaduto con date/orari precisi",
-    "why": "Motivo/causa/contesto dell'evento"
+    "who": "2-3 frasi: nomi completi, ruoli istituzionali, affiliazioni politiche/organizzative dei soggetti principali e delle parti coinvolte",
+    "what": "2-3 frasi: descrizione precisa degli eventi, cifre e dati numerici se disponibili, sviluppi cronologici principali",
+    "where": "1-2 frasi: luoghi specifici con contesto geografico e geopolitico rilevante",
+    "when": "1-2 frasi: date precise, sequenza temporale degli eventi, durata se pertinente",
+    "why": "2-3 frasi: cause profonde, motivazioni dichiarate e reali, contesto storico-politico e possibili implicazioni future"
   },
   "analisi": [
     {
@@ -184,7 +184,7 @@ Rispondi SOLO con JSON valido, senza testo aggiuntivo:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 2500,
+        max_tokens: 3500,
         messages: [{ role: 'user', content: prompt }],
       }),
     })
