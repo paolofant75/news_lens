@@ -1,4 +1,3 @@
-import { relevanceScore } from './classify'
 import { LANG_NAMES } from './translate'
 
 export type SearchArticle = {
@@ -114,40 +113,64 @@ export function cleanSearchQuery(title: string): string {
   return words.slice(0, 8).join(' ')
 }
 
-export async function searchAllSources(query: string): Promise<SearchArticle[]> {
-  const [a, b, c] = await Promise.allSettled([
-    searchNewsAPI(query),
-    searchGuardian(query),
-    searchGNews(query),
-  ])
-  const all = [
-    ...(a.status === 'fulfilled' ? a.value : []),
-    ...(b.status === 'fulfilled' ? b.value : []),
-    ...(c.status === 'fulfilled' ? c.value : []),
-  ]
-
-  // Filtro rilevanza: rimuove articoli non pertinenti alla query (es. "Europa League" per query "europa")
-  const filtered = all.filter((x) => {
-    const score = relevanceScore(x.title + ' ' + x.content, query)
-    return score >= 0.2
-  })
-
-  // Deduplica per source (una sola notizia per testata, la più rilevante)
-  const bySource = new Map<string, SearchArticle>()
-  for (const x of filtered) {
-    const sourceKey = x.source.toLowerCase().trim()
-    if (!bySource.has(sourceKey)) {
-      bySource.set(sourceKey, x)
-    } else {
-      // Tieni quella con score rilevanza più alta
-      const existing = bySource.get(sourceKey)!
-      if (relevanceScore(x.title + ' ' + x.content, query) > relevanceScore(existing.title + ' ' + existing.content, query)) {
-        bySource.set(sourceKey, x)
-      }
+async function expandQuery(query: string): Promise<string[]> {
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 120,
+        messages: [{
+          role: 'user',
+          content: `You are a news search expert. Given a query (any language), return a JSON array of exactly 3 English search terms suitable for news APIs, ordered from most specific to most general. Return ONLY valid JSON, no other text.\n\nQuery: "${query}"\n\nExample: "prezzo petrolio" → ["oil price crude", "OPEC production cut", "energy market"]`,
+        }],
+      }),
+    })
+    const data = await res.json()
+    const text = (data.content?.[0]?.text ?? '').replace(/```json?\n?|\n?```/g, '').trim()
+    const arr = JSON.parse(text)
+    if (Array.isArray(arr) && arr.length > 0) {
+      return arr.slice(0, 3).filter((x: unknown) => typeof x === 'string' && x.length > 0)
     }
+  } catch { /* fall through */ }
+  return [query]
+}
+
+export async function searchAllSources(query: string): Promise<SearchArticle[]> {
+  // Espandi la query in inglese con termini correlati
+  const terms = await expandQuery(query)
+
+  // Cerca con tutti i termini in parallelo su tutte le API
+  const searches = await Promise.allSettled(
+    terms.flatMap((term) => [
+      searchNewsAPI(term),
+      searchGuardian(term),
+      searchGNews(term),
+    ])
+  )
+  const all = searches
+    .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
+    .flatMap((r) => r.value)
+
+  // Deduplica per URL (stessa notizia da API diverse)
+  const byUrl = new Map<string, SearchArticle>()
+  for (const x of all) {
+    if (!byUrl.has(x.link)) byUrl.set(x.link, x)
   }
 
-  return Array.from(bySource.values()).slice(0, 12)
+  // Deduplica per source (una per testata)
+  const bySource = new Map<string, SearchArticle>()
+  for (const x of byUrl.values()) {
+    const key = x.source.toLowerCase().trim()
+    if (!bySource.has(key)) bySource.set(key, x)
+  }
+
+  return Array.from(bySource.values()).slice(0, 14)
 }
 
 export async function analyzeWithVeritas(query: string, articles: SearchArticle[], lang = 'it'): Promise<VeritasResult> {
