@@ -98,6 +98,22 @@ export function extractQueryFromUrl(input: string): string {
   }
 }
 
+export function cleanSearchQuery(title: string): string {
+  if (title.startsWith('http')) return extractQueryFromUrl(title)
+  let q = title
+  // Remove trailing noise after – or | (e.g. "– latest news", "| BBC")
+  q = q.replace(/\s*[–—|]\s*(latest|breaking|live|watch|in full|analysis|explainer|fact.?check|bbc|cnn|guardian|npr|reuters).*$/i, '')
+  // Remove noise phrases wherever they appear
+  q = q.replace(/\b(live updates?|live blog|latest news|latest updates?|breaking news|as it happened|in full|developing story|watch live)\b/gi, '')
+  // Remove punctuation separators
+  q = q.replace(/[–—:|]/g, ' ')
+  // Collapse whitespace
+  q = q.trim().replace(/\s+/g, ' ')
+  // Keep first 8 meaningful words
+  const words = q.split(' ').filter((w) => w.length > 1)
+  return words.slice(0, 8).join(' ')
+}
+
 export async function searchAllSources(query: string): Promise<SearchArticle[]> {
   const [a, b, c] = await Promise.allSettled([
     searchNewsAPI(query),
@@ -113,7 +129,7 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
   // Filtro rilevanza: rimuove articoli non pertinenti alla query (es. "Europa League" per query "europa")
   const filtered = all.filter((x) => {
     const score = relevanceScore(x.title + ' ' + x.content, query)
-    return score >= 0.3
+    return score >= 0.2
   })
 
   // Deduplica per source (una sola notizia per testata, la più rilevante)

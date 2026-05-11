@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers'
-import { searchAllSources, analyzeWithVeritas, extractQueryFromUrl } from '../../../lib/veritas'
+import { searchAllSources, analyzeWithVeritas, extractQueryFromUrl, cleanSearchQuery } from '../../../lib/veritas'
 import { decodeArticleId } from '../../../lib/encode'
 import type { SourceAnalysis } from '../../../lib/veritas'
 import FiveWsCard from '../../../components/five-ws-card'
@@ -37,15 +37,50 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   const palette = cookieStore.get('nlv_palette')?.value ?? 'noir'
 
   let query = ''
+  let searchQuery = ''
   try {
     const decoded = decodeArticleId(id)
     query = decoded.startsWith('http') ? extractQueryFromUrl(decoded) : decoded
+    searchQuery = cleanSearchQuery(query)
   } catch {
     query = id
+    searchQuery = id
   }
 
-  const articles = await searchAllSources(query)
-  const result = await analyzeWithVeritas(query, articles, lang)
+  const articles = await searchAllSources(searchQuery)
+
+  if (articles.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
+        <div className="max-w-xl text-center px-6">
+          <div className="text-5xl mb-6">🔍</div>
+          <h1 className="text-xl font-bold mb-3" style={{ fontFamily: 'var(--font-h)' }}>Nessuna fonte trovata</h1>
+          <p className="text-sm mb-2" style={{ color: 'var(--text-2)' }}>
+            Le API di notizie non hanno restituito risultati per:
+          </p>
+          <p className="text-sm font-mono px-4 py-2 rounded-lg mb-6" style={{ background: 'var(--bg-card)', color: 'var(--accent)', border: '1px solid var(--border)' }}>
+            &ldquo;{searchQuery}&rdquo;
+          </p>
+          <p className="text-xs mb-8" style={{ color: 'var(--text-3)' }}>
+            Possibili cause: notizia troppo recente, argomento non coperto dalle API gratuite, o limite di quota raggiunto.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <a href="/news" className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-opacity hover:opacity-80"
+              style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text-2)' }}>
+              ← Torna alle notizie
+            </a>
+            <a href={`/veritas?q=${encodeURIComponent(searchQuery)}`}
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-80"
+              style={{ background: 'var(--accent)' }}>
+              Cerca su Veritas ⚖️
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const result = await analyzeWithVeritas(searchQuery, articles, lang)
 
   // Unisci fonti con la loro analisi, filtra non pertinenti, ordina per score
   const sourcesWithAnalysis = result.sources
@@ -71,7 +106,12 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
         {/* Query */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white mb-1">Analisi: <span className="text-blue-400">{query}</span></h1>
-          <p className="text-sm text-gray-500">{totalSources} fonti analizzate da Veritas{langLabel}</p>
+          <p className="text-sm text-gray-500">
+            {totalSources} fonti analizzate da Veritas{langLabel}
+            {searchQuery !== query && (
+              <span className="ml-2 opacity-60">(ricerca: &ldquo;{searchQuery}&rdquo;)</span>
+            )}
+          </p>
         </div>
 
         {/* Five Ws Card */}
