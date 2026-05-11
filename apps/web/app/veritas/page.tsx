@@ -5,8 +5,8 @@ import type { VeritasResult } from '../../lib/veritas'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
-    <div className="w-full bg-gray-800 rounded-full h-2">
-      <div className={`h-2 rounded-full ${color}`} style={{ width: `${value}%` }} />
+    <div className="w-full rounded-full h-1.5" style={{ background: 'var(--bg-s)' }}>
+      <div className={`h-1.5 rounded-full ${color}`} style={{ width: `${value}%` }} />
     </div>
   )
 }
@@ -17,15 +17,10 @@ function biasColor(val: number) {
   return 'bg-red-500'
 }
 
-function biasLabel(tipo: string) {
-  const map: Record<string, string> = {
-    neutro: '✓ Neutro',
-    politico: '⚠ Politico',
-    sensazionalistico: '⚠ Sensazionalistico',
-    omissivo: '⚠ Omissivo',
-    parziale: '⚠ Parziale',
-  }
-  return map[tipo] ?? tipo
+function badgeStyle(tipo: string) {
+  if (tipo === 'neutro') return { background: 'rgba(34,197,94,0.15)', color: '#22c55e' }
+  if (tipo === 'politico' || tipo === 'sensazionalistico') return { background: 'rgba(239,68,68,0.15)', color: '#ef4444' }
+  return { background: 'rgba(234,179,8,0.15)', color: '#eab308' }
 }
 
 export default function VeritasPage() {
@@ -53,28 +48,38 @@ export default function VeritasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
       <div className="max-w-5xl mx-auto px-4 py-10">
 
         {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold mb-2">🔍 Veritas</h1>
-          <p className="text-gray-400">Cerca una notizia o incolla un URL — Claude analizza tutte le fonti e rileva i bias</p>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-1" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
+            ⚖️ Veritas
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--text-2)' }}>
+            Cerca una notizia o incolla un URL — Claude analizza tutte le fonti e rileva i bias
+          </p>
         </div>
 
-        {/* Search box */}
-        <form onSubmit={handleSearch} className="flex gap-3 mb-12">
+        {/* Search */}
+        <form onSubmit={handleSearch} className="flex gap-3 mb-10">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Es: guerra ucraina  |  https://www.bbc.com/news/..."
-            className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-5 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+            className="flex-1 px-5 py-3 rounded-xl text-sm focus:outline-none transition-colors"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--text)',
+            }}
           />
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-xl font-semibold transition-colors whitespace-nowrap"
+            className="px-6 py-3 rounded-xl font-semibold text-sm disabled:opacity-50 transition-opacity hover:opacity-80 text-white"
+            style={{ background: 'var(--accent)' }}
           >
             {loading ? 'Analisi...' : 'Analizza'}
           </button>
@@ -84,99 +89,73 @@ export default function VeritasPage() {
         {loading && (
           <div className="text-center py-20">
             <div className="text-5xl mb-4 animate-pulse">⚖️</div>
-            <p className="text-gray-400">Claude sta analizzando le fonti...</p>
-            <p className="text-gray-600 text-sm mt-1">Ci vogliono circa 15-20 secondi</p>
+            <p style={{ color: 'var(--text-2)' }}>Claude sta analizzando le fonti...</p>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>~15-20 secondi</p>
           </div>
         )}
 
-        {/* Errore */}
         {error && (
-          <div className="bg-red-950 border border-red-800 rounded-xl p-5 text-red-300 text-center">
+          <div className="rounded-xl p-5 text-center" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444' }}>
             {error}
           </div>
         )}
 
-        {/* Risultati */}
         {result && (
-          <div className="space-y-10">
-
+          <div className="space-y-8">
             {/* Articolo consolidato */}
-            <div className="rounded-2xl border border-blue-800 bg-blue-950/30 p-8">
+            <div className="rounded-2xl p-8" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)', borderOpacity: 0.4 }}>
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-2xl">📰</span>
                 <div>
-                  <h2 className="text-xl font-bold text-blue-300">Articolo Consolidato — Veritas</h2>
-                  <p className="text-sm text-blue-500">Sintesi imparziale basata su {result.sources.length} fonti</p>
+                  <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>
+                    Articolo Consolidato — Veritas
+                  </h2>
+                  <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+                    Sintesi imparziale · {result.sources.length} fonti
+                  </p>
                 </div>
               </div>
-              <div className="text-gray-200 leading-relaxed whitespace-pre-wrap">
+              <div className="leading-relaxed whitespace-pre-wrap text-sm" style={{ color: 'var(--text)' }}>
                 {result.articolo_consolidato}
               </div>
             </div>
 
-            {/* Analisi fonti */}
+            {/* Fonti */}
             <div>
-              <h2 className="text-xl font-bold mb-5 text-gray-200">
+              <h2 className="text-lg font-bold mb-4" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
                 Analisi delle fonti ({result.sources.length})
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.sources.map((src, i) => {
                   const analisi = result.analisi.find((a) => a.indice === i + 1 || a.fonte === src.source)
+                  if (!analisi || analisi.tipo_bias === 'non pertinente' || analisi.completezza === 0) return null
                   return (
-                    <div key={i} className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-                      {/* Testata + link */}
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-semibold text-white">{src.source}</span>
-                        <a
-                          href={src.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-400 hover:underline"
-                        >
-                          Apri ↗
-                        </a>
+                    <div key={i} className="rounded-xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{src.source}</span>
+                        <a href={src.link} target="_blank" rel="noopener noreferrer" className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>Apri ↗</a>
                       </div>
-
-                      {/* Titolo */}
-                      <p className="text-sm text-gray-300 mb-4 line-clamp-2">{src.title}</p>
-
-                      {analisi ? (
-                        <>
-                          {/* Completezza */}
-                          <div className="mb-3">
-                            <div className="flex justify-between text-xs text-gray-400 mb-1">
-                              <span>Completezza</span>
-                              <span className="font-semibold text-green-400">{analisi.completezza}%</span>
-                            </div>
-                            <BiasBar value={analisi.completezza} color="bg-green-500" />
+                      <p className="text-xs mb-4 line-clamp-2" style={{ color: 'var(--text-2)' }}>{src.title}</p>
+                      <div className="space-y-2 mb-3">
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span style={{ color: 'var(--text-3)' }}>Completezza</span>
+                            <span className="font-medium text-green-400">{analisi.completezza}%</span>
                           </div>
-
-                          {/* Bias */}
-                          <div className="mb-3">
-                            <div className="flex justify-between text-xs text-gray-400 mb-1">
-                              <span>Bias</span>
-                              <span className={`font-semibold ${analisi.bias <= 20 ? 'text-green-400' : analisi.bias <= 50 ? 'text-yellow-400' : 'text-red-400'}`}>
-                                {analisi.bias}%
-                              </span>
-                            </div>
-                            <BiasBar value={analisi.bias} color={biasColor(analisi.bias)} />
+                          <BiasBar value={analisi.completezza} color="bg-green-500" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span style={{ color: 'var(--text-3)' }}>Bias</span>
+                            <span className={`font-medium ${analisi.bias <= 20 ? 'text-green-400' : analisi.bias <= 50 ? 'text-yellow-400' : 'text-red-400'}`}>{analisi.bias}%</span>
                           </div>
-
-                          {/* Tipo bias + nota */}
-                          <div className="flex items-start justify-between gap-2 mt-3">
-                            <span className={`text-xs px-2 py-1 rounded-full ${
-                              analisi.tipo_bias === 'neutro'
-                                ? 'bg-green-900 text-green-300'
-                                : 'bg-yellow-900 text-yellow-300'
-                            }`}>
-                              {biasLabel(analisi.tipo_bias)}
-                            </span>
-                            <p className="text-xs text-gray-500 text-right flex-1">{analisi.nota}</p>
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-xs text-gray-600">Analisi non disponibile</p>
-                      )}
+                          <BiasBar value={analisi.bias} color={biasColor(analisi.bias)} />
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap" style={badgeStyle(analisi.tipo_bias)}>{analisi.tipo_bias}</span>
+                        <p className="text-xs leading-snug" style={{ color: 'var(--text-3)' }}>{analisi.nota}</p>
+                      </div>
                     </div>
                   )
                 })}

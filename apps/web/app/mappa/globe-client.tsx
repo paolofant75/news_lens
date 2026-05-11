@@ -84,11 +84,11 @@ export default function GlobeClient({ points }: Props) {
   }, [initGlobe])
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 pt-6 pb-3">
-        <h1 className="text-2xl font-bold mb-1">🌍 Notizie Globali</h1>
-        <p className="text-sm text-gray-400">
+        <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: 'var(--font-h)' }}>🌍 Notizie Globali</h1>
+        <p className="text-sm" style={{ color: 'var(--text-2)' }}>
           Ruota il globo · Trascina per esplorare · Clicca su un punto per leggere la notizia
         </p>
       </div>

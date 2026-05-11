@@ -58,11 +58,11 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   const langLabel = lang !== 'en' ? ` (${lang.toUpperCase()})` : ''
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
       <div className="max-w-7xl mx-auto px-4 py-8">
 
         {/* Back */}
-        <a href="/news" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-8 transition-colors">
+        <a href="/news" className="inline-flex items-center gap-2 text-sm mb-8 transition-opacity hover:opacity-70" style={{ color: 'var(--text-2)' }}>
           ← Torna alle notizie
         </a>
 
@@ -76,36 +76,36 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
           {/* SINISTRA — Articolo consolidato */}
           <div className="lg:col-span-3">
-            <div className="rounded-2xl border border-blue-800 bg-blue-950/20 p-7 h-full">
+            <div className="rounded-2xl p-7 h-full" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)' }}>
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-2xl">📰</span>
                 <div>
-                  <h2 className="text-lg font-bold text-blue-300">Articolo Consolidato Veritas</h2>
-                  <p className="text-xs text-blue-500">Sintesi imparziale · bias-free · {totalSources} fonti</p>
+                  <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>Articolo Consolidato Veritas</h2>
+                  <p className="text-xs" style={{ color: 'var(--text-3)' }}>Sintesi imparziale · bias-free · {totalSources} fonti</p>
                 </div>
               </div>
-              <div className="text-gray-200 leading-relaxed whitespace-pre-wrap text-sm">
+              <div className="leading-relaxed whitespace-pre-wrap text-sm" style={{ color: 'var(--text)' }}>
                 {result.articolo_consolidato}
               </div>
 
               {/* Statistiche aggregate */}
               {sourcesWithAnalysis.length > 0 && (
-                <div className="mt-6 pt-5 border-t border-blue-900 grid grid-cols-3 gap-4 text-center">
+                <div className="mt-6 pt-5 grid grid-cols-3 gap-4 text-center" style={{ borderTop: '1px solid var(--border)' }}>
                   <div>
                     <p className="text-2xl font-bold text-green-400">
                       {Math.round(sourcesWithAnalysis.reduce((s, x) => s + (x.analisi?.completezza ?? 0), 0) / sourcesWithAnalysis.length)}%
                     </p>
-                    <p className="text-xs text-gray-500">Completezza media</p>
+                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Completezza media</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-yellow-400">
                       {Math.round(sourcesWithAnalysis.reduce((s, x) => s + (x.analisi?.bias ?? 0), 0) / sourcesWithAnalysis.length)}%
                     </p>
-                    <p className="text-xs text-gray-500">Bias medio</p>
+                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Bias medio</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-blue-400">{totalSources}</p>
-                    <p className="text-xs text-gray-500">Fonti analizzate</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--accent)' }}>{totalSources}</p>
+                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Fonti analizzate</p>
                   </div>
                 </div>
               )}
@@ -114,7 +114,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
           {/* DESTRA — Fonti ordinate per score */}
           <div className="lg:col-span-2">
-            <h2 className="text-base font-bold text-gray-300 mb-4">
+            <h2 className="text-base font-bold mb-4" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
               Fonti — dalla più completa e imparziale
             </h2>
 
@@ -122,11 +122,10 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
               {sourcesWithAnalysis.map(({ src, analisi }, i) => (
                 <div
                   key={i}
-                  className={`rounded-xl border p-4 transition-all ${
-                    i === 0
-                      ? 'border-green-700 bg-green-950/20'
-                      : 'border-gray-800 bg-gray-900'
-                  }`}
+                  className="rounded-xl p-4 transition-all"
+                  style={i === 0
+                    ? { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.5)' }
+                    : { background: 'var(--bg-card)', border: '1px solid var(--border)' }}
                 >
                   {/* Badge posizione */}
                   <div className="flex items-center justify-between mb-2">

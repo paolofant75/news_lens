@@ -2,6 +2,7 @@ import { fetchArticles, timeAgo, biasColor } from '../../lib/rss'
 import { encodeArticleId } from '../../lib/encode'
 import { translateBatch } from '../../lib/translate'
 import { cookies } from 'next/headers'
+import PageLayout from '../../components/page-layout'
 
 const CATEGORIES = [
   { label: 'Tutte', slug: '', icon: '' },
@@ -71,107 +72,88 @@ export default async function NewsPage({
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+    <PageLayout>
+      <div className="max-w-5xl mx-auto px-4 py-6">
 
-        {/* Riga categorie — una sola riga orizzontale scrollabile */}
-        <div className="overflow-x-auto pb-2 mb-6 border-b border-gray-800">
+        {/* Categorie */}
+        <div className="overflow-x-auto pb-2 mb-6" style={{ borderBottom: '1px solid var(--border)' }}>
           <div className="flex gap-1.5 min-w-max">
             {CATEGORIES.map((cat) => (
-              <a
-                key={cat.slug}
-                href={buildUrl(cat.slug, area)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                  cat.slug === (categoria ?? '')
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
+              <a key={cat.slug} href={buildUrl(cat.slug, area)}
+                className="px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-opacity hover:opacity-80"
+                style={cat.slug === (categoria ?? '')
+                  ? { background: 'var(--accent)', color: '#fff' }
+                  : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
               >
-                {cat.icon && <span className="mr-1">{cat.icon}</span>}
-                {cat.label}
+                {cat.icon && <span className="mr-1">{cat.icon}</span>}{cat.label}
               </a>
             ))}
           </div>
         </div>
 
-        {/* Layout: sidebar geo + griglia articoli */}
         <div className="flex gap-6">
-
-          {/* Sidebar geo — verticale */}
+          {/* Sidebar geo */}
           <aside className="w-44 shrink-0 hidden md:block">
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">Area geografica</p>
-            <div className="flex flex-col gap-1">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3 px-1" style={{ color: 'var(--text-3)' }}>Area geografica</p>
+            <div className="flex flex-col gap-0.5">
               {GEO.map((g) => (
-                <a
-                  key={g.slug}
-                  href={buildUrl(categoria, g.slug)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                    g.slug === (area ?? '')
-                      ? 'bg-purple-600 text-white'
-                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                  }`}
+                <a key={g.slug} href={buildUrl(categoria, g.slug)}
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-opacity hover:opacity-80"
+                  style={g.slug === (area ?? '')
+                    ? { background: 'var(--accent)', color: '#fff' }
+                    : { color: 'var(--text-2)' }}
                 >
                   <span>{g.icon} {g.label}</span>
-                  <span className={`text-xs ${g.slug === (area ?? '') ? 'text-purple-200' : 'text-gray-600'}`}>
+                  <span className="text-xs" style={{ color: g.slug === (area ?? '') ? 'rgba(255,255,255,0.7)' : 'var(--text-3)' }}>
                     {geoCounts[g.slug]}
                   </span>
                 </a>
               ))}
             </div>
-
-            {/* Link mappa */}
-            <a
-              href="/mappa"
-              className="mt-4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-blue-400 hover:bg-gray-800 transition-colors border border-gray-800"
-            >
+            <a href="/mappa" className="mt-4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-opacity hover:opacity-80"
+              style={{ color: 'var(--accent)', border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
               🗺️ Vedi su mappa
             </a>
           </aside>
 
-          {/* Contenuto principale */}
+          {/* Articoli */}
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-gray-500 mb-5">
+            <p className="text-sm mb-5" style={{ color: 'var(--text-3)' }}>
               {filtered.length} articoli · {new Set(filtered.map((a) => a.source)).size} fonti
             </p>
-
             {filtered.length === 0 ? (
-              <div className="text-center py-20 text-gray-600">
-                Nessun articolo trovato per questa combinazione di filtri.
-              </div>
+              <div className="text-center py-20" style={{ color: 'var(--text-3)' }}>Nessun articolo trovato.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filteredT.map((article, i) => {
                   const analysisId = encodeArticleId(article.title)
                   return (
-                    <div key={i} className="group rounded-xl border border-gray-800 bg-gray-900 hover:border-gray-600 hover:bg-gray-800 transition-all overflow-hidden">
+                    <div key={i} className="group rounded-xl overflow-hidden transition-all hover:opacity-90"
+                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                       <a href={`/articolo/${analysisId}`} className="block p-5">
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-semibold text-blue-400">{article.source}</span>
-                          <span className="text-xs text-gray-500">{timeAgo(article.pubDate)}</span>
+                          <span className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>{article.source}</span>
+                          <span className="text-xs" style={{ color: 'var(--text-3)' }}>{timeAgo(article.pubDate)}</span>
                         </div>
-                        <h2 className="font-semibold text-white mb-2 leading-snug group-hover:text-blue-300 transition-colors line-clamp-3">
+                        <h2 className="font-semibold mb-2 leading-snug line-clamp-3" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
                           {article.title}
                         </h2>
                         {article.summary && (
-                          <p className="text-sm text-gray-400 line-clamp-2 mb-3">{article.summary}</p>
+                          <p className="text-sm line-clamp-2 mb-3" style={{ color: 'var(--text-2)' }}>{article.summary}</p>
                         )}
-                        <div className="flex flex-wrap gap-1.5 mb-2">
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{article.category}</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-500">{article.geo}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full bg-gray-800 ${biasColor(article.sourceBias)}`}>
-                            {article.sourceBias}
-                          </span>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-500">
-                            ★ {article.sourceReliability}
-                          </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>{article.category}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>{article.geo}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${biasColor(article.sourceBias)}`} style={{ background: 'var(--bg-s)' }}>{article.sourceBias}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>★ {article.sourceReliability}</span>
                         </div>
                       </a>
-                      <div className="px-5 pb-4 flex items-center justify-between border-t border-gray-800 pt-3">
-                        <a href={`/articolo/${analysisId}`} className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
+                      <div className="px-5 pb-4 flex items-center justify-between pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                        <a href={`/articolo/${analysisId}`} className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
                           ⚖️ Analisi Veritas
                         </a>
-                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
-                          Apri originale ↗
+                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--text-3)' }}>
+                          Originale ↗
                         </a>
                       </div>
                     </div>
@@ -182,6 +164,6 @@ export default async function NewsPage({
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   )
 }
