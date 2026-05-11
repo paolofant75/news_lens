@@ -6,6 +6,10 @@ const parser = new Parser({
   headers: { 'User-Agent': 'NewsLensVeritas/1.0' },
 })
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim()
+}
+
 export type FeedMeta = {
   id: string
   source: string
@@ -82,8 +86,8 @@ async function fetchFromNewsAPI(): Promise<Article[]> {
     return data.articles
       .filter((a: { title?: string; url?: string }) => a.title && a.url && a.title !== '[Removed]')
       .map((a: { title: string; url: string; publishedAt: string; source: { name: string }; description?: string }) => {
-        const title = a.title
-        const summary = a.description ?? ''
+        const title = stripHtml(a.title)
+        const summary = stripHtml(a.description ?? '')
         return {
           title, link: a.url, pubDate: a.publishedAt,
           source: a.source.name, summary,
@@ -104,8 +108,8 @@ async function fetchFromGuardianAPI(): Promise<Article[]> {
     const data = await res.json()
     if (data.response?.status !== 'ok') return []
     return data.response.results.map((a: { webTitle: string; webUrl: string; webPublicationDate: string; fields?: { trailText?: string } }) => {
-      const title = a.webTitle
-      const summary = a.fields?.trailText ?? ''
+      const title = stripHtml(a.webTitle)
+      const summary = stripHtml(a.fields?.trailText ?? '')
       return {
         title, link: a.webUrl, pubDate: a.webPublicationDate,
         source: 'The Guardian', summary,
@@ -126,8 +130,8 @@ async function fetchFromGNews(): Promise<Article[]> {
     const data = await res.json()
     if (!data.articles) return []
     return data.articles.map((a: { title: string; url: string; publishedAt: string; source: { name: string }; description?: string }) => {
-      const title = a.title
-      const summary = a.description ?? ''
+      const title = stripHtml(a.title)
+      const summary = stripHtml(a.description ?? '')
       return {
         title, link: a.url, pubDate: a.publishedAt,
         source: a.source.name, summary,
@@ -145,8 +149,8 @@ export async function fetchArticles(): Promise<Article[]> {
       FEEDS.map(async (feed) => {
         const f = await parser.parseURL(feed.url)
         return f.items.slice(0, 12).map((item) => {
-          const title = item.title ?? ''
-          const summary = item.contentSnippet ?? item.summary ?? ''
+          const title = stripHtml(item.title ?? '')
+          const summary = stripHtml(item.contentSnippet ?? item.summary ?? '')
           return {
             title,
             link: item.link ?? '',
