@@ -44,16 +44,16 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   const articles = await searchAllSources(query)
   const result = await analyzeWithVeritas(query, articles)
 
-  // Unisci fonti con la loro analisi e ordina per score (migliore prima)
+  // Unisci fonti con la loro analisi, filtra non pertinenti, ordina per score
   const sourcesWithAnalysis = result.sources
     .map((src, i) => ({
       src,
       analisi: result.analisi.find((a) => a.indice === i + 1 || a.fonte === src.source),
     }))
-    .filter((x) => x.analisi)
+    .filter((x) => x.analisi && x.analisi.tipo_bias !== 'non pertinente' && x.analisi.completezza > 0)
     .sort((a, b) => scoreCard(b.analisi!) - scoreCard(a.analisi!))
 
-  const totalSources = result.sources.length
+  const totalSources = sourcesWithAnalysis.length
   const langLabel = lang !== 'en' ? ` (${lang.toUpperCase()})` : ''
 
   return (

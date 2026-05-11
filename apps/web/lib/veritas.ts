@@ -106,15 +106,22 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
     return score >= 0.3
   })
 
-  const seen = new Set<string>()
-  return filtered
-    .filter((x) => {
-      const key = x.title.toLowerCase().slice(0, 50)
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-    .slice(0, 12)
+  // Deduplica per source (una sola notizia per testata, la più rilevante)
+  const bySource = new Map<string, SearchArticle>()
+  for (const x of filtered) {
+    const sourceKey = x.source.toLowerCase().trim()
+    if (!bySource.has(sourceKey)) {
+      bySource.set(sourceKey, x)
+    } else {
+      // Tieni quella con score rilevanza più alta
+      const existing = bySource.get(sourceKey)!
+      if (relevanceScore(x.title + ' ' + x.content, query) > relevanceScore(existing.title + ' ' + existing.content, query)) {
+        bySource.set(sourceKey, x)
+      }
+    }
+  }
+
+  return Array.from(bySource.values()).slice(0, 12)
 }
 
 export async function analyzeWithVeritas(query: string, articles: SearchArticle[]): Promise<VeritasResult> {
@@ -122,17 +129,22 @@ export async function analyzeWithVeritas(query: string, articles: SearchArticle[
     .map((a, i) => `[${i + 1}] FONTE: ${a.source}\nTITOLO: ${a.title}\nCONTENUTO: ${a.content}`)
     .join('\n\n---\n\n')
 
-  const prompt = `Sei Veritas, un motore di analisi giornalistica imparziale.
+  const prompt = `Sei un giornalista professionista senior con 20 anni di esperienza internazionale. Il tuo compito è produrre un articolo giornalistico completo e imparziale basandoti sulle fonti fornite.
 
-Query: "${query}"
-Fonti analizzate: ${articles.length}
+ARGOMENTO: "${query}"
 
+FONTI DISPONIBILI:
 ${articlesText}
 
-Rispondi SOLO con JSON valido:
+ISTRUZIONI TASSATIVE:
+1. L'articolo consolidato deve essere scritto come un pezzo giornalistico professionale in italiano: fatti verificati, dati precisi, citazioni dirette quando disponibili, contesto storico se necessario. 4-5 paragrafi densi e informativi.
+2. NON commentare le fonti nell'articolo. NON scrivere frasi come "va segnalato che alcune fonti...", "alcune fonti risultano fuori contesto...", "la copertura è limitata a...". L'articolo parla SOLO dei fatti della notizia.
+3. Per l'analisi delle fonti: valuta esclusivamente le fonti che trattano direttamente l'argomento. Per quelle non pertinenti assegna completezza=0, bias=0, tipo_bias="non pertinente".
+
+Rispondi SOLO con JSON valido, senza testo aggiuntivo:
 
 {
-  "articolo_consolidato": "Articolo completo e imparziale di 4-5 paragrafi che sintetizza tutte le informazioni disponibili, scritto in italiano",
+  "articolo_consolidato": "testo articolo professionale in italiano",
   "analisi": [
     {
       "fonte": "nome fonte esatto",
@@ -140,7 +152,7 @@ Rispondi SOLO con JSON valido:
       "completezza": 80,
       "bias": 15,
       "tipo_bias": "neutro",
-      "nota": "Una frase sul tipo di copertura"
+      "nota": "una frase breve e oggettiva sulla copertura"
     }
   ]
 }`
