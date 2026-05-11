@@ -22,13 +22,17 @@ export default async function MappaPage() {
     sorted.map((a) => ({ title: a.title, summary: '' })),
     lang
   )
-  const sortedT = sorted.map((a, i) => ({ ...a, title: sortedTitles[i]?.title ?? a.title }))
+  const sortedT = sorted.map((a, i) => ({
+    ...a,
+    originalTitle: a.title,
+    title: sortedTitles[i]?.title ?? a.title,
+  }))
 
   // Costruisci i punti globo — deduplica per Paese
   const usedCountries = new Set<string>()
   const points: {
     lat: number; lng: number; label: string; code: string
-    title: string; source: string; link: string; category: string
+    title: string; originalTitle: string; source: string; link: string; category: string
     color: string; size: number; reliability: number
   }[] = []
 
@@ -44,6 +48,7 @@ export default async function MappaPage() {
         label: country.label,
         code: country.code,
         title: article.title,
+        originalTitle: article.originalTitle ?? article.title,
         source: article.source,
         link: article.link,
         category: article.category,

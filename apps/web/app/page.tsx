@@ -38,7 +38,12 @@ export default async function HomePage() {
     raw12.map((a) => ({ title: a.title, summary: a.summary })),
     lang
   )
-  const top = raw12.map((a, i) => ({ ...a, title: translated12[i]?.title ?? a.title, summary: translated12[i]?.summary ?? a.summary }))
+  const top = raw12.map((a, i) => ({
+    ...a,
+    originalTitle: a.title,
+    title: translated12[i]?.title ?? a.title,
+    summary: translated12[i]?.summary ?? a.summary,
+  }))
 
   const featured = top[0]
   const secondary = top.slice(1, 5)
@@ -148,7 +153,7 @@ export default async function HomePage() {
                 )}
                 <div className="flex gap-3">
                   <Link
-                    href={`/articolo/${encodeArticleId(featured.title)}`}
+                    href={`/articolo/${encodeArticleId(featured.originalTitle ?? featured.title)}`}
                     className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
                     style={{ background: 'var(--accent)' }}
                   >

@@ -9,6 +9,7 @@ type GlobePoint = {
   label: string
   code: string
   title: string
+  originalTitle: string
   source: string
   link: string
   category: string
@@ -141,7 +142,7 @@ export default function GlobeClient({ points }: Props) {
                 <p className="text-white font-semibold leading-snug mb-3">{selected.title}</p>
                 <div className="flex gap-3">
                   <a
-                    href={`/articolo/${encodeArticleId(selected.title)}`}
+                    href={`/articolo/${encodeArticleId(selected.originalTitle ?? selected.title)}`}
                     className="text-xs px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                   >
                     ⚖️ Analisi Veritas

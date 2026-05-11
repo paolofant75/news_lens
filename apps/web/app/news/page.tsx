@@ -125,7 +125,13 @@ export default async function NewsPage({
     filtered.slice(0, 50).map((a) => ({ title: a.title, summary: a.summary })),
     lang
   )
-  const filteredT = filtered.slice(0, 50).map((a, i) => ({ ...a, title: translated[i]?.title ?? a.title, summary: translated[i]?.summary ?? a.summary }))
+  // originalTitle = titolo EN per la ricerca Veritas, displayTitle = titolo tradotto per l'utente
+  const filteredT = filtered.slice(0, 50).map((a, i) => ({
+    ...a,
+    originalTitle: a.title,
+    title: translated[i]?.title ?? a.title,
+    summary: translated[i]?.summary ?? a.summary,
+  }))
 
   // Conteggio per area geografica
   const geoCounts = GEO.reduce((acc, g) => {
@@ -218,7 +224,7 @@ export default async function NewsPage({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filteredT.map((article, i) => {
-                  const analysisId = encodeArticleId(article.title)
+                  const analysisId = encodeArticleId(article.originalTitle ?? article.title)
                   return (
                     <div key={i} className="group rounded-xl overflow-hidden transition-all hover:opacity-90"
                       style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>

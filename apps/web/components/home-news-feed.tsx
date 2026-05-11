@@ -6,6 +6,7 @@ import { encodeArticleId } from '../lib/encode'
 
 type Article = {
   title: string
+  originalTitle?: string
   link: string
   pubDate: string
   source: string
@@ -49,7 +50,7 @@ export default function HomeNewsFeed({ articles }: { articles: Article[] }) {
           {articles.map((article, i) => (
             <a
               key={i}
-              href={`/articolo/${encodeArticleId(article.title)}`}
+              href={`/articolo/${encodeArticleId(article.originalTitle ?? article.title)}`}
               className="group p-4 rounded-xl transition-all hover:opacity-90"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
@@ -68,7 +69,7 @@ export default function HomeNewsFeed({ articles }: { articles: Article[] }) {
           {articles.map((article, i) => (
             <a
               key={i}
-              href={`/articolo/${encodeArticleId(article.title)}`}
+              href={`/articolo/${encodeArticleId(article.originalTitle ?? article.title)}`}
               className="flex items-center gap-4 px-5 py-3 transition-all hover:opacity-80"
               style={{
                 background: 'var(--bg-card)',
