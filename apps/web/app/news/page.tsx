@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 import PageLayout from '../../components/page-layout'
 import { TAXONOMY, getAllKeywords } from '../../lib/taxonomy'
 import NewsArticleGrid from '../../components/news-article-grid'
+import { IconGlobe, IconMap, IconMapPin } from '../../components/icons'
 
 const CATEGORIES = [
   { label: 'Tutte', slug: '', icon: '' },
@@ -89,13 +90,13 @@ const SPORT_KEYWORDS: Record<string, string[]> = {
 }
 
 const GEO = [
-  { label: 'Tutto il mondo', slug: '', icon: '🌐' },
-  { label: 'Europa', slug: 'europa', icon: '🇪🇺' },
-  { label: 'Americhe', slug: 'americhe', icon: '🌎' },
-  { label: 'Medio Oriente', slug: 'medio-oriente', icon: '🕌' },
-  { label: 'Asia', slug: 'asia', icon: '🌏' },
-  { label: 'Africa', slug: 'africa', icon: '🌍' },
-  { label: 'Oceania', slug: 'oceania', icon: '🌊' },
+  { label: 'Tutto il mondo', slug: '', abbr: 'WLD' },
+  { label: 'Europa',         slug: 'europa',       abbr: 'EU'  },
+  { label: 'Americhe',       slug: 'americhe',     abbr: 'AM'  },
+  { label: 'Medio Oriente',  slug: 'medio-oriente',abbr: 'ME'  },
+  { label: 'Asia',           slug: 'asia',         abbr: 'AS'  },
+  { label: 'Africa',         slug: 'africa',       abbr: 'AF'  },
+  { label: 'Oceania',        slug: 'oceania',      abbr: 'OC'  },
 ]
 
 export const revalidate = 300
@@ -188,17 +189,17 @@ export default async function NewsPage({
                 ? { background: 'var(--accent)', color: '#fff' }
                 : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
             >
-              <span className="text-lg leading-none">{g.icon}</span>
-              <span className="leading-tight mt-0.5">{g.label}</span>
+              <span className="text-[10px] font-bold tracking-widest leading-none opacity-80">{g.abbr}</span>
+              <span className="leading-tight mt-1">{g.label}</span>
               <span className="opacity-60 text-[10px]">{geoCounts[g.slug]}</span>
             </a>
           ))}
           <a
             href="/mappa"
-            className="flex flex-col items-center gap-0.5 px-2 py-2.5 rounded-xl text-xs text-center transition-opacity hover:opacity-80 mt-1"
+            className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl text-xs text-center transition-opacity hover:opacity-80 mt-1"
             style={{ color: 'var(--accent)', border: '1px solid var(--border)', background: 'var(--bg-card)' }}
           >
-            <span className="text-lg leading-none">🗺️</span>
+            <IconMap size={14} />
             <span>Mappa</span>
           </a>
         </aside>

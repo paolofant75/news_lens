@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { TAXONOMY, type TaxNode } from '../lib/taxonomy'
+import {
+  IconZap, IconGlobe2, IconCpu, IconTrending, IconFlask,
+  IconLayers, IconEye, IconChevronRight, IconChevronDown,
+} from './icons'
 
 type Props = {
   counts: Record<string, number>
@@ -14,6 +18,16 @@ const TYPE_COLORS: Record<string, string> = {
   advanced: 'text-cyan-400',
   dynamic:  'text-blue-400',
   static:   '',
+}
+
+const NODE_ICONS: Record<string, React.ReactNode> = {
+  breaking:      <IconZap size={14} />,
+  geopolitics:   <IconGlobe2 size={14} />,
+  ai_tech:       <IconCpu size={14} />,
+  economy:       <IconTrending size={14} />,
+  health_science:<IconFlask size={14} />,
+  narratives:    <IconLayers size={14} />,
+  osint:         <IconEye size={14} />,
 }
 
 function NodeRow({
@@ -48,16 +62,19 @@ function NodeRow({
         }
       >
         {/* Chevron */}
-        {hasChildren ? (
-          <span className="w-3 text-center flex-shrink-0 opacity-60" style={{ fontSize: 9 }}>
-            {open ? '▼' : '▶'}
-          </span>
-        ) : (
-          <span className="w-3 flex-shrink-0" />
-        )}
+        <span className="w-3.5 flex-shrink-0 flex items-center justify-center opacity-50">
+          {hasChildren
+            ? (open ? <IconChevronDown size={11} /> : <IconChevronRight size={11} />)
+            : null}
+        </span>
 
-        {/* Icon + label */}
-        {node.icon && <span className="text-sm">{node.icon}</span>}
+        {/* Icon (solo level 0) + label */}
+        {depth === 0 && NODE_ICONS[node.id] && (
+          <span className="flex-shrink-0 opacity-70">{NODE_ICONS[node.id]}</span>
+        )}
+        {depth > 0 && (
+          <span className="w-1 h-1 rounded-full flex-shrink-0 opacity-40" style={{ background: 'currentColor' }} />
+        )}
         <span className={`flex-1 text-left truncate ${depth === 0 ? 'font-semibold' : ''} ${!isActive ? typeColor : ''}`}>
           {node.label}
         </span>
@@ -118,7 +135,6 @@ export default function TaxonomyTree({ counts, activeId }: Props) {
         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-all hover:opacity-80"
         style={!activeId ? { background: 'var(--accent)', color: '#fff' } : { color: 'var(--text-3)' }}
       >
-        <span>🗂</span>
         <span className="font-semibold">Tutte le categorie</span>
       </button>
 

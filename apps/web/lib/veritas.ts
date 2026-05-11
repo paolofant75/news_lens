@@ -204,11 +204,11 @@ Rispondi SOLO con JSON valido, senza testo aggiuntivo:
 {
   "articolo_consolidato": "testo articolo professionale",
   "five_ws": {
-    "who": "2-3 frasi: nomi completi, ruoli istituzionali, affiliazioni politiche/organizzative dei soggetti principali e delle parti coinvolte",
-    "what": "2-3 frasi: descrizione precisa degli eventi, cifre e dati numerici se disponibili, sviluppi cronologici principali",
-    "where": "1-2 frasi: luoghi specifici con contesto geografico e geopolitico rilevante",
-    "when": "1-2 frasi: date precise, sequenza temporale degli eventi, durata se pertinente",
-    "why": "2-3 frasi: cause profonde, motivazioni dichiarate e reali, contesto storico-politico e possibili implicazioni future"
+    "who": "1 frase breve, max 20 parole: soggetti principali con ruolo/titolo. Es: 'Jim Chalmers, Tesoriere australiano — governo laburista Albanese.'",
+    "what": "1-2 frasi, max 30 parole: evento preciso con dati chiave. Es: 'Presentazione bilancio federale 2026, 19:30 ora locale, con focus su costo della vita e inflazione.'",
+    "where": "1 frase breve, max 15 parole: luogo specifico. Es: 'Camera dei Rappresentanti, Canberra, Australia.'",
+    "when": "1 frase breve, max 15 parole: data/ora precisa. Es: 'Martedì 13 maggio 2025, ore 19:30 AEST.'",
+    "why": "1-2 frasi, max 30 parole: causa principale e contesto. Es: 'Obbligo costituzionale annuale; pressioni su costo della vita e tassi di interesse elevati.'"
   },
   "analisi": [
     {

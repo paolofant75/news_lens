@@ -37,10 +37,10 @@ export default async function Navbar() {
             Notizie
           </Link>
           <Link href="/veritas" className="font-semibold hover:opacity-80 transition-opacity" style={{ color: 'var(--accent)' }}>
-            ⚖️ Veritas
+            Veritas
           </Link>
           <Link href="/mappa" className="hover:opacity-80 transition-opacity" style={{ color: 'var(--text-2)' }}>
-            🌍 Mappa
+            Mappa
           </Link>
           <Link href="/dashboard" className="hover:opacity-80 transition-opacity" style={{ color: 'var(--text-2)' }}>
             Dashboard
