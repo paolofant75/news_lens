@@ -15,68 +15,183 @@ export type Article = {
   geo: string
 }
 
-const FEEDS = [
-  { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',        source: 'BBC News' },
-  { url: 'https://www.theguardian.com/world/rss',              source: 'The Guardian' },
-  { url: 'https://www.aljazeera.com/xml/rss/all.xml',          source: 'Al Jazeera' },
-  { url: 'https://feeds.npr.org/1001/rss.xml',                 source: 'NPR' },
-  { url: 'https://rss.dw.com/xml/rss-en-world',                source: 'Deutsche Welle' },
-  { url: 'https://www.france24.com/en/rss',                    source: 'France 24' },
-  { url: 'https://feeds.feedburner.com/ndtvnews-top-stories',  source: 'NDTV' },
-  { url: 'https://www.ansa.it/sito/notizie/mondo/mondo_rss.xml', source: 'ANSA' },
+const RSS_FEEDS = [
+  // Anglosfera
+  { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',               source: 'BBC News' },
+  { url: 'https://feeds.bbci.co.uk/news/uk/rss.xml',                  source: 'BBC UK' },
+  { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml',          source: 'BBC Tech' },
+  { url: 'https://www.theguardian.com/world/rss',                     source: 'The Guardian' },
+  { url: 'https://www.theguardian.com/technology/rss',                source: 'Guardian Tech' },
+  { url: 'https://feeds.npr.org/1001/rss.xml',                        source: 'NPR' },
+  // Medio Oriente
+  { url: 'https://www.aljazeera.com/xml/rss/all.xml',                 source: 'Al Jazeera' },
+  // Europa
+  { url: 'https://rss.dw.com/xml/rss-en-world',                      source: 'Deutsche Welle' },
+  { url: 'https://www.france24.com/en/rss',                          source: 'France 24' },
+  { url: 'https://www.spiegel.de/international/index.rss',           source: 'Der Spiegel' },
+  { url: 'https://www.lemonde.fr/rss/une.xml',                       source: 'Le Monde' },
+  { url: 'https://feeds.elpais.com/mrss-s/pages/ep/site/english.elpais.com/portada', source: 'El País' },
+  // Italia
+  { url: 'https://www.ansa.it/sito/notizie/mondo/mondo_rss.xml',     source: 'ANSA Mondo' },
+  { url: 'https://www.ansa.it/sito/notizie/topnews/topnews_rss.xml', source: 'ANSA Top' },
+  { url: 'https://www.corriere.it/rss/homepage.xml',                 source: 'Corriere della Sera' },
+  { url: 'https://www.repubblica.it/rss/homepage/rss2.0.xml',       source: 'La Repubblica' },
+  // Asia
+  { url: 'https://www3.nhk.or.jp/rss/news/cat0.xml',                source: 'NHK World' },
+  { url: 'https://timesofindia.indiatimes.com/rssfeedstopstories.cms', source: 'Times of India' },
+  { url: 'https://feeds.feedburner.com/ndtvnews-top-stories',        source: 'NDTV' },
+  // America Latina
+  { url: 'https://rss.folha.uol.com.br/mundo/rss091.xml',           source: 'Folha de S.Paulo' },
 ]
 
 function categorize(title: string, summary: string): string {
   const t = (title + ' ' + summary).toLowerCase()
   if (/\bbreaking\b|urgent|alert/.test(t)) return 'breaking'
-  if (/war|conflict|attack|military|troops|missile|bomb|battle|fighting|killed|airstrike|ceasefire/.test(t)) return 'conflitti'
-  if (/election|president|minister|parliament|government|senate|vote|political|party|democrat|republican|diplomat/.test(t)) return 'politica'
-  if (/economy|market|trade|finance|gdp|inflation|stock|bank|crypto|bitcoin|recession|tariff|interest rate/.test(t)) return 'economia'
-  if (/technology|artificial intelligence|\bai\b|tech\b|digital|software|startup|apple|google|meta|microsoft|openai|nvidia/.test(t)) return 'tecnologia'
-  if (/\bscience\b|research|study|space|nasa|discovery|physics|biology|asteroid|planet/.test(t)) return 'scienza'
-  if (/health|medical|disease|vaccine|hospital|cancer|virus|pandemic|covid|mental health/.test(t)) return 'salute'
-  if (/climate|environment|carbon|emissions|renewable|flood|wildfire|drought|deforestation|pollution/.test(t)) return 'ambiente'
-  if (/football|soccer|tennis|olympics|championship|league|\bnba\b|\bnfl\b|\bfifa\b|sport|tournament|match/.test(t)) return 'sport'
-  if (/culture|art|film|music|book|award|festival|cinema|literature|exhibition/.test(t)) return 'cultura'
+  if (/war|conflict|attack|military|troops|missile|bomb|battle|fighting|killed|airstrike|ceasefire|invasion/.test(t)) return 'conflitti'
+  if (/election|president|minister|parliament|government|senate|vote|political|party|democrat|republican|diplomat|prime minister/.test(t)) return 'politica'
+  if (/economy|market|trade|finance|gdp|inflation|stock|bank|crypto|bitcoin|recession|tariff|interest rate|unemployment/.test(t)) return 'economia'
+  if (/technology|artificial intelligence|\bai\b|tech\b|digital|software|startup|apple|google|meta|microsoft|openai|nvidia|cyber/.test(t)) return 'tecnologia'
+  if (/\bscience\b|research|study|space|nasa|discovery|physics|biology|asteroid|planet|quantum/.test(t)) return 'scienza'
+  if (/health|medical|disease|vaccine|hospital|cancer|virus|pandemic|covid|mental health|drug|treatment/.test(t)) return 'salute'
+  if (/climate|environment|carbon|emissions|renewable|flood|wildfire|drought|deforestation|pollution|glacier/.test(t)) return 'ambiente'
+  if (/football|soccer|tennis|olympics|championship|league|\bnba\b|\bnfl\b|\bfifa\b|sport|tournament|match|formula 1|f1/.test(t)) return 'sport'
+  if (/culture|art|film|music|book|award|festival|cinema|literature|exhibition|theater/.test(t)) return 'cultura'
   return 'cronaca'
 }
 
 function geoClassify(title: string, summary: string): string {
   const t = (title + ' ' + summary).toLowerCase()
-  if (/israel|palestin|iran|iraq|syria|saudi|lebanon|jordan|yemen|gulf|middle east|hamas|hezbollah|gaza/.test(t)) return 'medio-oriente'
-  if (/\bchina\b|japan|india|\bkorea\b|taiwan|hong kong|singapore|myanmar|thailand|vietnam|beijing|tokyo|delhi|pakistan|bangladesh/.test(t)) return 'asia'
-  if (/russia|ukraine|europe\b|\beu\b|brussels|nato|france|germany|italy|spain|\buk\b|britain|poland|hungary|turkey|balkans/.test(t)) return 'europa'
-  if (/\busa\b|\bus\b|united states|american|washington|trump|biden|harris|congress|canada|mexico|brazil|argentina|colombia|latin america/.test(t)) return 'americhe'
-  if (/africa|nigeria|ethiopia|kenya|south africa|egypt|sudan|ghana|tanzania|congo|somalia|senegal/.test(t)) return 'africa'
+  if (/israel|palestin|iran|iraq|syria|saudi|lebanon|jordan|yemen|gulf|middle east|hamas|hezbollah|gaza|west bank/.test(t)) return 'medio-oriente'
+  if (/\bchina\b|japan|india|\bkorea\b|taiwan|hong kong|singapore|myanmar|thailand|vietnam|beijing|tokyo|delhi|pakistan|bangladesh|sri lanka/.test(t)) return 'asia'
+  if (/russia|ukraine|europe\b|\beu\b|brussels|nato|france|germany|italy|spain|\buk\b|britain|poland|hungary|turkey|balkans|czech|sweden|finland/.test(t)) return 'europa'
+  if (/\busa\b|\bus\b|united states|american|washington|trump|biden|harris|congress|canada|mexico|brazil|argentina|colombia|latin america|chile|venezuela/.test(t)) return 'americhe'
+  if (/africa|nigeria|ethiopia|kenya|south africa|egypt|sudan|ghana|tanzania|congo|somalia|senegal|morocco|tunisia/.test(t)) return 'africa'
   if (/australia|new zealand|\bpacific\b|oceania|papua/.test(t)) return 'oceania'
   return 'mondo'
 }
 
-export async function fetchArticles(): Promise<Article[]> {
-  const results = await Promise.allSettled(
-    FEEDS.map(async ({ url, source }) => {
-      const feed = await parser.parseURL(url)
-      return feed.items.slice(0, 10).map((item) => {
-        const title = item.title ?? ''
-        const summary = item.contentSnippet ?? item.summary ?? ''
+async function fetchFromNewsAPI(): Promise<Article[]> {
+  try {
+    const res = await fetch(
+      `https://newsapi.org/v2/top-headlines?pageSize=30&language=en&apiKey=${process.env.NEWS_API_KEY}`,
+      { next: { revalidate: 300 } }
+    )
+    const data = await res.json()
+    if (data.status !== 'ok') return []
+    return data.articles
+      .filter((a: { title?: string; url?: string }) => a.title && a.url && a.title !== '[Removed]')
+      .map((a: { title: string; url: string; publishedAt: string; source: { name: string }; description?: string }) => {
+        const title = a.title
+        const summary = a.description ?? ''
         return {
           title,
-          link: item.link ?? '',
-          pubDate: item.pubDate ?? item.isoDate ?? '',
-          source,
+          link: a.url,
+          pubDate: a.publishedAt,
+          source: a.source.name,
           summary,
           category: categorize(title, summary),
           geo: geoClassify(title, summary),
         }
       })
-    })
-  )
+  } catch {
+    return []
+  }
+}
 
-  return results
+async function fetchFromGuardianAPI(): Promise<Article[]> {
+  try {
+    const res = await fetch(
+      `https://content.guardianapis.com/search?api-key=${process.env.GUARDIAN_API_KEY}&page-size=30&order-by=newest&show-fields=trailText`,
+      { next: { revalidate: 300 } }
+    )
+    const data = await res.json()
+    if (data.response?.status !== 'ok') return []
+    return data.response.results.map((a: { webTitle: string; webUrl: string; webPublicationDate: string; fields?: { trailText?: string } }) => {
+      const title = a.webTitle
+      const summary = a.fields?.trailText ?? ''
+      return {
+        title,
+        link: a.webUrl,
+        pubDate: a.webPublicationDate,
+        source: 'The Guardian',
+        summary,
+        category: categorize(title, summary),
+        geo: geoClassify(title, summary),
+      }
+    })
+  } catch {
+    return []
+  }
+}
+
+async function fetchFromGNews(): Promise<Article[]> {
+  try {
+    const res = await fetch(
+      `https://gnews.io/api/v4/top-headlines?token=${process.env.GNEWS_API_KEY}&max=20&lang=en`,
+      { next: { revalidate: 300 } }
+    )
+    const data = await res.json()
+    if (!data.articles) return []
+    return data.articles.map((a: { title: string; url: string; publishedAt: string; source: { name: string }; description?: string }) => {
+      const title = a.title
+      const summary = a.description ?? ''
+      return {
+        title,
+        link: a.url,
+        pubDate: a.publishedAt,
+        source: a.source.name,
+        summary,
+        category: categorize(title, summary),
+        geo: geoClassify(title, summary),
+      }
+    })
+  } catch {
+    return []
+  }
+}
+
+export async function fetchArticles(): Promise<Article[]> {
+  const [rssResults, newsApiArticles, guardianArticles, gnewsArticles] = await Promise.all([
+    Promise.allSettled(
+      RSS_FEEDS.map(async ({ url, source }) => {
+        const feed = await parser.parseURL(url)
+        return feed.items.slice(0, 15).map((item) => {
+          const title = item.title ?? ''
+          const summary = item.contentSnippet ?? item.summary ?? ''
+          return {
+            title,
+            link: item.link ?? '',
+            pubDate: item.pubDate ?? item.isoDate ?? '',
+            source,
+            summary,
+            category: categorize(title, summary),
+            geo: geoClassify(title, summary),
+          }
+        })
+      })
+    ),
+    fetchFromNewsAPI(),
+    fetchFromGuardianAPI(),
+    fetchFromGNews(),
+  ])
+
+  const rssArticles = rssResults
     .filter((r): r is PromiseFulfilledResult<Article[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
+
+  const all = [...rssArticles, ...newsApiArticles, ...guardianArticles, ...gnewsArticles]
     .filter((a) => a.title && a.link)
-    .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+
+  // Deduplica per titolo simile
+  const seen = new Set<string>()
+  const deduped = all.filter((a) => {
+    const key = a.title.toLowerCase().slice(0, 60)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+
+  return deduped.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
 }
 
 export function timeAgo(dateStr: string): string {
