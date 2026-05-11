@@ -1,10 +1,10 @@
-'use client'
-
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { cookies } from 'next/headers'
+import LangSelector from './lang-selector'
 
-export default function Navbar() {
-  const pathname = usePathname()
+export default async function Navbar() {
+  const cookieStore = await cookies()
+  const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
 
   return (
     <header className="sticky top-0 z-50 bg-black border-b border-gray-800">
@@ -14,20 +14,23 @@ export default function Navbar() {
           <span className="hidden sm:inline text-white">News Lens Veritas</span>
         </Link>
 
-        <nav className="flex items-center gap-6 text-sm">
-          <Link href="/news" className={`transition-colors hover:text-white ${pathname?.startsWith('/news') ? 'text-white' : 'text-gray-400'}`}>
-            Notizie
-          </Link>
-          <Link href="/veritas" className={`transition-colors font-semibold ${pathname === '/veritas' ? 'text-blue-400' : 'text-blue-500 hover:text-blue-300'}`}>
-            ⚖️ Veritas
-          </Link>
-          <Link href="/mappa" className={`transition-colors hover:text-white ${pathname === '/mappa' ? 'text-white' : 'text-gray-400'}`}>
-            🗺️ Mappa
-          </Link>
-          <Link href="/dashboard" className={`transition-colors hover:text-white ${pathname === '/dashboard' ? 'text-white' : 'text-gray-400'}`}>
-            Dashboard
-          </Link>
-        </nav>
+        <div className="flex items-center gap-5">
+          <nav className="flex items-center gap-5 text-sm">
+            <Link href="/news" className="text-gray-400 hover:text-white transition-colors">
+              Notizie
+            </Link>
+            <Link href="/veritas" className="text-blue-500 hover:text-blue-300 font-semibold transition-colors">
+              ⚖️ Veritas
+            </Link>
+            <Link href="/mappa" className="text-gray-400 hover:text-white transition-colors">
+              🗺️ Mappa
+            </Link>
+            <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">
+              Dashboard
+            </Link>
+          </nav>
+          <LangSelector current={lang} />
+        </div>
       </div>
     </header>
   )

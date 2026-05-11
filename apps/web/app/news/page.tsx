@@ -127,30 +127,37 @@ export default async function NewsPage({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {filtered.map((article, i) => (
-                  <a
-                    key={i}
-                    href={article.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group rounded-xl border border-gray-800 bg-gray-900 p-5 hover:border-gray-600 hover:bg-gray-800 transition-all"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-semibold text-blue-400">{article.source}</span>
-                      <span className="text-xs text-gray-500">{timeAgo(article.pubDate)}</span>
+                {filtered.map((article, i) => {
+                  const analysisId = Buffer.from(article.title).toString('base64url')
+                  return (
+                    <div key={i} className="group rounded-xl border border-gray-800 bg-gray-900 hover:border-gray-600 hover:bg-gray-800 transition-all overflow-hidden">
+                      <a href={`/articolo/${analysisId}`} className="block p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-semibold text-blue-400">{article.source}</span>
+                          <span className="text-xs text-gray-500">{timeAgo(article.pubDate)}</span>
+                        </div>
+                        <h2 className="font-semibold text-white mb-2 leading-snug group-hover:text-blue-300 transition-colors line-clamp-3">
+                          {article.title}
+                        </h2>
+                        {article.summary && (
+                          <p className="text-sm text-gray-400 line-clamp-2 mb-3">{article.summary}</p>
+                        )}
+                        <div className="flex gap-1.5 mb-2">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{article.category}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-500">{article.geo}</span>
+                        </div>
+                      </a>
+                      <div className="px-5 pb-4 flex items-center justify-between border-t border-gray-800 pt-3">
+                        <a href={`/articolo/${analysisId}`} className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
+                          ⚖️ Analisi Veritas
+                        </a>
+                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
+                          Apri originale ↗
+                        </a>
+                      </div>
                     </div>
-                    <h2 className="font-semibold text-white mb-2 leading-snug group-hover:text-blue-300 transition-colors line-clamp-3">
-                      {article.title}
-                    </h2>
-                    {article.summary && (
-                      <p className="text-sm text-gray-400 line-clamp-2 mb-3">{article.summary}</p>
-                    )}
-                    <div className="flex gap-1.5">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{article.category}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-500">{article.geo}</span>
-                    </div>
-                  </a>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
