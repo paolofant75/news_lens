@@ -2,6 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import LayoutToggle from './layout-toggle'
+import { getSupabaseClient } from '../lib/supabase-client'
+
+async function trackRead(article: { title: string; link: string; category: string; geo: string; source: string }) {
+  try {
+    const { data: { session } } = await getSupabaseClient().auth.getSession()
+    if (!session?.access_token) return
+    fetch('/api/user/read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify(article),
+    })
+  } catch { /* ignore */ }
+}
 
 type Article = {
   title: string
@@ -75,7 +88,8 @@ export default function NewsArticleGrid({
             return (
               <div key={i} className="group rounded-xl overflow-hidden transition-all hover:opacity-90"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <a href={`/articolo/${id}`} className="block p-5">
+                <a href={`/articolo/${id}`} className="block p-5"
+                onClick={() => trackRead({ title: article.originalTitle ?? article.title, link: article.link, category: article.category, geo: article.geo, source: article.source })}>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>{article.source}</span>
                     <span className="text-xs" style={{ color: 'var(--text-3)' }}>{timeAgoClient(article.pubDate)}</span>

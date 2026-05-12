@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push *)",
+      "Bash(git -c http.sslVerify=false push)",
+      "Bash(git config *)",
+      "Bash(git commit *)",
+      "Bash(git -c http.sslVerify=false push --force)",
+      "Bash(git add *)",
+      "Bash(git restore *)",
+      "Bash(git rm *)",
+      "Bash(git -c http.sslVerify=false push origin main)",
+      "Bash(node -e \"require\\('lucide-react'\\)\")",
+      "Bash(npm install *)",
+      "Bash(Get-Content \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--New-lens-veritas\\\\4fb7222e-30e3-452f-a85a-3ca8e1dbf7c1\\\\tasks\\\\biy1uuzzp.output\")",
+      "Bash(Select-Object -Last 8)",
+      "Bash(npm list *)",
+      "Bash(node -e ' *)",
+      "PowerShell(cd \"d:\\\\New_lens_veritas\\\\apps\\\\web\"; npm install @supabase/supabase-js --legacy-peer-deps; Write-Output \"DONE:$LASTEXITCODE\")",
+      "Bash(node -e \"require\\('@supabase/supabase-js'\\); console.log\\('OK'\\)\")"
+    ]
+  }
+}

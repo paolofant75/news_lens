@@ -5,6 +5,19 @@ import { useSearchParams } from 'next/navigation'
 import type { VeritasResult } from '../../lib/veritas'
 import LoadingQuote from '../../components/loading-quote'
 import Approfondimenti from '../../components/approfondimenti'
+import { getSupabaseClient } from '../../lib/supabase-client'
+
+async function trackSearch(query: string) {
+  try {
+    const { data: { session } } = await getSupabaseClient().auth.getSession()
+    if (!session?.access_token) return
+    fetch('/api/user/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ query }),
+    })
+  } catch { /* ignore */ }
+}
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -48,6 +61,7 @@ export default function VeritasPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Errore')
       setResult(data)
+      trackSearch(q)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Errore sconosciuto')
     } finally {

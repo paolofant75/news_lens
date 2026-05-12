@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import LangSelector from './lang-selector'
 import TweaksPanel from './tweaks-panel'
+import UserMenu from './user-menu'
 
 export default async function Navbar() {
   const cookieStore = await cookies()
@@ -51,6 +52,7 @@ export default async function Navbar() {
         <div className="flex items-center gap-2">
           <LangSelector current={lang} />
           <TweaksPanel palette={palette} font={font} />
+          <UserMenu />
         </div>
       </div>
     </header>
