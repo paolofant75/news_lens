@@ -17,23 +17,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser]       = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const sb = getSupabaseClient()
 
   useEffect(() => {
+    const sb = getSupabaseClient()
+    if (!sb) { setLoading(false); return }
+
     sb.auth.getSession().then(({ data }) => {
       setSession(data.session)
       setUser(data.session?.user ?? null)
       setLoading(false)
-    })
+    }).catch(() => setLoading(false))
+
     const { data: { subscription } } = sb.auth.onAuthStateChange((_e, s) => {
       setSession(s)
       setUser(s?.user ?? null)
     })
     return () => subscription.unsubscribe()
-  }, [sb])
+  }, [])
 
   async function signOut() {
-    await sb.auth.signOut()
+    const sb = getSupabaseClient()
+    if (sb) await sb.auth.signOut()
   }
 
   return <Ctx.Provider value={{ user, session, loading, signOut }}>{children}</Ctx.Provider>

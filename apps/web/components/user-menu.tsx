@@ -3,13 +3,23 @@
 import { useState } from 'react'
 import { useAuth } from './auth-provider'
 import AuthModal from './auth-modal'
+import { isSupabaseConfigured } from '../lib/supabase-client'
 
 export default function UserMenu() {
   const { user, loading, signOut } = useAuth()
   const [showModal, setShowModal] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
 
-  if (loading) return <div className="w-8 h-8" />
+  // Supabase non configurato — nascondi il menu
+  if (!isSupabaseConfigured()) return null
+
+  // Durante caricamento sessione mostra già il bottone Accedi
+  if (loading) return (
+    <button className="px-3 py-1.5 rounded-lg text-xs font-semibold opacity-50"
+      style={{ background: 'var(--accent)', color: '#000' }}>
+      Accedi
+    </button>
+  )
 
   if (!user) return (
     <>
