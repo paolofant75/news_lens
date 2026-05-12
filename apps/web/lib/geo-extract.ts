@@ -49,13 +49,25 @@ const COUNTRIES: { names: string[]; lat: number; lng: number; label: string; cod
 ]
 
 export function extractCountry(title: string, summary: string): CountryPoint | null {
-  const text = (title + ' ' + summary).toLowerCase()
+  const t = title.toLowerCase()
+  const s = summary.toLowerCase()
+
+  let best: CountryPoint | null = null
+  let bestScore = 0
+
   for (const country of COUNTRIES) {
-    if (country.names.some((n) => text.includes(n))) {
-      return { lat: country.lat, lng: country.lng, label: country.label, code: country.code }
+    let score = 0
+    for (const name of country.names) {
+      if (t.includes(name)) score += 4   // titolo = peso maggiore
+      if (s.includes(name)) score += 1   // summary = peso minore
+    }
+    if (score > bestScore) {
+      bestScore = score
+      best = { lat: country.lat, lng: country.lng, label: country.label, code: country.code }
     }
   }
-  return null
+
+  return bestScore > 0 ? best : null
 }
 
 // Fallback per area geografica se nessun Paese specifico trovato
