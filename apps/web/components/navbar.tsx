@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
+// Link is used for the logo only
 import LangSelector from './lang-selector'
 import TweaksPanel from './tweaks-panel'
 import UserMenu from './user-menu'
@@ -31,19 +32,6 @@ export default async function Navbar() {
             <div className="text-xs leading-tight" style={{ color: 'var(--text-3)' }}>News, refracted</div>
           </div>
         </Link>
-
-        {/* Nav — hidden on mobile (use bottom tab bar) */}
-        <nav className="hidden md:flex items-center gap-5 text-sm">
-          <Link href="/news" className="hover:opacity-80 transition-opacity" style={{ color: 'var(--text-2)' }}>
-            Notizie
-          </Link>
-          <Link href="/veritas" className="font-semibold hover:opacity-80 transition-opacity" style={{ color: 'var(--accent)' }}>
-            Veritas
-          </Link>
-          <Link href="/mappa" className="hover:opacity-80 transition-opacity" style={{ color: 'var(--text-2)' }}>
-            Mappa
-          </Link>
-        </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
