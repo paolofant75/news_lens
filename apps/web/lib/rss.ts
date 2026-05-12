@@ -183,7 +183,7 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
     .filter((a) => a.title && a.link)
 
   const seen = new Set<string>()
-  return all
+  const articles = all
     .filter((a) => {
       const key = a.title.toLowerCase().slice(0, 60)
       if (seen.has(key)) return false
