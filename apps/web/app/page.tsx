@@ -6,7 +6,7 @@ import HomeNewsFeed from '../components/home-news-feed'
 import Sidebar from '../components/sidebar'
 import { encodeArticleId } from '../lib/encode'
 
-export const revalidate = 300
+export const revalidate = 120
 
 export default async function HomePage() {
   const cookieStore = await cookies()

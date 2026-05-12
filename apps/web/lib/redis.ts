@@ -25,3 +25,7 @@ export async function cacheMGet(keys: string[]): Promise<(string | null)[]> {
   const [result] = await redisCall([['MGET', ...keys]])
   return result as (string | null)[]
 }
+
+export async function cacheDel(key: string): Promise<void> {
+  await redisCall([['DEL', key]])
+}

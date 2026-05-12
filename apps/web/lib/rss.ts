@@ -1,5 +1,9 @@
 import Parser from 'rss-parser'
 import { classifyArticle, geoClassify } from './classify'
+import { cacheGet, cacheSet } from './redis'
+
+const ARTICLES_CACHE_KEY = 'nlv_articles_v3'
+const ARTICLES_CACHE_TTL = 180 // 3 min — cron refreshes ogni 2 min, buffer di sicurezza
 
 const parser = new Parser({
   timeout: 8000,
@@ -143,7 +147,7 @@ async function fetchFromGNews(): Promise<Article[]> {
   } catch { return [] }
 }
 
-export async function fetchArticles(): Promise<Article[]> {
+export async function fetchArticlesFresh(): Promise<Article[]> {
   const [rssResults, newsApiArticles, guardianArticles, gnewsArticles] = await Promise.all([
     Promise.allSettled(
       FEEDS.map(async (feed) => {
@@ -187,6 +191,17 @@ export async function fetchArticles(): Promise<Article[]> {
       return true
     })
     .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+
+  try { await cacheSet(ARTICLES_CACHE_KEY, JSON.stringify(articles), ARTICLES_CACHE_TTL) } catch { /* ignore */ }
+  return articles
+}
+
+export async function fetchArticles(): Promise<Article[]> {
+  try {
+    const cached = await cacheGet(ARTICLES_CACHE_KEY)
+    if (cached) return JSON.parse(cached) as Article[]
+  } catch { /* redis unavailable */ }
+  return fetchArticlesFresh()
 }
 
 export function timeAgo(dateStr: string): string {

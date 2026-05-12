@@ -4,7 +4,7 @@ import { getCountryOrFallback, CATEGORY_COLORS } from '../../lib/geo-extract'
 import { translateBatch } from '../../lib/translate'
 import { cookies } from 'next/headers'
 
-export const revalidate = 300
+export const revalidate = 120
 
 export default async function MappaPage() {
   const cookieStore = await cookies()

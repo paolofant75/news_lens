@@ -99,7 +99,7 @@ const GEO = [
   { label: 'Oceania',        slug: 'oceania',      abbr: 'OC'  },
 ]
 
-export const revalidate = 300
+export const revalidate = 120
 
 export default async function NewsPage({
   searchParams,
