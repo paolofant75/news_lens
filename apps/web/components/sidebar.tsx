@@ -3,12 +3,13 @@ import { fetchArticles } from '../lib/rss'
 import CountryPanel from './country-panel'
 import TaxonomyTree from './taxonomy-tree'
 import { buildCounts } from '../lib/taxonomy'
-import { IconNewspaper, IconScale, IconGlobe, IconUser } from './icons'
+import { IconNewspaper, IconScale, IconGlobe, IconUser, IconActivity } from './icons'
 
 const NAV_ITEMS = [
   { href: '/news',    Icon: IconNewspaper, label: 'Notizie',       badge: null },
   { href: '/veritas', Icon: IconScale,     label: 'Veritas',       badge: 'AI' },
   { href: '/mappa',   Icon: IconGlobe,     label: 'Mappa Globale', badge: null },
+  { href: '/stats',   Icon: IconActivity,  label: 'Statistiche',   badge: null },
   { href: '/profilo', Icon: IconUser,      label: 'Profilo',       badge: null },
 ]
 
