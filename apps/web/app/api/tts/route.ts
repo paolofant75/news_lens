@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
   }
 
   const wav = pcm16ToWav(audioData)
-  return new NextResponse(wav, {
+  return new NextResponse(new Uint8Array(wav), {
     headers: {
       'Content-Type': 'audio/wav',
       'Content-Length': String(wav.length),
