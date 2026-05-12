@@ -2,11 +2,5 @@
   "buildCommand": "cd apps/web && npx next build",
   "outputDirectory": "apps/web/.next",
   "installCommand": "cd apps/web && npm install --legacy-peer-deps",
-  "framework": "nextjs",
-  "crons": [
-    {
-      "path": "/api/cron",
-      "schedule": "*/2 * * * *"
-    }
-  ]
+  "framework": "nextjs"
 }
