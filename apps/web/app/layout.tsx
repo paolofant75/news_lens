@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { ClientThemeProvider } from './theme-provider'
@@ -20,13 +20,14 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'Veritas Lens',
   },
+}
+
+export const viewport: Viewport = {
   themeColor: '#eab308',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
