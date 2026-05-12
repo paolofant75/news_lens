@@ -7,6 +7,7 @@ import Sidebar from '../components/sidebar'
 import { encodeArticleId } from '../lib/encode'
 import { fetchTrending, scoredArticles } from '../lib/trends'
 import { CATEGORY_COLORS } from '../lib/geo-extract'
+import { fetchGlobalStats, getRelevantStats } from '../lib/stats'
 
 export const revalidate = 120
 
@@ -38,9 +39,10 @@ export default async function HomePage() {
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
 
-  const [articles, trends] = await Promise.all([
+  const [articles, trends, allStats] = await Promise.all([
     fetchArticles(),
     fetchTrending(lang),
+    fetchGlobalStats(),
   ])
 
   // Ordina per rilevanza: trending match + recency + affidabilità fonte
@@ -95,6 +97,11 @@ export default async function HomePage() {
           {/* Hero — notizia più rilevante */}
           {featured && (() => {
             const accent = CATEGORY_COLORS[featured.category] ?? 'var(--accent)'
+            const heroStats = getRelevantStats(
+              `${featured.title} ${featured.category}`,
+              allStats,
+              3
+            )
             return (
               <div className="mb-10">
                 <div className="flex items-center justify-between mb-4">
@@ -128,6 +135,25 @@ export default async function HomePage() {
                           {featured.category}
                         </span>
                       </div>
+
+                      {/* Statistiche correlate */}
+                      {heroStats.length > 0 && (
+                        <div className="relative z-10 flex flex-col gap-2 mb-3">
+                          {heroStats.map((stat) => (
+                            <div key={stat.id} className="flex items-baseline justify-between gap-2">
+                              <span className="text-[10px] leading-tight" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                                {stat.label}
+                              </span>
+                              <span className="text-xs font-bold tabular-nums shrink-0" style={{ color: accent }}>
+                                {stat.value}
+                                <span className="text-[9px] font-normal ml-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                                  {stat.unit}
+                                </span>
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
                       {/* Badge live in basso */}
                       <div className="relative z-10 flex items-center gap-2">

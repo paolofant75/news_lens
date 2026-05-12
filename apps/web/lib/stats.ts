@@ -10,6 +10,31 @@ export type GlobalStat = {
   curiosity: string        // fatto interessante correlato
 }
 
+const STAT_KEYWORDS: Record<string, string[]> = {
+  economia:   ['econom', 'mercato', 'borsa', 'banca', 'inflazione', 'euro', 'dollaro', 'commercio', 'trade', 'market', 'finance', 'bank', 'pil', 'gdp', 'disoccup', 'lavoro'],
+  ambiente:   ['clima', 'ambient', 'co2', 'carbon', 'climate', 'forest', 'emissioni', 'verde', 'inquin'],
+  salute:     ['salute', 'sanità', 'covid', 'virus', 'ospedal', 'medic', 'health', 'hospital', 'vaccin', 'pandemia', 'malattia'],
+  tecnologia: ['tech', 'tecnolog', 'artificial', 'software', 'internet', 'digital', 'cyber', 'ai ', 'robot'],
+  conflitti:  ['guerra', 'conflitto', 'militar', 'attacco', 'war', 'conflict', 'attack', 'missile', 'bomba'],
+  cultura:    ['cultura', 'arte', 'musica', 'film', 'book', 'language', 'lingua'],
+}
+
+export function getRelevantStats(query: string, stats: GlobalStat[], max = 3): GlobalStat[] {
+  const q = query.toLowerCase()
+  return stats
+    .map((stat) => {
+      let score = 0
+      for (const kw of STAT_KEYWORDS[stat.category] ?? []) if (q.includes(kw)) score += 2
+      for (const kw of STAT_KEYWORDS[stat.linkedCategory] ?? []) if (q.includes(kw)) score += 1
+      // boost if category matches directly
+      if (stat.category === q || stat.linkedCategory === q) score += 5
+      return { stat, score }
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, max)
+    .map((x) => x.stat)
+}
+
 const WB = 'https://api.worldbank.org/v2'
 
 async function fetchWorldBank(indicator: string): Promise<number | null> {

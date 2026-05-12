@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { searchAllSources, analyzeWithVeritas, extractQueryFromUrl, cleanSearchQuery } from '../../../lib/veritas'
 import { decodeArticleId } from '../../../lib/encode'
 import type { SourceAnalysis } from '../../../lib/veritas'
-import { fetchGlobalStats } from '../../../lib/stats'
+import { fetchGlobalStats, getRelevantStats } from '../../../lib/stats'
 import type { GlobalStat } from '../../../lib/stats'
 import FiveWsCard from '../../../components/five-ws-card'
 import Approfondimenti from '../../../components/approfondimenti'
@@ -33,31 +33,6 @@ function badgeClass(tipo: string) {
     : tipo === 'sensazionalistico' || tipo === 'politico'
     ? 'bg-red-900 text-red-300'
     : 'bg-yellow-900 text-yellow-300'
-}
-
-const STAT_KEYWORDS: Record<string, string[]> = {
-  economia: ['econom', 'mercato', 'borsa', 'banca', 'inflazione', 'euro', 'dollaro', 'commercio', 'trade', 'market', 'finance', 'bank', 'pil', 'gdp', 'disoccup', 'lavoro', 'impres'],
-  ambiente: ['clima', 'ambient', 'co2', 'carbon', 'climate', 'forest', 'emissioni', 'verde', 'ricicl', 'inquin', 'rinnovabi'],
-  salute: ['salute', 'sanità', 'covid', 'virus', 'ospedal', 'medic', 'health', 'hospital', 'vaccin', 'cura', 'pandemia', 'malattia'],
-  tecnologia: ['tech', 'tecnolog', 'artificial', 'software', 'internet', 'digital', 'cyber', 'ai ', 'robot', 'silicon', 'startup'],
-  conflitti: ['guerra', 'conflitto', 'militar', 'attacco', 'war', 'conflict', 'attack', 'missile', 'bomba', 'soldati', 'esercito'],
-  cultura: ['cultura', 'arte', 'musica', 'film', 'book', 'language', 'lingua', 'linguaggio'],
-}
-
-function getRelevantStats(query: string, stats: GlobalStat[]): GlobalStat[] {
-  const q = query.toLowerCase()
-  return stats
-    .map((stat) => {
-      let score = 0
-      const kws = STAT_KEYWORDS[stat.category] ?? []
-      for (const kw of kws) if (q.includes(kw)) score += 2
-      // boost per linkedCategory match
-      const lkws = STAT_KEYWORDS[stat.linkedCategory] ?? []
-      for (const kw of lkws) if (q.includes(kw)) score += 1
-      return { stat, score }
-    })
-    .sort((a, b) => b.score - a.score)
-    .map((x) => x.stat)
 }
 
 const TREND_ICON: Record<string, string> = { up: '↑', down: '↓', stable: '→' }
@@ -129,7 +104,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
   const totalSources = sourcesWithAnalysis.length
   const langLabel = lang !== 'en' ? ` (${lang.toUpperCase()})` : ''
-  const relevantStats = getRelevantStats(query, allStats).slice(0, 3)
+  const relevantStats = getRelevantStats(query, allStats, 3)
 
   // Polo A = fonte più neutrale (primo nella lista ordinata per score)
   // Polo B = fonte con angolazione più marcata (ultima nella lista)
