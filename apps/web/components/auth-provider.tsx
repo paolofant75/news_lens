@@ -20,8 +20,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const sb = getSupabaseClient()
-    if (!sb) { setLoading(false); return }
-
     sb.auth.getSession().then(({ data }) => {
       setSession(data.session)
       setUser(data.session?.user ?? null)
@@ -36,8 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function signOut() {
-    const sb = getSupabaseClient()
-    if (sb) await sb.auth.signOut()
+    await getSupabaseClient().auth.signOut()
   }
 
   return <Ctx.Provider value={{ user, session, loading, signOut }}>{children}</Ctx.Provider>
