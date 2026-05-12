@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { VeritasResult } from '../../lib/veritas'
 import LoadingQuote from '../../components/loading-quote'
 import Approfondimenti from '../../components/approfondimenti'
@@ -26,6 +27,7 @@ function badgeStyle(tipo: string) {
 }
 
 export default function VeritasPage() {
+  const searchParams = useSearchParams()
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<VeritasResult | null>(null)
@@ -36,14 +38,13 @@ export default function VeritasPage() {
     setPalette(document.documentElement.getAttribute('data-palette') ?? 'noir')
   }, [])
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    if (!query.trim()) return
+  const doSearch = useCallback(async (q: string) => {
+    if (!q.trim()) return
     setLoading(true)
     setResult(null)
     setError('')
     try {
-      const res = await fetch(`/api/veritas?q=${encodeURIComponent(query)}`)
+      const res = await fetch(`/api/veritas?q=${encodeURIComponent(q)}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Errore')
       setResult(data)
@@ -52,6 +53,20 @@ export default function VeritasPage() {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  // Auto-avvia la ricerca se arriva con ?q= nell'URL (es. da Approfondisci)
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (q?.trim()) {
+      setQuery(q)
+      doSearch(q)
+    }
+  }, [searchParams, doSearch])
+
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    await doSearch(query)
   }
 
   return (
