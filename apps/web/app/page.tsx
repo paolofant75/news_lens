@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 import HomeNewsFeed from '../components/home-news-feed'
 import Sidebar from '../components/sidebar'
 import { encodeArticleId } from '../lib/encode'
+import { fetchTrending, scoredArticles } from '../lib/trends'
 
 export const revalidate = 120
 
@@ -12,8 +13,14 @@ export default async function HomePage() {
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
 
-  const articles = await fetchArticles()
-  const raw12 = articles.slice(0, 12)
+  const [articles, trends] = await Promise.all([
+    fetchArticles(),
+    fetchTrending(lang),
+  ])
+
+  // Ordina per rilevanza: trending match + recency + affidabilità fonte
+  const ranked = scoredArticles(articles, trends)
+  const raw12 = ranked.slice(0, 12)
 
   const translated12 = await translateBatch(
     raw12.map((a) => ({ title: a.title, summary: a.summary })),
@@ -37,7 +44,30 @@ export default async function HomePage() {
       <main className="flex-1 min-w-0">
         <div className="max-w-5xl mx-auto px-4 py-8">
 
-          {/* Hero — notizia in evidenza */}
+          {/* Trending ora — Google Trends */}
+          {trends.length > 0 && (
+            <div className="mb-8">
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>
+                Trending ora
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {trends.slice(0, 6).map((t, i) => (
+                  <a
+                    key={i}
+                    href={`/veritas?q=${encodeURIComponent(t.title)}`}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-opacity hover:opacity-80"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: 'var(--accent)' }} />
+                    {t.title}
+                    {t.traffic && <span className="opacity-50">{t.traffic}</span>}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Hero — notizia più rilevante */}
           {featured && (
             <div className="mb-10">
               <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-3)' }}>
@@ -102,7 +132,7 @@ export default async function HomePage() {
               {secondary.map((article, i) => (
                 <Link
                   key={i}
-                  href={`/news`}
+                  href={`/articolo/${encodeArticleId(article.originalTitle ?? article.title)}`}
                   className="group p-5 rounded-xl transition-all hover:opacity-90"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
                 >
