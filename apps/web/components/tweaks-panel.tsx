@@ -8,10 +8,10 @@ const PALETTES = [
 ]
 
 const ACCENT_PRESETS = [
+  { label: 'Rosso',    color: '#ff0000' },
+  { label: 'Blu',      color: '#2e7eff' },
   { label: 'Giallo',   color: '#eab308' },
-  { label: 'Rosso',    color: '#e63946' },
   { label: 'Arancio',  color: '#f97316' },
-  { label: 'Blu',      color: '#3b82f6' },
   { label: 'Ciano',    color: '#06b6d4' },
   { label: 'Verde',    color: '#22c55e' },
   { label: 'Viola',    color: '#a855f7' },
@@ -37,7 +37,7 @@ export default function TweaksPanel({ palette, font }: Props) {
   const [open, setOpen]               = useState(false)
   const [currentPalette, setPalette]  = useState(palette)
   const [currentFont, setFont]        = useState(font)
-  const defaultAccent = (id: string) => id === 'bureau' ? '#c0392b' : '#eab308'
+  const defaultAccent = (id: string) => id === 'bureau' ? '#2e7eff' : '#ff0000'
 
   const [currentAccent, setAccent] = useState(() => {
     if (typeof window === 'undefined') return '#eab308'

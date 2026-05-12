@@ -10,7 +10,7 @@
   --text:      #f1f1f1;
   --text-2:    #9ca3af;
   --text-3:    #6b7280;
-  --accent:    #eab308;
+  --accent:    #ff0000;
   --accent-2:  #3b82f6;
   --font-h:    var(--font-geist-sans), sans-serif;
   --font-b:    var(--font-geist-sans), sans-serif;
@@ -25,7 +25,7 @@
   --text:      #1a1a1a;
   --text-2:    #5c4f42;
   --text-3:    #9c8878;
-  --accent:    #c0392b;
+  --accent:    #2e7eff;
   --accent-2:  #e67e22;
 }
 
