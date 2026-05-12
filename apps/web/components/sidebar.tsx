@@ -70,6 +70,7 @@ export default async function Sidebar() {
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
           <span>Live · {articles.length} storie</span>
         </div>
+        <p className="text-[10px] mt-1 opacity-30" style={{ color: 'var(--text-3)' }}>v2.1</p>
       </div>
     </aside>
   )
