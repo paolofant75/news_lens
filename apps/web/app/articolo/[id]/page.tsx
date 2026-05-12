@@ -2,9 +2,12 @@ import { cookies } from 'next/headers'
 import { searchAllSources, analyzeWithVeritas, extractQueryFromUrl, cleanSearchQuery } from '../../../lib/veritas'
 import { decodeArticleId } from '../../../lib/encode'
 import type { SourceAnalysis } from '../../../lib/veritas'
+import { fetchGlobalStats } from '../../../lib/stats'
+import type { GlobalStat } from '../../../lib/stats'
 import FiveWsCard from '../../../components/five-ws-card'
 import Approfondimenti from '../../../components/approfondimenti'
 import AudioReader from '../../../components/audio-reader'
+import ProspettiveCard from '../../../components/prospettive-card'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -32,6 +35,34 @@ function badgeClass(tipo: string) {
     : 'bg-yellow-900 text-yellow-300'
 }
 
+const STAT_KEYWORDS: Record<string, string[]> = {
+  economia: ['econom', 'mercato', 'borsa', 'banca', 'inflazione', 'euro', 'dollaro', 'commercio', 'trade', 'market', 'finance', 'bank', 'pil', 'gdp', 'disoccup', 'lavoro', 'impres'],
+  ambiente: ['clima', 'ambient', 'co2', 'carbon', 'climate', 'forest', 'emissioni', 'verde', 'ricicl', 'inquin', 'rinnovabi'],
+  salute: ['salute', 'sanità', 'covid', 'virus', 'ospedal', 'medic', 'health', 'hospital', 'vaccin', 'cura', 'pandemia', 'malattia'],
+  tecnologia: ['tech', 'tecnolog', 'artificial', 'software', 'internet', 'digital', 'cyber', 'ai ', 'robot', 'silicon', 'startup'],
+  conflitti: ['guerra', 'conflitto', 'militar', 'attacco', 'war', 'conflict', 'attack', 'missile', 'bomba', 'soldati', 'esercito'],
+  cultura: ['cultura', 'arte', 'musica', 'film', 'book', 'language', 'lingua', 'linguaggio'],
+}
+
+function getRelevantStats(query: string, stats: GlobalStat[]): GlobalStat[] {
+  const q = query.toLowerCase()
+  return stats
+    .map((stat) => {
+      let score = 0
+      const kws = STAT_KEYWORDS[stat.category] ?? []
+      for (const kw of kws) if (q.includes(kw)) score += 2
+      // boost per linkedCategory match
+      const lkws = STAT_KEYWORDS[stat.linkedCategory] ?? []
+      for (const kw of lkws) if (q.includes(kw)) score += 1
+      return { stat, score }
+    })
+    .sort((a, b) => b.score - a.score)
+    .map((x) => x.stat)
+}
+
+const TREND_ICON: Record<string, string> = { up: '↑', down: '↓', stable: '→' }
+const TREND_COLOR: Record<string, string> = { up: '#22c55e', down: '#ef4444', stable: '#94a3b8' }
+
 export default async function ArticoloPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const cookieStore = await cookies()
@@ -49,7 +80,10 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
     searchQuery = id
   }
 
-  const articles = await searchAllSources(searchQuery)
+  const [articles, allStats] = await Promise.all([
+    searchAllSources(searchQuery),
+    fetchGlobalStats(),
+  ])
 
   if (articles.length === 0) {
     return (
@@ -95,6 +129,17 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
   const totalSources = sourcesWithAnalysis.length
   const langLabel = lang !== 'en' ? ` (${lang.toUpperCase()})` : ''
+  const relevantStats = getRelevantStats(query, allStats).slice(0, 3)
+
+  // Polo A = fonte più neutrale (primo nella lista ordinata per score)
+  // Polo B = fonte con angolazione più marcata (ultima nella lista)
+  const poleA = sourcesWithAnalysis[0]
+  const poleB = sourcesWithAnalysis.length > 2
+    ? sourcesWithAnalysis[sourcesWithAnalysis.length - 1]
+    : sourcesWithAnalysis.length === 2
+    ? sourcesWithAnalysis[1]
+    : null
+  const showProspettive = poleA && poleB && poleA.analisi && poleB.analisi && poleA.src.source !== poleB.src.source
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
@@ -123,9 +168,39 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
 
-          {/* SINISTRA — Articolo consolidato */}
+          {/* SINISTRA — Statistiche correlate */}
+          <div className="lg:col-span-1 order-last lg:order-first flex flex-row lg:flex-col gap-3 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
+            <p className="hidden lg:block text-xs font-semibold uppercase tracking-widest mb-1 shrink-0" style={{ color: 'var(--text-3)' }}>
+              Statistiche
+            </p>
+            {relevantStats.map((stat) => (
+              <div key={stat.id} className="rounded-xl p-3 shrink-0 lg:shrink w-52 lg:w-auto"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <p className="text-[10px] font-semibold uppercase tracking-wide mb-1 leading-tight" style={{ color: 'var(--text-3)' }}>
+                  {stat.label}
+                </p>
+                <div className="flex items-baseline gap-1 flex-wrap">
+                  <span className="text-lg font-bold leading-none" style={{ color: 'var(--accent)' }}>
+                    {stat.value}
+                  </span>
+                  <span className="text-[10px]" style={{ color: 'var(--text-3)' }}>{stat.unit}</span>
+                  {stat.trend && (
+                    <span className="text-xs font-bold ml-auto" style={{ color: TREND_COLOR[stat.trend] }}>
+                      {TREND_ICON[stat.trend]}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] mt-1.5 leading-snug opacity-70" style={{ color: 'var(--text-2)' }}>
+                  {stat.curiosity}
+                </p>
+                <p className="text-[9px] mt-1 opacity-40" style={{ color: 'var(--text-3)' }}>{stat.source}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CENTRO — Articolo consolidato */}
           <div className="lg:col-span-3">
             <div className="rounded-2xl p-7 h-full" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)' }}>
               <div className="flex items-center gap-3 mb-5">
@@ -167,7 +242,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
           </div>
 
           {/* DESTRA — Fonti ordinate per score */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 order-first lg:order-last">
             <h2 className="text-base font-bold mb-4" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
               Fonti — dalla più completa e imparziale
             </h2>
@@ -246,6 +321,14 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
           <div className="mt-2 px-0">
             <Approfondimenti items={result.approfondimenti} />
           </div>
+        )}
+
+        {/* Due prospettive */}
+        {showProspettive && (
+          <ProspettiveCard
+            poleA={{ src: poleA.src, analisi: poleA.analisi! }}
+            poleB={{ src: poleB!.src, analisi: poleB!.analisi! }}
+          />
         )}
       </div>
     </div>
