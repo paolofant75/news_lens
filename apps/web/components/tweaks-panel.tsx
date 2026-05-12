@@ -1,124 +1,162 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useRef } from 'react'
 
 const PALETTES = [
-  {
-    id: 'noir',
-    label: 'Noir',
-    desc: 'Scuro',
-    colors: ['#0a0a0a', '#eab308', '#3b82f6', '#f1f1f1'],
-  },
-  {
-    id: 'bureau',
-    label: 'Bureau',
-    desc: 'Chiaro',
-    colors: ['#f7f4ef', '#c0392b', '#e67e22', '#1a1a1a'],
-  },
+  { id: 'noir',   label: 'Noir',   bg: '#0a0a0a', text: '#f1f1f1' },
+  { id: 'bureau', label: 'Bureau', bg: '#f7f4ef', text: '#1a1a1a' },
+]
+
+const ACCENT_PRESETS = [
+  { label: 'Giallo',   color: '#eab308' },
+  { label: 'Rosso',    color: '#e63946' },
+  { label: 'Arancio',  color: '#f97316' },
+  { label: 'Blu',      color: '#3b82f6' },
+  { label: 'Ciano',    color: '#06b6d4' },
+  { label: 'Verde',    color: '#22c55e' },
+  { label: 'Viola',    color: '#a855f7' },
+  { label: 'Rosa',     color: '#ec4899' },
 ]
 
 const FONTS = [
-  { id: 'geist',  label: 'Geist',  sub: 'Sans-serif moderno' },
-  { id: 'atlas',  label: 'Atlas',  sub: 'Newsreader · editoriale' },
+  { id: 'geist', label: 'Geist',  sub: 'Sans-serif moderno' },
+  { id: 'atlas', label: 'Atlas',  sub: 'Newsreader · editoriale' },
 ]
 
-
-type Props = {
-  palette: string
-  font: string
+async function saveCookies(palette: string, font: string) {
+  await fetch('/api/lang', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ palette, font }),
+  }).catch(() => {})
 }
 
-export default function TweaksPanel({ palette, font }: Props) {
-  const [open, setOpen] = useState(false)
-  const [currentPalette, setCurrentPalette] = useState(palette)
-  const [currentFont, setCurrentFont] = useState(font)
-  const router = useRouter()
+type Props = { palette: string; font: string }
 
-  async function applyTheme(newPalette: string, newFont: string) {
-    document.documentElement.setAttribute('data-palette', newPalette)
-    document.documentElement.setAttribute('data-font', newFont)
-    await fetch('/api/lang', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ palette: newPalette, font: newFont }),
-    }).catch(() => {})
-    // Save to localStorage as fallback
-    localStorage.setItem('nlv_palette', newPalette)
-    localStorage.setItem('nlv_font', newFont)
+export default function TweaksPanel({ palette, font }: Props) {
+  const [open, setOpen]               = useState(false)
+  const [currentPalette, setPalette]  = useState(palette)
+  const [currentFont, setFont]        = useState(font)
+  const [currentAccent, setAccent]    = useState(
+    () => (typeof window !== 'undefined' ? localStorage.getItem('nlv_accent') ?? '#eab308' : '#eab308')
+  )
+  const colorRef = useRef<HTMLInputElement>(null)
+
+  function applyAccent(color: string) {
+    document.documentElement.style.setProperty('--accent', color)
+    localStorage.setItem('nlv_accent', color)
+    setAccent(color)
   }
 
   function selectPalette(id: string) {
-    setCurrentPalette(id)
-    applyTheme(id, currentFont)
+    setPalette(id)
+    document.documentElement.setAttribute('data-palette', id)
+    localStorage.setItem('nlv_palette', id)
+    saveCookies(id, currentFont)
   }
 
   function selectFont(id: string) {
-    setCurrentFont(id)
-    applyTheme(currentPalette, id)
+    setFont(id)
+    document.documentElement.setAttribute('data-font', id)
+    localStorage.setItem('nlv_font', id)
+    saveCookies(currentPalette, id)
+  }
+
+  function resetAccent() {
+    applyAccent('#eab308')
   }
 
   return (
     <>
-      {/* Trigger button */}
       <button
         onClick={() => setOpen(true)}
         title="Tweaks"
-        style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text)' }}
         className="p-2 rounded-lg hover:opacity-80 transition-opacity text-sm"
+        style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text)' }}
       >
         ⚙
       </button>
 
-      {/* Backdrop */}
-      {open && (
-        <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-      )}
+      {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
 
-      {/* Panel */}
       {open && (
         <div
-          className="fixed top-14 right-4 z-50 w-64 rounded-xl shadow-2xl p-5 space-y-5"
-          style={{
-            background: 'var(--bg-s)',
-            border: '1px solid var(--border)',
-            color: 'var(--text)',
-          }}
+          className="fixed top-14 right-4 z-50 w-72 rounded-xl shadow-2xl p-5 space-y-5"
+          style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text)' }}
         >
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-sm">Tweaks</span>
-            <button onClick={() => setOpen(false)} style={{ color: 'var(--text-3)' }} className="hover:opacity-80 text-lg leading-none">✕</button>
+            <span className="font-semibold text-sm">Personalizza</span>
+            <button onClick={() => setOpen(false)} className="hover:opacity-80 text-lg leading-none" style={{ color: 'var(--text-3)' }}>✕</button>
           </div>
 
-          {/* Palette */}
+          {/* Sfondo */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>Palette</p>
-            <div className="flex gap-2">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>Sfondo</p>
+            <div className="flex gap-3">
               {PALETTES.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => selectPalette(p.id)}
-                  className="flex flex-col items-center gap-1.5 group"
-                >
+                <button key={p.id} onClick={() => selectPalette(p.id)} className="flex flex-col items-center gap-1.5">
                   <div
-                    className="w-14 h-10 rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2"
-                    style={{ outline: currentPalette === p.id ? '2px solid var(--accent)' : '2px solid transparent', outlineOffset: '2px' }}
+                    className="w-16 h-10 rounded-lg flex items-center justify-center text-xs font-bold"
+                    style={{
+                      background: p.bg, color: p.text,
+                      outline: currentPalette === p.id ? `2px solid ${currentAccent}` : '2px solid transparent',
+                      outlineOffset: 2,
+                    }}
                   >
-                    {p.colors.map((c, i) => (
-                      <div key={i} style={{ background: c }} />
-                    ))}
+                    Aa
                   </div>
-                  <span className="text-xs" style={{ color: currentPalette === p.id ? 'var(--accent)' : 'var(--text-3)' }}>
-                    {p.label}
-                  </span>
+                  <span className="text-xs" style={{ color: currentPalette === p.id ? 'var(--accent)' : 'var(--text-3)' }}>{p.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
+          {/* Colore accent */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>Colore accent</p>
+              <button onClick={resetAccent} className="text-xs hover:opacity-70" style={{ color: 'var(--text-3)' }}>Reset</button>
+            </div>
+            {/* Swatches preset */}
+            <div className="grid grid-cols-8 gap-1.5 mb-3">
+              {ACCENT_PRESETS.map((a) => (
+                <button
+                  key={a.color}
+                  onClick={() => applyAccent(a.color)}
+                  title={a.label}
+                  className="w-7 h-7 rounded-full transition-transform hover:scale-110"
+                  style={{
+                    background: a.color,
+                    outline: currentAccent === a.color ? '2px solid var(--text)' : '2px solid transparent',
+                    outlineOffset: 2,
+                  }}
+                />
+              ))}
+            </div>
+            {/* Custom color picker */}
+            <div className="flex items-center gap-3">
+              <div
+                className="w-8 h-8 rounded-lg cursor-pointer flex-shrink-0 transition-transform hover:scale-110"
+                style={{ background: currentAccent }}
+                onClick={() => colorRef.current?.click()}
+              />
+              <div className="flex-1">
+                <p className="text-xs" style={{ color: 'var(--text-2)' }}>Colore personalizzato</p>
+                <p className="text-xs font-mono" style={{ color: 'var(--text-3)' }}>{currentAccent}</p>
+              </div>
+              <input
+                ref={colorRef}
+                type="color"
+                value={currentAccent}
+                onChange={(e) => applyAccent(e.target.value)}
+                className="w-0 h-0 opacity-0 absolute"
+              />
+            </div>
+          </div>
+
           {/* Font */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>Tipo di font</p>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>Font</p>
             <div className="grid grid-cols-2 gap-1.5">
               {FONTS.map((f) => (
                 <button
@@ -126,8 +164,8 @@ export default function TweaksPanel({ palette, font }: Props) {
                   onClick={() => selectFont(f.id)}
                   className="px-3 py-2 rounded-lg text-left transition-colors"
                   style={{
-                    background: currentFont === f.id ? 'var(--accent)' : 'var(--bg-card)',
-                    color: currentFont === f.id ? '#fff' : 'var(--text)',
+                    background: currentFont === f.id ? currentAccent : 'var(--bg-card)',
+                    color: currentFont === f.id ? '#000' : 'var(--text)',
                     border: '1px solid var(--border)',
                   }}
                 >
@@ -138,7 +176,11 @@ export default function TweaksPanel({ palette, font }: Props) {
             </div>
           </div>
 
-
+          {/* Preview */}
+          <div className="rounded-lg p-3 text-xs" style={{ background: 'var(--bg-card)', border: `1px solid ${currentAccent}` }}>
+            <span style={{ color: currentAccent }}>● </span>
+            <span style={{ color: 'var(--text)' }}>Anteprima combinazione attuale</span>
+          </div>
         </div>
       )}
     </>
