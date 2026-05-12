@@ -37,14 +37,17 @@ export default function TweaksPanel({ palette, font }: Props) {
   const [open, setOpen]               = useState(false)
   const [currentPalette, setPalette]  = useState(palette)
   const [currentFont, setFont]        = useState(font)
-  const [currentAccent, setAccent]    = useState(
-    () => (typeof window !== 'undefined' ? localStorage.getItem('nlv_accent') ?? '#eab308' : '#eab308')
-  )
+  const defaultAccent = (id: string) => id === 'bureau' ? '#c0392b' : '#eab308'
+
+  const [currentAccent, setAccent] = useState(() => {
+    if (typeof window === 'undefined') return '#eab308'
+    return localStorage.getItem(`nlv_accent_${palette}`) ?? defaultAccent(palette)
+  })
   const colorRef = useRef<HTMLInputElement>(null)
 
-  function applyAccent(color: string) {
+  function applyAccent(color: string, pal = currentPalette) {
     document.documentElement.style.setProperty('--accent', color)
-    localStorage.setItem('nlv_accent', color)
+    localStorage.setItem(`nlv_accent_${pal}`, color)
     setAccent(color)
   }
 
@@ -52,6 +55,9 @@ export default function TweaksPanel({ palette, font }: Props) {
     setPalette(id)
     document.documentElement.setAttribute('data-palette', id)
     localStorage.setItem('nlv_palette', id)
+    // Ripristina il colore accent salvato per questa palette
+    const saved = localStorage.getItem(`nlv_accent_${id}`) ?? defaultAccent(id)
+    applyAccent(saved, id)
     saveCookies(id, currentFont)
   }
 
@@ -63,7 +69,7 @@ export default function TweaksPanel({ palette, font }: Props) {
   }
 
   function resetAccent() {
-    applyAccent('#eab308')
+    applyAccent(defaultAccent(currentPalette))
   }
 
   return (
