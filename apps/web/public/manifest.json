@@ -4,8 +4,8 @@
   "description": "Global news aggregator with AI-powered anti-bias analysis",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#eab308",
+  "background_color": "#0d0d0d",
+  "theme_color": "#ff0000",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -16,8 +16,19 @@
     {
       "src": "/apple-icon",
       "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/api/icons/192",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/api/icons/512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["news"],
