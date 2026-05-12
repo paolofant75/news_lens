@@ -3,13 +3,13 @@ import { fetchArticles } from '../lib/rss'
 import CountryPanel from './country-panel'
 import TaxonomyTree from './taxonomy-tree'
 import { buildCounts } from '../lib/taxonomy'
-import { IconNewspaper, IconScale, IconGlobe, IconActivity, IconSearch } from './icons'
+import { IconNewspaper, IconScale, IconGlobe, IconUser } from './icons'
 
 const NAV_ITEMS = [
-  { href: '/news',      Icon: IconNewspaper, label: 'Notizie',       badge: null },
-  { href: '/veritas',   Icon: IconScale,     label: 'Veritas',       badge: 'AI' },
-  { href: '/mappa',     Icon: IconGlobe,     label: 'Mappa Globale', badge: null },
-  { href: '/dashboard', Icon: IconActivity,  label: 'API Status',    badge: null },
+  { href: '/news',    Icon: IconNewspaper, label: 'Notizie',       badge: null },
+  { href: '/veritas', Icon: IconScale,     label: 'Veritas',       badge: 'AI' },
+  { href: '/mappa',   Icon: IconGlobe,     label: 'Mappa Globale', badge: null },
+  { href: '/profilo', Icon: IconUser,      label: 'Profilo',       badge: null },
 ]
 
 export default async function Sidebar() {

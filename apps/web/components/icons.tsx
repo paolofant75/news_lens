@@ -34,3 +34,4 @@ export const IconChevronRight = (p: IconProps) => <Icon {...p} path="m9 18 6-6-6
 export const IconChevronDown  = (p: IconProps) => <Icon {...p} path="m6 9 6 6 6-6" />
 export const IconMap      = (p: IconProps) => <Icon {...p} path="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6ZM9 3v15M15 6v15" />
 export const IconMapPin   = (p: IconProps) => <Icon {...p} path="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+export const IconUser     = (p: IconProps) => <Icon {...p} path="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" />

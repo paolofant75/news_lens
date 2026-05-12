@@ -207,6 +207,26 @@ export default async function NewsPage({
         {/* Contenuto principale */}
         <div className="flex-1 min-w-0 px-4 py-4">
 
+          {/* GEO STRIP — solo mobile */}
+          <div className="lg:hidden overflow-x-auto pb-2 mb-4 -mx-4 px-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div className="flex gap-2 min-w-max">
+              {GEO.map((g) => (
+                <a
+                  key={g.slug}
+                  href={buildUrl(categoria, g.slug)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-opacity hover:opacity-80"
+                  style={g.slug === (area ?? '')
+                    ? { background: 'var(--accent)', color: '#000' }
+                    : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
+                >
+                  <span className="font-bold tracking-wide" style={{ fontSize: 9 }}>{g.abbr}</span>
+                  <span>{g.label}</span>
+                  <span className="opacity-50" style={{ fontSize: 10 }}>{geoCounts[g.slug]}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+
           {/* Sottocategorie sport */}
           {categoria === 'sport' && (
             <div className="overflow-x-auto pb-2 mb-4" style={{ borderBottom: '1px solid var(--border)' }}>

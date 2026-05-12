@@ -43,9 +43,6 @@ export default async function Navbar() {
           <Link href="/mappa" className="hover:opacity-80 transition-opacity" style={{ color: 'var(--text-2)' }}>
             Mappa
           </Link>
-          <Link href="/dashboard" className="hover:opacity-80 transition-opacity" style={{ color: 'var(--text-2)' }}>
-            Dashboard
-          </Link>
         </nav>
 
         {/* Actions */}

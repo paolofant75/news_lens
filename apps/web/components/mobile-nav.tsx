@@ -4,13 +4,13 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { TAXONOMY } from '../lib/taxonomy'
-import { IconNewspaper, IconScale, IconGlobe, IconActivity, IconChevronRight, IconChevronDown, IconZap, IconGlobe2, IconCpu, IconTrending, IconFlask, IconLayers, IconEye } from './icons'
+import { IconNewspaper, IconScale, IconGlobe, IconUser, IconChevronRight, IconChevronDown, IconZap, IconGlobe2, IconCpu, IconTrending, IconFlask, IconLayers, IconEye } from './icons'
 
 const NAV = [
-  { href: '/news',      Icon: IconNewspaper, label: 'Notizie' },
-  { href: '/veritas',   Icon: IconScale,     label: 'Veritas' },
-  { href: '/mappa',     Icon: IconGlobe,     label: 'Mappa'   },
-  { href: '/dashboard', Icon: IconActivity,  label: 'Status'  },
+  { href: '/news',    Icon: IconNewspaper, label: 'Notizie' },
+  { href: '/veritas', Icon: IconScale,     label: 'Veritas' },
+  { href: '/mappa',   Icon: IconGlobe,     label: 'Mappa'   },
+  { href: '/profilo', Icon: IconUser,      label: 'Profilo' },
 ]
 
 const NODE_ICONS: Record<string, React.ReactNode> = {
