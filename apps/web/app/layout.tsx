@@ -11,8 +11,21 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'News Lens Veritas',
-  description: 'Global news aggregator with AI-powered anti-bias analysis',
+  title: 'Veritas Lens',
+  description: 'Aggregatore notizie globale con analisi AI anti-bias',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Veritas Lens',
+  },
+  themeColor: '#eab308',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

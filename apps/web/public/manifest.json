@@ -1,0 +1,41 @@
+{
+  "name": "Veritas Lens",
+  "short_name": "Veritas",
+  "description": "Global news aggregator with AI-powered anti-bias analysis",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#eab308",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["news"],
+  "shortcuts": [
+    {
+      "name": "Notizie",
+      "url": "/news",
+      "description": "Feed notizie in tempo reale"
+    },
+    {
+      "name": "Veritas",
+      "url": "/veritas",
+      "description": "Analisi AI anti-bias"
+    },
+    {
+      "name": "Mappa",
+      "url": "/mappa",
+      "description": "Mappa globale delle notizie"
+    }
+  ]
+}
