@@ -92,12 +92,25 @@ export function classifyArticle(title: string, summary: string): ClassificationR
 
 export function geoClassify(title: string, summary: string): string {
   const t = (title + ' ' + summary).toLowerCase()
-  if (/israel|palestin|iran|iraq|syria|saudi arabia|lebanon|jordan|yemen|persian gulf|middle east|hamas|hezbollah|gaza|west bank|tehran|riyadh/.test(t)) return 'medio-oriente'
-  if (/\bchina\b|japan|india|\bsouth korea\b|\bnorth korea\b|taiwan|hong kong|singapore|myanmar|thailand|vietnam|beijing|tokyo|new delhi|pakistan|bangladesh/.test(t)) return 'asia'
-  if (/russia|ukraine|european union|\beu summit\b|brussels|nato|france|germany|italy|spain|\bunited kingdom\b|\buk\b|britain|poland|hungary|türkiye|turkey|nordic|scandinavia|premier league|fa cup|bundesliga|serie a|la liga|ligue 1|tottenham|arsenal|chelsea|liverpool|manchester|leeds|everton|newcastle/.test(t)) return 'europa'
-  if (/united states|white house|washington d\.c\.|congress|trump|biden|harris|pentagon|canada|mexico|brazil|argentina|colombia|latin america|chile|venezuela|alabama|alaska|arizona|california|florida|georgia|illinois|michigan|new york|ohio|texas|tennessee|virginia|supreme court|federal reserve|republican|democrat|fbi|cia/.test(t)) return 'americhe'
-  if (/\bafrica\b|nigeria|ethiopia|kenya|south africa|egypt|sudan|ghana|tanzania|congo|somalia|senegal|morocco|tunisia|sahel/.test(t)) return 'africa'
-  if (/australia|new zealand|\bpacific islands\b|oceania|papua new guinea/.test(t)) return 'oceania'
+
+  // Medio Oriente — molto specifico, va prima
+  if (/israel|palestin|iran|iraq|syria|saudi arabia|lebanon|jordan|yemen|persian gulf|middle east|hamas|hezbollah|gaza|west bank|tehran|riyadh|tel aviv|netanyahu|khamenei|idf|mossad|ayatollah|sunni|shia|abu dhabi|dubai|qatar|kuwait|bahrain|oman|isil|isis|daesh/.test(t)) return 'medio-oriente'
+
+  // Asia — città, persone, istituzioni
+  if (/\bchina\b|japan|india|\bsouth korea\b|\bnorth korea\b|taiwan|hong kong|singapore|myanmar|thailand|vietnam|beijing|tokyo|new delhi|mumbai|shanghai|seoul|pyongyang|xi jinping|modi|abe|kishida|kim jong|jakarta|manila|kuala lumpur|dhaka|islamabad|karachi|colombo|kathmandu|cambodia|laos|indonesia|pakistan|bangladesh|sri lanka|nepal|bhutan|afghanistan|mongolia|uzbekistan|kazakhstan/.test(t)) return 'asia'
+
+  // Europa — paesi, città, persone, sport, istituzioni
+  if (/russia|ukraine|european union|\beu summit\b|brussels|nato|france|germany|italy|spain|\bunited kingdom\b|\buk\b|britain|poland|hungary|türkiye|turkey|nordic|scandinavia|paris|berlin|rome|madrid|london|amsterdam|vienna|warsaw|budapest|stockholm|oslo|copenhagen|helsinki|lisbon|athens|prague|bucharest|zagreb|belgrade|sofia|putin|zelensky|macron|scholz|meloni|sanchez|sunak|starmer|orbán|tusk|premier league|fa cup|bundesliga|serie a|la liga|ligue 1|eredivisie|tottenham|arsenal|chelsea|liverpool|manchester|leeds|everton|newcastle|juventus|milan|inter|roma|barcelona|real madrid|atletico|psg|bayern|borussia|ajax|ansa|quirinale|parlamento italiano|senato italiano|camera dei deputati|bce|banca d'europa|camorra|mafia|ndrangheta/.test(t)) return 'europa'
+
+  // Americhe — stati USA, persone, istituzioni
+  if (/united states|white house|washington d\.c\.|congress|trump|biden|harris|pentagon|canada|mexico|brazil|argentina|colombia|latin america|chile|venezuela|alabama|alaska|arizona|california|colorado|florida|georgia|illinois|iowa|michigan|minnesota|new york|ohio|oklahoma|oregon|pennsylvania|tennessee|texas|virginia|wisconsin|supreme court|federal reserve|republican|democrat|fbi|cia|doj|nsa|senate|house of representatives|wall street|new york stock|nasdaq|ottawa|trudeau|brasilia|lula|buenos aires|bogota|caracas|havana|cuba|haiti|jamaica|san francisco|los angeles|chicago|houston|miami|boston|seattle|new england|nba|nfl|mlb|nhl|super bowl|nascar/.test(t)) return 'americhe'
+
+  // Africa
+  if (/\bafrica\b|nigeria|ethiopia|kenya|south africa|egypt|sudan|ghana|tanzania|congo|somalia|senegal|morocco|tunisia|sahel|mali|niger|burkina faso|mozambique|zimbabwe|rwanda|uganda|cameroon|angola|zambia|zimbabwe|lagos|nairobi|cairo|addis ababa|dakar|kinshasa|african union/.test(t)) return 'africa'
+
+  // Oceania
+  if (/australia|new zealand|\bpacific islands\b|oceania|papua new guinea|fiji|samoa|tonga|vanuatu|solomon islands|sydney|melbourne|canberra|auckland|wellington|scott morrison|albanese/.test(t)) return 'oceania'
+
   return 'mondo'
 }
 

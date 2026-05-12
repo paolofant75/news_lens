@@ -4,6 +4,7 @@ import { decodeArticleId } from '../../../lib/encode'
 import type { SourceAnalysis } from '../../../lib/veritas'
 import FiveWsCard from '../../../components/five-ws-card'
 import Approfondimenti from '../../../components/approfondimenti'
+import AudioReader from '../../../components/audio-reader'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -132,6 +133,9 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
                 <div>
                   <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>Articolo Consolidato Veritas</h2>
                   <p className="text-xs" style={{ color: 'var(--text-3)' }}>Sintesi imparziale · bias-free · {totalSources} fonti</p>
+                  <div className="mt-2">
+                    <AudioReader text={result.articolo_consolidato} lang={lang} />
+                  </div>
                 </div>
               </div>
               <div className="leading-relaxed whitespace-pre-wrap text-sm" style={{ color: 'var(--text)' }}>

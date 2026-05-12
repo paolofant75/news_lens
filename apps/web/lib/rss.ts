@@ -73,6 +73,16 @@ const FEEDS: FeedMeta[] = [
   // Scienza / Salute
   { id: 'nasa_news',      source: 'NASA',                    url: 'https://www.nasa.gov/rss/dyn/breaking_news.rss',          country: 'USA',           region: 'americhe',   type: 'government',    bias: 'center',        reliability: 9.5, aiValue: 'high', antiBiasValue: 'high' },
   { id: 'who_news',       source: 'WHO',                     url: 'https://www.who.int/feeds/entity/news/en/rss.xml',        country: 'International', region: 'mondo',      type: 'government',    bias: 'center',        reliability: 9.3, aiValue: 'high', antiBiasValue: 'high' },
+  // ANSA — Italia
+  { id: 'ansa_top',       source: 'ANSA',                    url: 'https://www.ansa.it/sito/notizie/topnews/topnews_rss.xml',      country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high' },
+  { id: 'ansa_mondo',     source: 'ANSA Mondo',              url: 'https://www.ansa.it/sito/notizie/mondo/mondo_rss.xml',          country: 'Italy', region: 'mondo',    type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high' },
+  { id: 'ansa_politica',  source: 'ANSA Politica',           url: 'https://www.ansa.it/sito/notizie/politica/politica_rss.xml',    country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high' },
+  { id: 'ansa_economia',  source: 'ANSA Economia',           url: 'https://www.ansa.it/sito/notizie/economia/economia_rss.xml',    country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high' },
+  { id: 'ansa_tech',      source: 'ANSA Tecnologia',         url: 'https://www.ansa.it/sito/notizie/tecnologia/tecnologia_rss.xml',country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.3, aiValue: 'high', antiBiasValue: 'medium' },
+  { id: 'ansa_sport',     source: 'ANSA Sport',              url: 'https://www.ansa.it/sito/notizie/sport/sport_rss.xml',          country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.3, aiValue: 'medium', antiBiasValue: 'medium' },
+  { id: 'ansa_salute',    source: 'ANSA Salute',             url: 'https://www.ansa.it/sito/notizie/salute/salute_rss.xml',        country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high' },
+  { id: 'ansa_ambiente',  source: 'ANSA Ambiente',           url: 'https://www.ansa.it/sito/notizie/ambiente/ambiente_rss.xml',    country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.3, aiValue: 'high', antiBiasValue: 'high' },
+  { id: 'ansa_cultura',   source: 'ANSA Cultura',            url: 'https://www.ansa.it/sito/notizie/lifestyle/lifestyle_rss.xml',  country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.0, aiValue: 'medium', antiBiasValue: 'medium' },
 ]
 
 function categorize(title: string, summary: string): string {
