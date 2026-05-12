@@ -90,13 +90,13 @@ const SPORT_KEYWORDS: Record<string, string[]> = {
 }
 
 const GEO = [
-  { label: 'Tutto il mondo', slug: '', abbr: 'WLD' },
-  { label: 'Europa',         slug: 'europa',       abbr: 'EU'  },
-  { label: 'Americhe',       slug: 'americhe',     abbr: 'AM'  },
-  { label: 'Medio Oriente',  slug: 'medio-oriente',abbr: 'ME'  },
-  { label: 'Asia',           slug: 'asia',         abbr: 'AS'  },
-  { label: 'Africa',         slug: 'africa',       abbr: 'AF'  },
-  { label: 'Oceania',        slug: 'oceania',      abbr: 'OC'  },
+  { label: 'Tutto il mondo', slug: '',             flag: '🌐' },
+  { label: 'Europa',         slug: 'europa',       flag: '🇪🇺' },
+  { label: 'Americhe',       slug: 'americhe',     flag: '🌎' },
+  { label: 'Medio Oriente',  slug: 'medio-oriente',flag: '🕌' },
+  { label: 'Asia',           slug: 'asia',         flag: '🌏' },
+  { label: 'Africa',         slug: 'africa',       flag: '🌍' },
+  { label: 'Oceania',        slug: 'oceania',      flag: '🌊' },
 ]
 
 export const revalidate = 120
@@ -189,7 +189,7 @@ export default async function NewsPage({
                 ? { background: 'var(--accent)', color: '#fff' }
                 : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
             >
-              <span className="text-[10px] font-bold tracking-widest leading-none opacity-80">{g.abbr}</span>
+              <span className="text-xl leading-none">{g.flag}</span>
               <span className="leading-tight mt-1">{g.label}</span>
               <span className="opacity-60 text-[10px]">{geoCounts[g.slug]}</span>
             </a>
@@ -219,7 +219,7 @@ export default async function NewsPage({
                     ? { background: 'var(--accent)', color: '#000' }
                     : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
                 >
-                  <span className="font-bold tracking-wide" style={{ fontSize: 9 }}>{g.abbr}</span>
+                  <span>{g.flag}</span>
                   <span>{g.label}</span>
                   <span className="opacity-50" style={{ fontSize: 10 }}>{geoCounts[g.slug]}</span>
                 </a>
