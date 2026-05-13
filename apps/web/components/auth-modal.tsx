@@ -129,6 +129,13 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
           className="mt-4 text-xs w-full text-center hover:opacity-80" style={{ color: 'var(--text-3)' }}>
           {mode === 'login' ? 'Non hai un account? Registrati' : 'Hai già un account? Accedi'}
         </button>
+
+        <p className="mt-3 text-[10px] text-center" style={{ color: 'var(--text-3)' }}>
+          Registrandoti accetti la nostra{' '}
+          <a href="/privacy" target="_blank" className="underline hover:opacity-80" style={{ color: 'var(--text-3)' }}>
+            Privacy Policy
+          </a>
+        </p>
       </div>
     </div>
   )
