@@ -10,8 +10,7 @@ export async function GET() {
       }}>
         <span style={{
           fontFamily: 'Georgia, serif', fontSize: 580, fontWeight: 700,
-          color: 'white', lineHeight: 1,
-          textShadow: '6px 0 0 #e00,  -6px 0 0 #e00, 0 6px 0 #e00, 0 -6px 0 #e00, 5px 5px 0 #e00, -5px 5px 0 #e00, 5px -5px 0 #e00, -5px -5px 0 #e00',
+          color: '#cc0000', lineHeight: 1,
         }}>V</span>
         <span style={{
           fontFamily: 'Georgia, serif', fontSize: 90, fontWeight: 600,
