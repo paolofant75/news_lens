@@ -60,7 +60,7 @@ export default function HeroStatsCarousel({
 
       {/* Statistica centrale — fade transition */}
       <Link
-        href={`/news?categoria=${stat.linkedCategory}`}
+        href={`/veritas?q=${encodeURIComponent(stat.label)}`}
         className="flex-1 flex flex-col items-center justify-center gap-2 cursor-pointer group"
         style={{
           opacity: visible ? 1 : 0,
@@ -89,7 +89,7 @@ export default function HeroStatsCarousel({
           {stat.curiosity}
         </p>
         <span className="text-[10px] mt-1 opacity-50 group-hover:opacity-90 transition-opacity" style={{ color: accent }}>
-          Vedi notizie →
+          Analizza con Veritas →
         </span>
       </Link>
 
