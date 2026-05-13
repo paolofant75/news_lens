@@ -21,11 +21,9 @@ const INTERVAL = 4000
 export default function HeroStatsCarousel({
   stats,
   accent,
-  source,
 }: {
   stats: Stat[]
   accent: string
-  source: string
 }) {
   const [current, setCurrent] = useState(0)
   const [visible, setVisible] = useState(true)
@@ -114,11 +112,12 @@ export default function HeroStatsCarousel({
           </div>
         )}
 
-        {/* Live badge */}
-        <div className="flex items-center gap-2">
+        {/* Fonte statistica — cambia con la slide */}
+        <div className="flex items-center gap-2"
+          style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.3s ease' }}>
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
-          <span className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            LIVE · {source}
+          <span className="text-[10px] font-medium truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Fonte: {stat.source}
           </span>
         </div>
       </div>

@@ -101,7 +101,6 @@ export default async function HomePage() {
                       <HeroStatsCarousel
                         stats={heroStats}
                         accent={accent}
-                        source={featured.source}
                       />
                     </div>
 
