@@ -4,7 +4,7 @@ export async function GET() {
   return new ImageResponse(
     (
       <div style={{
-        background: '#ffffff', width: '100%', height: '100%',
+        background: 'transparent', width: '100%', height: '100%',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: 16,
       }}>
