@@ -11,12 +11,13 @@ export type GlobalStat = {
 }
 
 const STAT_KEYWORDS: Record<string, string[]> = {
-  economia:   ['econom', 'mercato', 'borsa', 'banca', 'inflazione', 'euro', 'dollaro', 'commercio', 'trade', 'market', 'finance', 'bank', 'pil', 'gdp', 'disoccup', 'lavoro'],
-  ambiente:   ['clima', 'ambient', 'co2', 'carbon', 'climate', 'forest', 'emissioni', 'verde', 'inquin'],
-  salute:     ['salute', 'sanità', 'covid', 'virus', 'ospedal', 'medic', 'health', 'hospital', 'vaccin', 'pandemia', 'malattia'],
-  tecnologia: ['tech', 'tecnolog', 'artificial', 'software', 'internet', 'digital', 'cyber', 'ai ', 'robot'],
-  conflitti:  ['guerra', 'conflitto', 'militar', 'attacco', 'war', 'conflict', 'attack', 'missile', 'bomba'],
-  cultura:    ['cultura', 'arte', 'musica', 'film', 'book', 'language', 'lingua'],
+  economia:   ['econom', 'mercato', 'borsa', 'banca', 'inflazione', 'euro', 'dollaro', 'commercio', 'trade', 'market', 'finance', 'bank', 'pil', 'gdp', 'disoccup', 'lavoro', 'tariff', 'sanction', 'export', 'import', 'recession', 'inflation', 'invest', 'stock', 'crypto', 'bitcoin'],
+  ambiente:   ['clima', 'ambient', 'co2', 'carbon', 'climate', 'forest', 'emissioni', 'verde', 'inquin', 'wildfire', 'flood', 'drought', 'renewable', 'emission', 'deforest', 'glacier', 'sea level'],
+  salute:     ['salute', 'sanità', 'covid', 'virus', 'ospedal', 'medic', 'health', 'hospital', 'vaccin', 'pandemia', 'malattia', 'death', 'mortality', 'injury', 'outbreak', 'drug', 'treatment', 'disease', 'cancer', 'mental health'],
+  tecnologia: ['tech', 'tecnolog', 'artificial', 'software', 'internet', 'digital', 'cyber', 'ai ', 'robot', 'vulnerab', 'exploit', 'hack', 'security', 'breach', 'server', 'network', 'code', 'bug', 'patch', 'malware', 'ransomware', 'chip', 'semiconductor', 'data', 'algorithm', 'cloud', 'quantum'],
+  conflitti:  ['guerra', 'conflitto', 'militar', 'attacco', 'war', 'conflict', 'attack', 'missile', 'bomba', 'weapons', 'drone', 'troops', 'nato', 'occupied', 'shelling', 'ceasefire', 'airstrike', 'casualties', 'battle', 'invasion'],
+  cultura:    ['cultura', 'arte', 'musica', 'film', 'book', 'language', 'lingua', 'award', 'festival', 'cinema', 'literature', 'theater', 'museum'],
+  politica:   ['election', 'government', 'president', 'minister', 'parliament', 'senate', 'vote', 'policy', 'political', 'diplomat', 'summit', 'treaty', 'sanction', 'referendum'],
 }
 
 export function getRelevantStats(query: string, stats: GlobalStat[], max = 3): GlobalStat[] {

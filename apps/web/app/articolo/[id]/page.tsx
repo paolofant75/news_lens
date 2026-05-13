@@ -104,7 +104,12 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
   const totalSources = sourcesWithAnalysis.length
   const langLabel = lang !== 'en' ? ` (${lang.toUpperCase()})` : ''
-  const relevantStats = getRelevantStats(query, allStats, 3)
+  // Arricchisci la query con il contenuto degli articoli trovati per matching stats più preciso
+  const contentContext = result.sources
+    .slice(0, 5)
+    .map((s) => s.content.slice(0, 300))
+    .join(' ')
+  const relevantStats = getRelevantStats(`${query} ${searchQuery} ${contentContext}`, allStats, 3)
 
   // Polo A = fonte più neutrale (primo nella lista ordinata per score)
   // Polo B = fonte con angolazione più marcata (ultima nella lista)
