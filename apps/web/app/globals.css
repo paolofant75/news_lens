@@ -81,3 +81,19 @@ h1, h2, h3, h4, h5, h6,
 * {
   font-family: inherit;
 }
+
+/* ── Intelligence animations ── */
+@keyframes intel-reveal {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes beacon-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(1.15); }
+}
+
+@keyframes counter-roll {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}

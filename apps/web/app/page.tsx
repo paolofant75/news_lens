@@ -5,7 +5,8 @@ import { cookies } from 'next/headers'
 import HomeNewsFeed from '../components/home-news-feed'
 import Sidebar from '../components/sidebar'
 import { encodeArticleId } from '../lib/encode'
-import { fetchTrending, scoredArticles } from '../lib/trends'
+import { fetchTrending, scoredArticles, geoPersonalizedArticles } from '../lib/trends'
+import { headers } from 'next/headers'
 import { CATEGORY_COLORS } from '../lib/geo-extract'
 import { fetchGlobalStats, getRelevantStats } from '../lib/stats'
 import HeroStatsCarousel from '../components/hero-stats-carousel'
@@ -15,6 +16,8 @@ export const revalidate = 120
 export default async function HomePage() {
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
+  const headerStore = await headers()
+  const visitorCountry = headerStore.get('x-vercel-ip-country') ?? null
 
   const [articles, trends, allStats] = await Promise.all([
     fetchArticles(),
@@ -22,8 +25,8 @@ export default async function HomePage() {
     fetchGlobalStats(),
   ])
 
-  // Ordina per rilevanza: trending match + recency + affidabilità fonte
-  const ranked = scoredArticles(articles, trends)
+  // Ordina per rilevanza con personalizzazione geografica (40-60% globale garantito)
+  const ranked = geoPersonalizedArticles(articles, trends, visitorCountry)
   const raw12 = ranked.slice(0, 12)
 
   const translated12 = await translateBatch(

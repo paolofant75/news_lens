@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import LayoutToggle from './layout-toggle'
 import { getSupabaseClient } from '../lib/supabase-client'
+import SourceReliabilityBadge from './source-reliability-badge'
 
 async function trackRead(article: { title: string; link: string; category: string; geo: string; source: string }) {
   try {
@@ -100,11 +101,10 @@ export default function NewsArticleGrid({
                   {article.summary && (
                     <p className="text-sm line-clamp-2 mb-3" style={{ color: 'var(--text-2)' }}>{article.summary}</p>
                   )}
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>{article.category}</span>
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>{article.geo}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${BIAS_COLOR[article.sourceBias] ?? ''}`} style={{ background: 'var(--bg-s)' }}>{article.sourceBias}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>★ {article.sourceReliability}</span>
+                    <SourceReliabilityBadge reliability={article.sourceReliability} bias={article.sourceBias} compact />
                   </div>
                 </a>
                 <div className="px-5 pb-4 flex items-center justify-between pt-3" style={{ borderTop: '1px solid var(--border)' }}>

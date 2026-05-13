@@ -6,11 +6,12 @@ import { buildCounts } from '../lib/taxonomy'
 import { IconNewspaper, IconScale, IconGlobe, IconUser, IconActivity } from './icons'
 
 const NAV_ITEMS = [
-  { href: '/news',    Icon: IconNewspaper, label: 'Notizie',       badge: null },
-  { href: '/veritas', Icon: IconScale,     label: 'Veritas',       badge: 'AI' },
-  { href: '/mappa',   Icon: IconGlobe,     label: 'Mappa Globale', badge: null },
-  { href: '/stats',   Icon: IconActivity,  label: 'Statistiche',   badge: null },
-  { href: '/profilo', Icon: IconUser,      label: 'Profilo',       badge: null },
+  { href: '/news',         Icon: IconNewspaper, label: 'Notizie',       badge: null    },
+  { href: '/veritas',      Icon: IconScale,     label: 'Veritas',       badge: 'AI'    },
+  { href: '/intelligence', Icon: IconActivity,  label: 'Intelligence',  badge: 'INTEL' },
+  { href: '/mappa',        Icon: IconGlobe,     label: 'Mappa Globale', badge: null    },
+  { href: '/stats',        Icon: IconActivity,  label: 'Statistiche',   badge: null    },
+  { href: '/profilo',      Icon: IconUser,      label: 'Profilo',       badge: null    },
 ]
 
 export default async function Sidebar() {
