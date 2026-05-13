@@ -71,7 +71,7 @@ export type SourceReliabilityScore = {
   source_transparency: number
   evidence_quality: number
   overall: number
-  classification: 'verified' | 'disputed' | 'unverified' | 'propaganda_risk'
+  classification: 'verified' | 'neutral' | 'unverified' | 'propaganda_risk'
 }
 
 export type NarrativeConflict = {
