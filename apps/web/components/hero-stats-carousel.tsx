@@ -11,6 +11,7 @@ type Stat = {
   trend?: 'up' | 'down' | 'stable'
   category: string
   linkedCategory: string
+  source: string
   curiosity: string
 }
 
