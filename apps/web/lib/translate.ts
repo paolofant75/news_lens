@@ -86,7 +86,7 @@ export async function translateStatsBatch(
           curiosity: translated[i * 2 + 1] ?? toTranslate[i].curiosity,
         }
         result[toTranslate[i].idx] = item
-        cacheSet(cacheKeys[toTranslate[i].idx], JSON.stringify(item)).catch(() => {})
+        cacheSet(cacheKeys[toTranslate[i].idx], JSON.stringify(item), 604800).catch(() => {}) // 7 giorni
       }
     } catch { /* fallback: keep Italian */ }
   }

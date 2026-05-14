@@ -55,7 +55,7 @@ async function wb(indicator: string): Promise<number | null> {
   try {
     const r = await fetch(
       `${WB}/country/WLD/indicator/${indicator}?format=json&mrv=1&per_page=1`,
-      { next: { revalidate: 86400 } }
+      { next: { revalidate: 604800 } }
     )
     const data = await r.json()
     return data[1]?.[0]?.value ?? null
