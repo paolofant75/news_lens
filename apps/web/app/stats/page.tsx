@@ -5,6 +5,7 @@ import { translateBatch } from '../../lib/translate'
 import { encodeArticleId } from '../../lib/encode'
 import PageLayout from '../../components/page-layout'
 import Link from 'next/link'
+import Data360Insights from '../../components/data360-insights'
 
 export const revalidate = 86400 // 24h
 
@@ -124,6 +125,8 @@ export default async function StatsPage() {
             Apri Veritas ⚖️
           </Link>
         </div>
+
+        <Data360Insights />
       </div>
     </PageLayout>
   )
