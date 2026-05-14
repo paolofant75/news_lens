@@ -36,7 +36,7 @@ export default async function HeroSection() {
   }
 
   const accent = CATEGORY_COLORS[article.category] ?? 'var(--accent)'
-  const heroStats = getRelevantStats(`${article.title} ${article.category}`, allStats, 3)
+  const heroStats = getRelevantStats(`${article.title} ${article.category}`, allStats, 5)
 
   return (
     <>

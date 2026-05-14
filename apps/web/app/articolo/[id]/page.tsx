@@ -110,7 +110,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
     .slice(0, 5)
     .map((s) => s.content.slice(0, 300))
     .join(' ')
-  const relevantStats = getRelevantStats(`${query} ${searchQuery} ${contentContext}`, allStats, 3)
+  const relevantStats = getRelevantStats(`${query} ${searchQuery} ${contentContext}`, allStats, 5)
 
   // Polo A = fonte più neutrale (primo nella lista ordinata per score)
   // Polo B = fonte con angolazione più marcata (ultima nella lista)
