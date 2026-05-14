@@ -52,6 +52,48 @@ async function claudeTranslate(texts: string[], targetLang: string): Promise<str
   return lines.map((l: string) => l.replace(/^\[\d+\]\s*/, '').trim())
 }
 
+export async function translateStatsBatch(
+  items: { label: string; curiosity: string }[],
+  lang: string
+): Promise<{ label: string; curiosity: string }[]> {
+  if (lang === 'it') return items
+
+  const cacheKeys = items.map(i => `ts:${lang}:${hash(i.label)}`)
+
+  let cached: (string | null)[] = []
+  try { cached = await cacheMGet(cacheKeys) }
+  catch { cached = new Array(items.length).fill(null) }
+
+  const result = [...items]
+  const toTranslate: { idx: number; label: string; curiosity: string }[] = []
+
+  cached.forEach((val, i) => {
+    if (val) {
+      try { result[i] = JSON.parse(val) }
+      catch { toTranslate.push({ idx: i, ...items[i] }) }
+    } else {
+      toTranslate.push({ idx: i, ...items[i] })
+    }
+  })
+
+  if (toTranslate.length > 0) {
+    const texts = toTranslate.flatMap(x => [x.label, x.curiosity])
+    try {
+      const translated = await claudeTranslate(texts, lang)
+      for (let i = 0; i < toTranslate.length; i++) {
+        const item = {
+          label:    translated[i * 2]     ?? toTranslate[i].label,
+          curiosity: translated[i * 2 + 1] ?? toTranslate[i].curiosity,
+        }
+        result[toTranslate[i].idx] = item
+        cacheSet(cacheKeys[toTranslate[i].idx], JSON.stringify(item)).catch(() => {})
+      }
+    } catch { /* fallback: keep Italian */ }
+  }
+
+  return result
+}
+
 export async function translateBatch(
   items: { title: string; summary: string }[],
   lang: string

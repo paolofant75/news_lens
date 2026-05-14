@@ -1,7 +1,7 @@
 import { fetchGlobalStats } from '../../lib/stats'
 import { fetchArticles } from '../../lib/rss'
 import { cookies } from 'next/headers'
-import { translateBatch } from '../../lib/translate'
+import { translateBatch, translateStatsBatch } from '../../lib/translate'
 import { encodeArticleId } from '../../lib/encode'
 import PageLayout from '../../components/page-layout'
 import Link from 'next/link'
@@ -21,8 +21,19 @@ export default async function StatsPage() {
     fetchArticles(),
   ])
 
+  // Traduci label e curiosity nella lingua dell'utente
+  const translatedLabels = await translateStatsBatch(
+    stats.map(s => ({ label: s.label, curiosity: s.curiosity })),
+    lang
+  )
+  const localizedStats = stats.map((s, i) => ({
+    ...s,
+    label:    translatedLabels[i]?.label    ?? s.label,
+    curiosity: translatedLabels[i]?.curiosity ?? s.curiosity,
+  }))
+
   // Per ogni stat trova gli articoli correlati
-  const statWithArticles = await Promise.all(stats.map(async (stat) => {
+  const statWithArticles = await Promise.all(localizedStats.map(async (stat) => {
     const related = allArticles
       .filter((a) => a.category === stat.linkedCategory)
       .slice(0, 2)
