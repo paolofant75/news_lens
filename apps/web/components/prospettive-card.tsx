@@ -39,6 +39,7 @@ function PerspCard({ polo, side }: { polo: Polo; side: 'A' | 'B' }) {
   const isNeutral = side === 'A'
   const accentColor = isNeutral ? '#22c55e' : '#f97316'
   const label = TIPO_LABEL[polo.analisi.tipo_bias] ?? `Lettura ${side}`
+  const sideLabel = isNeutral ? 'Lettura equilibrata' : 'Lettura con angolazione'
 
   return (
     <div
@@ -50,12 +51,17 @@ function PerspCard({ polo, side }: { polo: Polo; side: 'A' | 'B' }) {
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <span
-          className="text-xs font-bold px-2.5 py-1 rounded-full"
-          style={{ background: `${accentColor}20`, color: accentColor }}
-        >
-          {label}
-        </span>
+        <div className="flex flex-col gap-1">
+          <span
+            className="text-xs font-bold px-2.5 py-1 rounded-full"
+            style={{ background: `${accentColor}20`, color: accentColor }}
+          >
+            {sideLabel}
+          </span>
+          <span className="text-[9px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>
+            {label}
+          </span>
+        </div>
         <a
           href={polo.src.link}
           target="_blank"
@@ -120,9 +126,12 @@ export default function ProspettiveCard({ poleA, poleB }: { poleA: Polo; poleB: 
         <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
       </div>
 
-      <p className="text-xs text-center mb-5" style={{ color: 'var(--text-3)' }}>
-        Veritas non prende posizione — mostrare prospettive diverse aiuta a capire meglio
-      </p>
+      {/* Epistemological label */}
+      <div className="rounded-lg p-3 mb-5" style={{ background: 'rgba(59, 130, 246, 0.06)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-2)' }}>
+          <span style={{ color: '#3b82f6', fontWeight: 600 }}>Veritas non prende posizione.</span> Le fonti coprono l'argomento con angolazioni diverse. Questo strato mostra due letture: una più neutrale (Polo A) e una con angolazione marcata (Polo B). Confrontarle aiuta a capire meglio i presupposti di ciascun approccio.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PerspCard polo={poleA} side="A" />

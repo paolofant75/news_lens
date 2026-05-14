@@ -2,8 +2,10 @@ import Parser from 'rss-parser'
 import { classifyArticle, geoClassify } from './classify'
 import { cacheGet, cacheSet } from './redis'
 
-const ARTICLES_CACHE_KEY = 'nlv_articles_v3'
-const ARTICLES_CACHE_TTL = 180 // 3 min — cron refreshes ogni 2 min, buffer di sicurezza
+const ARTICLES_FRESH_KEY = 'nlv_articles_v3'
+const ARTICLES_STALE_KEY = 'nlv_articles_v3_stale'
+const ARTICLES_CACHE_TTL = 600   // 10 min fresh
+const ARTICLES_STALE_TTL = 1800  // 30 min stale
 
 const parser = new Parser({
   timeout: 8000,
@@ -202,16 +204,31 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
     })
     .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
 
-  try { await cacheSet(ARTICLES_CACHE_KEY, JSON.stringify(articles), ARTICLES_CACHE_TTL) } catch { /* ignore */ }
   return articles
 }
 
 export async function fetchArticles(): Promise<Article[]> {
+  // 1. fresh cache (<10 min)
   try {
-    const cached = await cacheGet(ARTICLES_CACHE_KEY)
-    if (cached) return JSON.parse(cached) as Article[]
-  } catch { /* redis unavailable */ }
-  return fetchArticlesFresh()
+    const fresh = await cacheGet(ARTICLES_FRESH_KEY)
+    if (fresh) return JSON.parse(fresh) as Article[]
+  } catch { }
+  // 2. stale cache (<30 min) + background refresh (non-blocking)
+  try {
+    const stale = await cacheGet(ARTICLES_STALE_KEY)
+    if (stale) {
+      fetchArticlesFresh().then(f => {
+        cacheSet(ARTICLES_FRESH_KEY, JSON.stringify(f), ARTICLES_CACHE_TTL).catch(() => {})
+        cacheSet(ARTICLES_STALE_KEY, JSON.stringify(f), ARTICLES_STALE_TTL).catch(() => {})
+      }).catch(() => {})
+      return JSON.parse(stale) as Article[]
+    }
+  } catch { }
+  // 3. cold fetch — writes both keys
+  const articles = await fetchArticlesFresh()
+  cacheSet(ARTICLES_FRESH_KEY, JSON.stringify(articles), ARTICLES_CACHE_TTL).catch(() => {})
+  cacheSet(ARTICLES_STALE_KEY, JSON.stringify(articles), ARTICLES_STALE_TTL).catch(() => {})
+  return articles
 }
 
 export function timeAgo(dateStr: string): string {
