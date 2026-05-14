@@ -189,7 +189,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
                 <div>
                   <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>Articolo Consolidato Veritas</h2>
                   <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-                    Sintesi su cui {totalSources} {totalSources === 1 ? 'fonte converge' : 'fonti convergono'} · Le divergenze sono esposte sotto · I marcatori [1][2] indicano la fonte di ogni affermazione
+                    Sintesi su cui {totalSources} {totalSources === 1 ? 'fonte converge' : 'fonti convergono'} · Le fonti di ogni affermazione sono indicate come pillole sotto ogni paragrafo
                   </p>
                   <div className="mt-2">
                     <AudioReader text={result.articolo_consolidato} lang={lang} />

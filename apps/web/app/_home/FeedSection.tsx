@@ -1,4 +1,6 @@
-import HomeNewsFeed from '../../components/home-news-feed'
+import dynamic from 'next/dynamic'
+
+const HomeNewsFeed = dynamic(() => import('../../components/home-news-feed'), { ssr: true })
 import { fetchArticles } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { geoPersonalizedArticles, fetchTrending } from '../../lib/trends'

@@ -1,4 +1,4 @@
-import GlobeClient from './globe-client'
+import GlobeWrapper from './globe-wrapper'
 import { fetchArticles } from '../../lib/rss'
 import { getCountryOrFallback, CATEGORY_COLORS } from '../../lib/geo-extract'
 import { translateBatch } from '../../lib/translate'
@@ -97,5 +97,5 @@ export default async function MappaPage() {
     if (points.length >= 100) break
   }
 
-  return <GlobeClient points={points} />
+  return <GlobeWrapper points={points} />
 }
