@@ -196,8 +196,14 @@ ${articlesText}
 ISTRUZIONI TASSATIVE:
 1. Le fonti possono essere in lingue diverse (inglese, spagnolo, francese, tedesco, russo, arabo) — leggile tutte e sintetizza i fatti nella lingua richiesta.
 2. L'articolo consolidato deve essere scritto come un pezzo giornalistico professionale in ${LANG_NAMES[lang] ?? lang}: fatti verificati, dati precisi, citazioni dirette quando disponibili, contesto storico se necessario. 4-5 paragrafi densi e informativi.
-3. NON commentare le fonti nell'articolo. NON scrivere frasi come "va segnalato che alcune fonti...", "alcune fonti risultano fuori contesto...", "la copertura è limitata a...". L'articolo parla SOLO dei fatti della notizia.
-4. Per l'analisi delle fonti: valuta esclusivamente le fonti che trattano direttamente l'argomento. Per quelle non pertinenti assegna completezza=0, bias=0, tipo_bias="non pertinente". Indica nella nota la lingua originale della fonte se non è inglese.
+3. L'articolo consolidato deve usare marcatori di fonte inline come [1], [2], [3] per ogni affermazione fattuale principale, riferiti alle fonti fornite. Se un'affermazione è un'inferenza, aggiungi un'etichetta esplicita come "Inferenza:" o "Interpretazione:".
+4. Se non ci sono abbastanza fonti indipendenti che confermino una parte dell'articolo, dichiara chiaramente il limite: "Non ci sono ancora fonti indipendenti che confermino questa parte.".
+5. NON commentare le fonti nell'articolo. NON scrivere frasi come "va segnalato che alcune fonti...", "alcune fonti risultano fuori contesto...", "la copertura è limitata a...". L'articolo parla SOLO dei fatti della notizia, con note di stato epistemico dove necessario.
+6. Evita aggettivi valutativi ed emozionali nel piano dei fatti. LISTA VIETATA: drammatico, scioccante, storico, senza precedenti, devastante, brutale, clamoroso, epocale, cruciale, straordinario, esplosivo. Se tali termini appaiono in una fonte, virgolettali e attribuiscili: secondo [fonte], "storico".
+7. Per l'analisi delle fonti: valuta esclusivamente le fonti che trattano direttamente l'argomento. Per quelle non pertinenti assegna completezza=0, bias=0, tipo_bias="non pertinente". Indica nella nota la lingua originale della fonte se non è inglese.
+8. Usa verbi epistemici precisi: per fatti confermati da ≥2 fonti indipendenti usa "le fonti riportano" o "è confermato che"; per fatti da 1 sola fonte usa "secondo [fonte]"; per inferenze usa "si può inferire che" o "questo suggerisce che".
+9. VIETATO: metafore retoriche ("bomba politica", "terremoto diplomatico", "onda d'urto"), formule di apertura viziate ("in un colpo di scena", "come tutti sappiamo", "ancora una volta"), conclusioni morali implicite, ironia o sarcasmo.
+10. Se le fonti divergono su un punto rilevante, esponi esplicitamente la divergenza nel testo: "[Fonte A] afferma X, mentre [Fonte B] riporta Y. Non è al momento verificabile quale versione sia corretta."
 
 Rispondi SOLO con JSON valido, senza testo aggiuntivo:
 

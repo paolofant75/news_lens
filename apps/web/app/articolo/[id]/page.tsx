@@ -7,6 +7,7 @@ import type { GlobalStat } from '../../../lib/stats'
 import FiveWsCard from '../../../components/five-ws-card'
 import Approfondimenti from '../../../components/approfondimenti'
 import AudioReader from '../../../components/audio-reader'
+import ArticleWithCitations from '../../../components/article-with-citations'
 import ProspettiveCard from '../../../components/prospettive-card'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
@@ -187,15 +188,15 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
                 <span className="text-2xl">📰</span>
                 <div>
                   <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>Articolo Consolidato Veritas</h2>
-                  <p className="text-xs" style={{ color: 'var(--text-3)' }}>Sintesi imparziale · bias-free · {totalSources} fonti</p>
+                  <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+                    Sintesi su cui {totalSources} {totalSources === 1 ? 'fonte converge' : 'fonti convergono'} · Le divergenze sono esposte sotto · I marcatori [1][2] indicano la fonte di ogni affermazione
+                  </p>
                   <div className="mt-2">
                     <AudioReader text={result.articolo_consolidato} lang={lang} />
                   </div>
                 </div>
               </div>
-              <div className="leading-relaxed whitespace-pre-wrap text-sm" style={{ color: 'var(--text)' }}>
-                {result.articolo_consolidato}
-              </div>
+              <ArticleWithCitations text={result.articolo_consolidato} sources={result.sources} />
 
               {/* Statistiche aggregate */}
               {sourcesWithAnalysis.length > 0 && (
@@ -296,19 +297,19 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
 
-        {/* Approfondimenti */}
-        {result.approfondimenti?.length > 0 && (
-          <div className="mt-2 px-0">
-            <Approfondimenti items={result.approfondimenti} />
-          </div>
-        )}
-
-        {/* Due prospettive */}
+        {/* Due prospettive — prima degli approfondimenti: confrontare le letture è più importante */}
         {showProspettive && (
           <ProspettiveCard
             poleA={{ src: poleA.src, analisi: poleA.analisi! }}
             poleB={{ src: poleB!.src, analisi: poleB!.analisi! }}
           />
+        )}
+
+        {/* Approfondimenti */}
+        {result.approfondimenti?.length > 0 && (
+          <div className="mt-2 px-0">
+            <Approfondimenti items={result.approfondimenti} />
+          </div>
         )}
       </div>
     </div>

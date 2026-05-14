@@ -198,7 +198,8 @@ export default function IntelligencePage() {
                 {/* Geopolitical */}
                 {report.geopolitical_analysis && (
                   <div className="rounded-xl p-4" style={{ background: 'var(--bg-card)', border: '1px solid #3b82f644' }}>
-                    <p className="text-xs font-bold mb-3 uppercase tracking-wide" style={{ color: '#3b82f6' }}>Analisi Geopolitica</p>
+                    <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#3b82f6' }}>Analisi Geopolitica</p>
+                    <p className="text-[10px] mb-3 opacity-60" style={{ color: 'var(--text-3)' }}>Interpretazione strutturata — non è un fatto verificato</p>
                     <p className="text-xs mb-2 font-medium" style={{ color: 'var(--text-3)' }}>Dinamiche di potere</p>
                     <p className="text-xs mb-3" style={{ color: 'var(--text-2)' }}>{report.geopolitical_analysis.power_dynamics}</p>
                     <p className="text-xs mb-2 font-medium" style={{ color: 'var(--text-3)' }}>Implicazioni regionali</p>
@@ -216,13 +217,14 @@ export default function IntelligencePage() {
                 {/* Economic */}
                 {report.economic_intelligence && (
                   <div className="rounded-xl p-4" style={{ background: 'var(--bg-card)', border: '1px solid #10b98144' }}>
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between">
                       <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#10b981' }}>Intelligence Economica</p>
                       <span className="text-[10px] px-2 py-0.5 rounded font-bold"
                         style={{ background: RISK_COLOR[report.economic_intelligence.financial_risk_level] + '22', color: RISK_COLOR[report.economic_intelligence.financial_risk_level] }}>
                         Rischio: {report.economic_intelligence.financial_risk_level.toUpperCase()}
                       </span>
                     </div>
+                    <p className="text-[10px] mb-3 opacity-60" style={{ color: 'var(--text-3)' }}>Stima basata sui dati disponibili — confidenza variabile</p>
                     <p className="text-xs mb-3" style={{ color: 'var(--text-2)' }}>{report.economic_intelligence.market_impact}</p>
                     <div className="flex flex-wrap gap-1">
                       {report.economic_intelligence.affected_sectors.map((s, i) => (
@@ -235,10 +237,11 @@ export default function IntelligencePage() {
                 {/* Fact verification */}
                 {report.fact_verification.verified_claims.length > 0 && (
                   <div className="rounded-xl p-4" style={{ background: 'var(--bg-card)', border: '1px solid #a855f744' }}>
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between">
                       <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#a855f7' }}>Verifica Fatti</p>
                       <span className="text-[10px] font-mono" style={{ color: 'var(--text-3)' }}>Fiducia: {report.fact_verification.overall_confidence}%</span>
                     </div>
+                    <p className="text-[10px] mb-3 opacity-60" style={{ color: 'var(--text-3)' }}>Basata sulle fonti disponibili — i claim non confermati sono marcati con ?</p>
                     <div className="space-y-2">
                       {report.fact_verification.verified_claims.map((c, i) => {
                         const vColor = c.verdict === 'confirmed' ? '#22c55e' : c.verdict === 'disputed' ? '#f59e0b' : '#94a3b8'

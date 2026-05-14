@@ -179,8 +179,8 @@ async function runFactVerificationAgent(query: string, articles: SearchArticle[]
   try {
     const text = await callClaude(
       'claude-haiku-4-5-20251001', 800,
-      'You are a fact-checking agent. Identify and verify key claims.',
-      `Topic: "${query}"\nSources:\n${articlesContext(articles, 6)}\n\nReturn JSON: {"verified_claims":[{"claim":"string","verdict":"confirmed|disputed|unverified","evidence":"brief reason"}],"overall_confidence":0-100}\nMax 5 claims.`
+      'You are a fact-checking agent. Identify and verify key claims with explicit source attribution.',
+      `Topic: "${query}"\nSources:\n${articlesContext(articles, 6)}\n\nINSTRUCTIONS: For each claim, name the specific sources that confirm/dispute it. If no independent sources verify a claim, mark as "unverified" and state "Non ci sono fonti indipendenti che confermino questa affermazione".\n\nReturn JSON: {"verified_claims":[{"claim":"string","verdict":"confirmed|disputed|unverified","evidence":"brief reason with source names"}],"overall_confidence":0-100}\nMax 5 claims.`
     )
     return parseJSON(text, fallback)
   } catch { return fallback }
@@ -194,8 +194,8 @@ async function runGeopoliticalAgent(query: string, articles: SearchArticle[]): P
   try {
     const text = await callClaude(
       'claude-sonnet-4-6', 1200,
-      'You are a senior geopolitical analyst. Provide structured intelligence analysis.',
-      `Topic: "${query}"\nSources:\n${articlesContext(articles, 8)}\n\nReturn JSON: {"power_dynamics":"2-3 sentences","regional_implications":"2-3 sentences","international_actors":["array of key actors"],"strategic_significance":"2-3 sentences"}`
+      'You are a senior geopolitical analyst. Provide structured intelligence analysis with explicit epistemological labels.',
+      `Topic: "${query}"\nSources:\n${articlesContext(articles, 8)}\n\nINSTRUCTIONS: This is INTERPRETATION, not fact. Label all inferences explicitly. If sources diverge, state "Le fonti divergono su questo aspetto". Name specific sources for each claim.\n\nReturn JSON: {"power_dynamics":"2-3 sentences","regional_implications":"2-3 sentences","international_actors":["array of key actors"],"strategic_significance":"2-3 sentences"}`
     )
     return parseJSON(text, fallback)
   } catch { return fallback }
@@ -209,8 +209,8 @@ async function runEconomicAgent(query: string, articles: SearchArticle[]): Promi
   try {
     const text = await callClaude(
       'claude-haiku-4-5-20251001', 800,
-      'You are an economic intelligence analyst.',
-      `Topic: "${query}"\nSources:\n${articlesContext(articles, 6)}\n\nReturn JSON: {"market_impact":"2 sentences","affected_sectors":["3-5 sectors"],"supply_chain_exposure":"1-2 sentences","financial_risk_level":"low|medium|high|critical"}`
+      'You are an economic intelligence analyst. Provide analysis with confidence levels and source attribution.',
+      `Topic: "${query}"\nSources:\n${articlesContext(articles, 6)}\n\nINSTRUCTIONS: This is INTERPRETATION with confidence level. State "Con fiducia media/alta/bassa" for each claim. Name sources. If data is insufficient, state "Non ci sono dati economici sufficienti nelle fonti".\n\nReturn JSON: {"market_impact":"2 sentences","affected_sectors":["3-5 sectors"],"supply_chain_exposure":"1-2 sentences","financial_risk_level":"low|medium|high|critical"}`
     )
     return parseJSON(text, fallback)
   } catch { return fallback }
@@ -223,8 +223,8 @@ async function runDisinformationAgent(query: string, articles: SearchArticle[]):
   try {
     const text = await callClaude(
       'claude-haiku-4-5-20251001', 600,
-      'You are a disinformation detection analyst.',
-      `Topic: "${query}"\nSources:\n${articlesContext(articles, 6)}\n\nReturn JSON: {"risk_level":"low|medium|high|critical","red_flags":["up to 3 flags"],"propaganda_techniques":["up to 3 techniques if found"],"recommended_verification":["1-2 verification steps"]}`
+      'You are a disinformation detection analyst. Identify risks with explicit source attribution.',
+      `Topic: "${query}"\nSources:\n${articlesContext(articles, 6)}\n\nINSTRUCTIONS: Name specific sources for each red flag or technique detected. If no disinformation is found, state "Nessuna tecnica di disinformazione rilevata nelle fonti analizzate".\n\nReturn JSON: {"risk_level":"low|medium|high|critical","red_flags":["up to 3 flags with source names"],"propaganda_techniques":["up to 3 techniques with source names"],"recommended_verification":["1-2 verification steps"]}`
     )
     return parseJSON(text, fallback)
   } catch { return fallback }
@@ -235,8 +235,8 @@ async function runTimelineAgent(query: string, articles: SearchArticle[], years:
   try {
     const text = await callClaude(
       'claude-haiku-4-5-20251001', 800,
-      'You are a historical timeline analyst.',
-      `Topic: "${query}"\nHistorical context: last ${years} years\nSources:\n${articlesContext(articles, 6)}\n\nReturn JSON array of up to 6 events: [{"date":"YYYY or YYYY-MM","event":"brief description","significance":"minor|major|pivotal"}]`
+      'You are a historical timeline analyst. Report only verifiable events with dates. Distinguish between events confirmed by multiple sources and those from a single source.',
+      `Topic: "${query}"\nHistorical context: last ${years} years\nSources:\n${articlesContext(articles, 6)}\n\nINSTRUCTIONS: Use factual language only. Prefix uncertain events with "Secondo [fonte]:" if from a single source. If historical context is limited in the sources, state it in the event description.\n\nReturn JSON array of up to 6 events: [{"date":"YYYY or YYYY-MM","event":"brief factual description","significance":"minor|major|pivotal"}]`
     )
     const arr = parseJSON<TimelineEvent[]>(text, [])
     return Array.isArray(arr) ? arr : []
@@ -250,7 +250,7 @@ async function runSourceReliabilityAgent(query: string, articles: SearchArticle[
     const text = await callClaude(
       'claude-haiku-4-5-20251001', 1000,
       'You are a source reliability analyst. Score each news source.',
-      `Topic: "${query}"\nSources to evaluate: ${sourceList}\n\nReturn JSON array: [{"source":"name","factual_consistency":0-100,"historical_reliability":0-100,"ideological_bias":0-100,"source_transparency":0-100,"evidence_quality":0-100,"overall":0-100,"classification":"verified|disputed|unverified|propaganda_risk"}]`
+      `Topic: "${query}"\nSources to evaluate: ${sourceList}\n\nReturn JSON array: [{"source":"name","factual_consistency":0-100,"historical_reliability":0-100,"ideological_bias":0-100,"source_transparency":0-100,"evidence_quality":0-100,"overall":0-100,"classification":"verified|neutral|unverified|propaganda_risk"}]`
     )
     const arr = parseJSON<SourceReliabilityScore[]>(text, [])
     return Array.isArray(arr) ? arr : []
@@ -262,8 +262,8 @@ async function runNarrativeConflictAgent(query: string, articles: SearchArticle[
   try {
     const text = await callClaude(
       'claude-haiku-4-5-20251001', 600,
-      'You are a narrative conflict analyst. Identify contradictions between sources.',
-      `Topic: "${query}"\nSources:\n${articlesContext(articles, 8)}\n\nReturn JSON array of up to 3 conflicts: [{"claim_a":"string","source_a":"string","claim_b":"string","source_b":"string","conflict_type":"factual|interpretive|omission"}]`
+      'You are a narrative conflict analyst. Identify contradictions between sources with explicit source attribution.',
+      `Topic: "${query}"\nSources:\n${articlesContext(articles, 8)}\n\nINSTRUCTIONS: Only identify actual conflicts where sources make contradictory claims. Label each conflict as "factual", "interpretive", or "omission". Name specific sources for each claim. If no conflicts exist, return empty array.\n\nReturn JSON array of up to 3 conflicts: [{"claim_a":"string","source_a":"string","claim_b":"string","source_b":"string","conflict_type":"factual|interpretive|omission"}]`
     )
     const arr = parseJSON<NarrativeConflict[]>(text, [])
     return Array.isArray(arr) ? arr : []
@@ -278,8 +278,8 @@ async function generateResearchChains(query: string, framework: ExpandedFramewor
       .join('; ')
     const text = await callClaude(
       'claude-haiku-4-5-20251001', 600,
-      'You are an intelligence analyst generating research chains for further investigation.',
-      `Topic: "${query}"\nKey angles: ${angles}\n\nReturn JSON array of 5 research chains: [{"topic":"specific sub-topic to investigate","angle":"regulatory|privacy|military|corporate|lobbying|historical|ethics|public_sentiment|economics|future_risks","summary":"1 sentence description","depth_score":1-10}]`
+      'You are an intelligence analyst generating research chains for further investigation with epistemological clarity.',
+      `Topic: "${query}"\nKey angles: ${angles}\n\nINSTRUCTIONS: Each chain should be a specific sub-topic for deeper investigation. Label the angle clearly. If sources don't provide enough depth, state "Approfondimento necessario - fonti attuali insufficienti".\n\nReturn JSON array of 5 research chains: [{"topic":"specific sub-topic to investigate","angle":"regulatory|privacy|military|corporate|lobbying|historical|ethics|public_sentiment|economics|future_risks","summary":"1 sentence description","depth_score":1-10}]`
     )
     const arr = parseJSON<ResearchChain[]>(text, [])
     return Array.isArray(arr) ? arr : []
