@@ -97,3 +97,21 @@ h1, h2, h3, h4, h5, h6,
   from { transform: translateY(8px); opacity: 0; }
   to   { transform: translateY(0);   opacity: 1; }
 }
+
+/* ── Article hover preview popup ── */
+.art-preview {
+  opacity: 0;
+  transform: scale(0.92) translateY(10px);
+  transform-origin: bottom center;
+  transition: opacity 220ms cubic-bezier(0.34, 1.0, 0.64, 1),
+              transform 220ms cubic-bezier(0.34, 1.0, 0.64, 1);
+  pointer-events: none;
+}
+.art-card:hover .art-preview {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+@media (pointer: coarse) {
+  .art-preview { display: none !important; }
+}

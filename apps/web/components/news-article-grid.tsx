@@ -87,21 +87,25 @@ export default function NewsArticleGrid({
           {articles.map((article, i) => {
             const id = encodeId(article.originalTitle ?? article.title)
             return (
-              <div key={i} className="group relative rounded-xl transition-all hover:opacity-95"
+              <div key={i} className="art-card group relative rounded-xl transition-all hover:opacity-95"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
 
                 {/* Hover preview popup — solo desktop (pointer:fine) */}
                 {article.summary && (
                   <div
-                    className="pointer-fine:group-hover:opacity-100 pointer-fine:group-hover:visible opacity-0 invisible absolute bottom-full left-0 right-0 z-50 mb-2 rounded-xl p-4 transition-all duration-200"
-                    style={{ background: 'rgba(10,10,10,0.97)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+                    className="art-preview absolute bottom-full left-0 right-0 z-50 mb-2 rounded-xl p-4"
+                    style={{
+                      background: 'var(--text)',
+                      border: '1px solid var(--accent)',
+                      boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
+                    }}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>{article.source}</span>
-                      <span className="text-[10px]" style={{ color: 'var(--text-3)' }}>· {article.category} · {article.geo}</span>
+                      <span className="text-[10px] opacity-50" style={{ color: 'var(--bg)' }}>· {article.category} · {article.geo}</span>
                     </div>
-                    <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--text-2)' }}>{article.summary}</p>
-                    <p className="text-[10px] font-medium" style={{ color: 'var(--accent)' }}>
+                    <p className="text-xs leading-relaxed mb-3 opacity-80" style={{ color: 'var(--bg)' }}>{article.summary}</p>
+                    <p className="text-[10px] font-semibold" style={{ color: 'var(--accent)' }}>
                       Clicca per analisi Veritas →
                     </p>
                   </div>
