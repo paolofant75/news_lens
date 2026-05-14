@@ -1,6 +1,21 @@
 'use client'
 import dynamic from 'next/dynamic'
-import type { CountryPoint } from '../../lib/geo-extract'
+
+type GlobePoint = {
+  lat: number
+  lng: number
+  label: string
+  code: string
+  title: string
+  originalTitle: string
+  source: string
+  link: string
+  category: string
+  color: string
+  size: number
+  reliability: number
+  isPulsing: boolean
+}
 
 const GlobeClient = dynamic(() => import('./globe-client'), {
   ssr: false,
@@ -14,6 +29,6 @@ const GlobeClient = dynamic(() => import('./globe-client'), {
   ),
 })
 
-export default function GlobeWrapper({ points }: { points: CountryPoint[] }) {
+export default function GlobeWrapper({ points }: { points: GlobePoint[] }) {
   return <GlobeClient points={points} />
 }
