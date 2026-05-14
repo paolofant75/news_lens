@@ -10,7 +10,7 @@ export type GlobalStat = {
   curiosity: string
 }
 
-const STAT_KEYWORDS: Record<string, string[]> = {
+export const STAT_KEYWORDS: Record<string, string[]> = {
   economia:    ['econom', 'mercato', 'borsa', 'banca', 'inflazione', 'euro', 'dollaro', 'commercio', 'trade', 'market', 'finance', 'bank', 'pil', 'gdp', 'disoccup', 'lavoro', 'tariff', 'sanction', 'export', 'import', 'recession', 'inflation', 'invest', 'stock', 'crypto', 'bitcoin', 'debito', 'debt', 'deficit', 'budget', 'fmi', 'bce', 'fed', 'riserva', 'valuta', 'currency', 'tasso', 'interest rate', 'crescita', 'growth'],
   ambiente:    ['clima', 'ambient', 'co2', 'carbon', 'climate', 'forest', 'emissioni', 'verde', 'inquin', 'wildfire', 'flood', 'drought', 'renewable', 'emission', 'deforest', 'glacier', 'sea level', 'metano', 'methane', 'foresta', 'energia', 'energy', 'agricol', 'siccità', 'alluvion', 'incendio', 'riscaldamento', 'warming', 'cop', 'paris', 'kyoto', 'biodiversit', 'estinzione', 'ocean', 'arctic'],
   salute:      ['salute', 'sanità', 'covid', 'virus', 'ospedal', 'medic', 'health', 'hospital', 'vaccin', 'pandemia', 'malattia', 'death', 'mortality', 'injury', 'outbreak', 'drug', 'treatment', 'disease', 'cancer', 'mental health', 'fame', 'hunger', 'malnutrizione', 'acqua', 'water', 'infant', 'bambini', 'children', 'hiv', 'aids', 'tuberculosi', 'malaria', 'mortalità', 'speranza di vita', 'oms', 'who'],

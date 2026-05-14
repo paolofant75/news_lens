@@ -1,4 +1,4 @@
-import { fetchGlobalStats } from '../../lib/stats'
+import { fetchGlobalStats, STAT_KEYWORDS } from '../../lib/stats'
 import { fetchArticles } from '../../lib/rss'
 import { cookies } from 'next/headers'
 import { translateBatch, translateStatsBatch } from '../../lib/translate'
@@ -32,11 +32,21 @@ export default async function StatsPage() {
     curiosity: translatedLabels[i]?.curiosity ?? s.curiosity,
   }))
 
-  // Per ogni stat trova gli articoli correlati
+  // Per ogni stat trova gli articoli correlati tramite keyword scoring
   const statWithArticles = await Promise.all(localizedStats.map(async (stat) => {
-    const related = allArticles
-      .filter((a) => a.category === stat.linkedCategory)
+    const catKeys = [stat.category, stat.linkedCategory]
+    const keywords = catKeys.flatMap(c => STAT_KEYWORDS[c] ?? [])
+    const scored = allArticles.map(a => {
+      let score = catKeys.includes(a.category) ? 3 : 0
+      const text = `${a.title} ${a.summary ?? ''}`.toLowerCase()
+      for (const kw of keywords) if (text.includes(kw)) score++
+      return { a, score }
+    })
+    const related = scored
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score)
       .slice(0, 2)
+      .map(x => x.a)
 
     const translated = related.length > 0
       ? await translateBatch(related.map((a) => ({ title: a.title, summary: '' })), lang)
@@ -65,9 +75,9 @@ export default async function StatsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="columns-1 md:columns-2 gap-6">
           {statWithArticles.map((stat) => (
-            <div key={stat.id} className="rounded-2xl p-6"
+            <div key={stat.id} className="break-inside-avoid mb-6 rounded-2xl p-6"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
 
               {/* Header */}
