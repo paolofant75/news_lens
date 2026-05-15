@@ -25,8 +25,8 @@ function getProvider(): ProviderConfig {
     return {
       name: 'deepseek',
       models: {
-        fast: 'deepseek-chat',
-        smart: 'deepseek-chat',
+        fast: 'deepseek-chat',       // V3 - traduzioni, query expansion (veloce, economico)
+        smart: 'deepseek-reasoner',  // R1 - analisi Veritas (segue meglio prompt strutturati)
       },
     }
   }

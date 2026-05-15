@@ -330,13 +330,21 @@ ISTRUZIONI PER approfondimenti:
 - Genera esattamente 5 titoli di ricerca correlati all'argomento, brevi (max 7 parole), in ${LANG_NAMES[lang] ?? lang}
 - Devono coprire angolature molto diverse: storica, economica, geopolitica, scientifica/tecnica, sociale/umana
 - Derivano dagli spunti presenti nelle fonti; se le fonti non offrono spunti sufficienti, usare la conoscenza AI per suggerire approfondimenti pertinenti e interessanti
-- Ogni titolo deve funzionare come query di ricerca autonoma`
+- Ogni titolo deve funzionare come query di ricerca autonoma
+
+ESEMPIO FORMATO articolo_consolidato (rispetta SCRUPOLOSAMENTE la sintassi delle citazioni):
+"Jannik Sinner, numero 1 del mondo, ha vinto la semifinale degli Internazionali d'Italia [1] dopo un'interruzione per pioggia. Secondo Corriere della Sera [2], la partita è stata sospesa per circa 90 minuti. Il norvegese Casper Ruud ha dichiarato in conferenza stampa [3] che 'l'avversario resta battibile sui ritmi lunghi'. Le fonti concordano [1][2] sul fatto che Sinner punta al sesto Masters 1000 consecutivo. Inferenza: l'incertezza meteo potrebbe influenzare la programmazione della finale di domenica."
+
+REGOLE TASSATIVE SULLE CITAZIONI:
+- Ogni fatto rilevante deve essere seguito o preceduto da [N] dove N è l'indice della fonte (1-based, come compare in FONTI DISPONIBILI sopra)
+- Per attribuzioni dirette: "Secondo <NomeFonte> [N], ..." (MAI lasciare il nome vuoto tra "Secondo" e la virgola)
+- Per fatti confermati da più fonti: "[1][3]" o "[2][4]" alla fine della frase`
 
   try {
     const text = await aiComplete({
       tier: 'smart',
       context: 'veritas',
-      maxTokens: 3500,
+      maxTokens: 6000,
       messages: [{ role: 'user', content: prompt }],
     })
     const json = JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim())
