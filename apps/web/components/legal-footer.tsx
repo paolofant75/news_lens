@@ -1,28 +1,46 @@
 'use client'
 import Link from 'next/link'
-import { useConsent } from '../lib/use-consent'
 
 export default function LegalFooter() {
-  const { reopen } = useConsent()
+  const year = new Date().getFullYear()
+
+  const openCookiePrefs = () => {
+    window.dispatchEvent(new CustomEvent('consent:reopen'))
+  }
 
   return (
     <footer
-      className="w-full py-4 px-4 text-center text-xs hidden lg:block"
+      className="mt-16 py-8 px-4 pb-24 lg:pb-8 text-xs"
       style={{ borderTop: '1px solid var(--border)', color: 'var(--text-3)' }}
+      role="contentinfo"
     >
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-        <span>© {new Date().getFullYear()} Lens Veritas</span>
-        <span style={{ color: 'var(--border)' }}>·</span>
-        <Link href="/privacy" className="hover:underline hover:opacity-80">Privacy Policy</Link>
-        <Link href="/terms" className="hover:underline hover:opacity-80">Termini di Servizio</Link>
-        <Link href="/copyright" className="hover:underline hover:opacity-80">Copyright</Link>
-        <span style={{ color: 'var(--border)' }}>·</span>
-        <button
-          onClick={reopen}
-          className="hover:underline hover:opacity-80 cursor-pointer"
-        >
-          Gestisci consensi
-        </button>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span style={{ color: 'var(--text-2)' }}>© {year} Lens Veritas</span>
+            <span className="opacity-50">·</span>
+            <span>News, refracted.</span>
+          </div>
+          <nav aria-label="Documenti legali" className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Link href="/privacy" className="hover:opacity-80 underline-offset-2 hover:underline">Privacy Policy</Link>
+            <Link href="/cookie-policy" className="hover:opacity-80 underline-offset-2 hover:underline">Cookie Policy</Link>
+            <Link href="/terms" className="hover:opacity-80 underline-offset-2 hover:underline">Termini di Servizio</Link>
+            <Link href="/copyright" className="hover:opacity-80 underline-offset-2 hover:underline">Copyright</Link>
+            <Link href="/privacy/elimina-dati" className="hover:opacity-80 underline-offset-2 hover:underline">Elimina dati</Link>
+            <button
+              onClick={openCookiePrefs}
+              className="hover:opacity-80 underline-offset-2 hover:underline cursor-pointer"
+              style={{ color: 'inherit', background: 'transparent', padding: 0, border: 'none', font: 'inherit' }}
+            >
+              Preferenze cookie
+            </button>
+            <a href="mailto:paolo_fantinel@hotmail.com" className="hover:opacity-80 underline-offset-2 hover:underline">Contatti</a>
+          </nav>
+        </div>
+        <div className="mt-4 text-[10px] opacity-70 leading-relaxed">
+          Lens Veritas aggrega notizie da fonti pubbliche di terzi nei limiti del diritto di citazione (art. 70 L. 633/1941) e dell&apos;eccezione di cronaca (art. 65). Le sintesi e le analisi &laquo;Veritas&raquo; sono generate da intelligenza artificiale (Claude di Anthropic, Gemini di Google) ai sensi dell&apos;art. 50 EU AI Act (Reg. UE 2024/1689) e devono essere verificate presso le fonti originali linkate. Per richieste di rimozione contenuti vedi{' '}
+          <Link href="/copyright" className="underline">/copyright</Link>.
+        </div>
       </div>
     </footer>
   )

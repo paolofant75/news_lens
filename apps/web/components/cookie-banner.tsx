@@ -14,6 +14,7 @@ type ConsentState = {
 
 const CONSENT_VERSION = '2026-05-15'
 const STORAGE_KEY = 'nlv_consent_v2'
+const CONSENT_TTL_MS = 1000 * 60 * 60 * 24 * 30 * 6 // 6 mesi
 
 function getOrCreateSessionId(): string {
   if (typeof window === 'undefined') return ''
@@ -31,6 +32,9 @@ function getStoredConsent(): ConsentState | null {
     if (!raw) return null
     const parsed = JSON.parse(raw) as ConsentState
     if (parsed.version !== CONSENT_VERSION) return null
+    // Consenso scade dopo 6 mesi → forza rinnovo
+    const age = Date.now() - new Date(parsed.timestamp).getTime()
+    if (Number.isFinite(age) && age > CONSENT_TTL_MS) return null
     return parsed
   } catch {
     return null

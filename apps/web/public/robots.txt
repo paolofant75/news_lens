@@ -1,8 +1,20 @@
 User-agent: *
 Allow: /
+Allow: /privacy
+Allow: /cookie-policy
+Allow: /terms
+Allow: /copyright
+Allow: /privacy/elimina-dati
 Disallow: /api/
 Disallow: /auth/
 Disallow: /profilo/
+
+# Scanner di compliance (Iubenda, Cookiebot, OneTrust, ecc.)
+User-agent: Iubenda-Bot
+Allow: /
+
+User-agent: Cookiebot
+Allow: /
 
 # Blocca crawler AI che non rispettano il copyright
 User-agent: GPTBot
