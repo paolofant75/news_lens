@@ -6,6 +6,7 @@ import Navbar from '../components/navbar'
 import ThemeStore from '../components/theme-store'
 import MobileNav from '../components/mobile-nav'
 import CookieBanner from '../components/cookie-banner'
+import LegalFooter from '../components/legal-footer'
 import { AuthProvider } from '../components/auth-provider'
 import { cookies } from 'next/headers'
 
@@ -50,6 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <ThemeStore palette={palette} font={font} />
             <Navbar />
             {children}
+            <LegalFooter />
             <MobileNav />
             <CookieBanner />
           </AuthProvider>

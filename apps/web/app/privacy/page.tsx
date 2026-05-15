@@ -5,7 +5,7 @@ export const metadata = {
   description: 'Informativa sulla privacy di Veritas Lens',
 }
 
-const LAST_UPDATED = '13 maggio 2026'
+const LAST_UPDATED = '15 maggio 2026'
 
 export default function PrivacyPage() {
   return (
@@ -49,13 +49,20 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>3. Come usiamo i dati</h2>
-            <ul className="space-y-2 list-disc list-inside">
-              <li>Autenticare il tuo accesso e mantenere la sessione</li>
-              <li>Mostrarti la cronologia degli articoli letti e delle ricerche nel profilo</li>
-              <li>Migliorare il servizio in forma aggregata e anonima</li>
-              <li>Non utilizziamo i tuoi dati per pubblicità, profilazione commerciale o vendita a terzi</li>
-            </ul>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>3. Base giuridica del trattamento (art. 6 GDPR)</h2>
+            <div className="space-y-2">
+              {[
+                { base: 'Contratto (art. 6(1)(b))', desc: 'Autenticazione e gestione dell\'account utente' },
+                { base: 'Consenso (art. 6(1)(a))', desc: 'Cronologia letture e ricerche (attivabile/revocabile dal profilo), cookie di preferenza non tecnici, funzionalità AI e monitoraggio errori' },
+                { base: 'Legittimo interesse (art. 6(1)(f))', desc: 'Sicurezza del servizio, prevenzione abusi, miglioramento in forma aggregata e anonima' },
+              ].map((r) => (
+                <div key={r.base} className="rounded-xl p-3 flex gap-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                  <span className="font-medium shrink-0" style={{ color: 'var(--text)' }}>{r.base}:</span>
+                  <span>{r.desc}</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3">Non utilizziamo i tuoi dati per pubblicità, profilazione commerciale o vendita a terzi.</p>
           </section>
 
           <section>
@@ -70,6 +77,9 @@ export default function PrivacyPage() {
                 { name: 'Google Gemini', use: 'Sintesi vocale degli articoli (Audio Reader)', link: 'https://policies.google.com/privacy' },
                 { name: 'Upstash Redis', use: 'Cache temporanea degli articoli (max 3 minuti)', link: 'https://upstash.com/trust/privacy.pdf' },
                 { name: 'NewsAPI / GNews / The Guardian API', use: 'Fonte degli articoli di notizie', link: '#' },
+                { name: 'GDELT Project', use: 'Fonte di articoli e dati geolocalizzati (pubblico dominio)', link: 'https://www.gdeltproject.org/about.html' },
+                { name: 'Replicate', use: 'Generazione immagini AI per contenuti social (Instagram)', link: 'https://replicate.com/privacy' },
+                { name: 'Google Fonts CDN', use: 'Caricamento font Geist (trasmette IP al CDN Google ad ogni visita)', link: 'https://policies.google.com/privacy' },
               ].map((s) => (
                 <div key={s.name} className="flex items-start justify-between gap-4 py-2" style={{ borderBottom: '1px solid var(--border)' }}>
                   <div>
@@ -88,39 +98,70 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>5. Cookie</h2>
-            <p className="mb-2">Utilizziamo esclusivamente cookie tecnici, necessari al funzionamento del sito:</p>
-            <ul className="space-y-1 list-disc list-inside">
-              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>nlv_lang</code> — lingua selezionata</li>
-              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>nlv_palette</code> — tema grafico (Noir/Bureau)</li>
-              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>sb-* </code> — sessione di autenticazione Supabase (solo se registrato)</li>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>5. Cookie e archiviazione locale</h2>
+            <p className="mb-2 font-medium" style={{ color: 'var(--text)' }}>Cookie tecnici (sempre attivi):</p>
+            <ul className="space-y-1 list-disc list-inside mb-3">
+              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>nlv_lang</code> — lingua selezionata (365 giorni)</li>
+              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>nlv_palette</code> — tema grafico (365 giorni)</li>
+              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>nlv_font</code> — preferenza font (365 giorni)</li>
+              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>sb-*</code> — sessione di autenticazione Supabase (solo se registrato)</li>
             </ul>
-            <p className="mt-2">Non utilizziamo cookie di tracciamento, analitici o pubblicitari di terze parti.</p>
+            <p className="mb-2 font-medium" style={{ color: 'var(--text)' }}>localStorage (solo nel tuo browser, mai trasmesso ai server):</p>
+            <ul className="space-y-1 list-disc list-inside mb-3">
+              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>nlv_consent_v2</code> — registro delle tue scelte di consenso cookie</li>
+              <li><code className="text-xs px-1 py-0.5 rounded" style={{ background: 'var(--bg-card)' }}>nlv_session_id</code> — identificativo sessione anonimo per il registro consensi</li>
+              <li>Preferenze visive (colore accent, layout griglia/lista)</li>
+            </ul>
+            <p>Non utilizziamo cookie di tracciamento, analitici o pubblicitari di terze parti senza il tuo consenso esplicito.</p>
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>6. Conservazione dei dati</h2>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>6. Trasferimenti internazionali di dati</h2>
             <p>
-              I dati dell&apos;account vengono conservati finché mantieni il tuo profilo attivo. Puoi richiedere la cancellazione in qualsiasi momento scrivendo a <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>. La cache degli articoli viene eliminata automaticamente ogni 3 minuti.
+              Alcuni sub-processor hanno sede negli USA (Anthropic, Google, Upstash, NewsAPI, Replicate, GDELT). I trasferimenti avvengono sulla base delle Clausole Contrattuali Standard (SCC) adottate dalla Commissione Europea ai sensi dell&apos;art. 46(2)(c) GDPR, o di decisioni di adeguatezza ove applicabili.
             </p>
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>7. I tuoi diritti (GDPR)</h2>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>7. Conservazione dei dati</h2>
+            <div className="space-y-2">
+              {[
+                { tipo: 'Dati account (email, nome)', periodo: 'Fino alla cancellazione dell\'account' },
+                { tipo: 'Cronologia letture e ricerche', periodo: 'Fino alla cancellazione dell\'account o su richiesta' },
+                { tipo: 'Registro consensi (IP anonimizzato)', periodo: '12 mesi (IP rimosso dopo 12 mesi, record mantenuto per obbligo legale)' },
+                { tipo: 'Cache articoli (Redis)', periodo: 'Massimo 3 minuti' },
+              ].map((r) => (
+                <div key={r.tipo} className="flex justify-between gap-4 py-2 text-xs" style={{ borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ color: 'var(--text)' }}>{r.tipo}</span>
+                  <span className="text-right">{r.periodo}</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3">
+              Puoi richiedere la cancellazione anticipata in qualsiasi momento dalla pagina <a href="/privacy/elimina-dati" className="underline" style={{ color: 'var(--accent)' }}>Elimina i tuoi dati</a> o scrivendo a <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>8. I tuoi diritti (GDPR)</h2>
             <p className="mb-2">Se sei residente nell&apos;Unione Europea, hai diritto a:</p>
-            <ul className="space-y-1 list-disc list-inside">
-              <li>Accedere ai tuoi dati personali</li>
-              <li>Richiedere la rettifica o la cancellazione</li>
-              <li>Opporti al trattamento</li>
-              <li>Richiedere la portabilità dei dati</li>
+            <ul className="space-y-1 list-disc list-inside mb-3">
+              <li>Accedere ai tuoi dati personali (art. 15)</li>
+              <li>Richiedere la rettifica (art. 16) o la cancellazione (art. 17)</li>
+              <li>Limitare od opporti al trattamento (artt. 18-21)</li>
+              <li>Richiedere la portabilità dei dati (art. 20)</li>
+              <li>Revocare il consenso in qualsiasi momento, senza pregiudicare la liceità del trattamento precedente (art. 7(3))</li>
             </ul>
-            <p className="mt-2">
+            <p className="mb-2">
               Per esercitare questi diritti scrivi a <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>.
             </p>
+            <p className="mt-2 text-xs" style={{ color: 'var(--text-3)' }}>
+              Hai inoltre il diritto di proporre reclamo al <strong>Garante per la Protezione dei Dati Personali</strong> (www.garanteprivacy.it), Piazza Venezia 11, 00187 Roma.
+            </p>
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>8. Modifiche a questa policy</h2>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>9. Modifiche a questa policy</h2>
             <p>
               Eventuali aggiornamenti verranno pubblicati su questa pagina con la data di revisione. L&apos;uso continuato del servizio dopo le modifiche costituisce accettazione della nuova policy.
             </p>
