@@ -128,28 +128,47 @@ async function expandQueryMultiLang(query: string): Promise<MultiLangTerms> {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 200,
+        max_tokens: 300,
         messages: [{
           role: 'user',
-          content: `News search expert: translate this query into 6 languages for news API searches. Return ONLY valid JSON with keys en/es/fr/de/ru/ar. Each value is the best 3-word search term in that language.\n\nQuery: "${query}"\n\nExample for "prezzo petrolio": {"en":"oil price crude","es":"precio petróleo mercado","fr":"prix pétrole brut","de":"Ölpreis Markt","ru":"цена нефти","ar":"سعر النفط"}`,
+          content: `You are a news search expert. The user gives you a news topic in any language. Extract the 2-4 most relevant search keywords and translate them to 6 target languages. Return ONLY valid JSON with this exact shape: {"en":"...","es":"...","fr":"...","de":"...","ru":"...","ar":"..."}. Each value: 2-4 words, no punctuation, lowercase except proper nouns.\n\nTopic: "${query}"\n\nExamples:\n"prezzo petrolio mercato" -> {"en":"oil price","es":"precio petróleo","fr":"prix pétrole","de":"Ölpreis","ru":"цена нефти","ar":"سعر النفط"}\n"Iran ripescaggio Mondiali" -> {"en":"Iran World Cup playoff","es":"Irán Mundial repesca","fr":"Iran Coupe Monde barrage","de":"Iran WM Playoff","ru":"Иран чемпионат мира","ar":"إيران كأس العالم"}`,
         }],
       }),
     })
+    if (!res.ok) {
+      console.warn(`[veritas] expandQueryMultiLang HTTP ${res.status} - fallback to original query`)
+      return fallback
+    }
     const data = await res.json()
     const text = (data.content?.[0]?.text ?? '').replace(/```json?\n?|\n?```/g, '').trim()
     const parsed = JSON.parse(text)
     if (parsed && typeof parsed === 'object' && parsed.en) {
       return { ...fallback, ...parsed }
     }
-  } catch { /* fall through */ }
+    console.warn('[veritas] expandQueryMultiLang invalid JSON shape:', text.slice(0, 200))
+  } catch (e) {
+    console.warn('[veritas] expandQueryMultiLang failed:', (e as Error).message)
+  }
   return fallback
 }
 
-export async function searchAllSources(query: string): Promise<SearchArticle[]> {
-  // Traduci e espandi la query in 6 lingue
-  const terms = await expandQueryMultiLang(query)
+// Estrae 3-4 keyword "essenziali" da una query lunga rimuovendo stopwords IT/EN
+function extractEssentialKeywords(query: string): string {
+  const STOP = new Set([
+    'il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'uno', 'una', 'del', 'della', 'delle', 'dei', 'degli',
+    'di', 'da', 'in', 'con', 'su', 'per', 'tra', 'fra', 'e', 'ed', 'o', 'ma', 'se', 'che', 'chi',
+    'cui', 'quale', 'quali', 'come', 'quando', 'dove', 'mentre', 'parte', 'grande', 'piccolo',
+    'the', 'a', 'an', 'of', 'in', 'on', 'at', 'for', 'with', 'to', 'from', 'and', 'or', 'but', 'is', 'are', 'was', 'were',
+  ])
+  return query
+    .replace(/['']/g, ' ')
+    .split(/[\s,\.;:!\?]+/)
+    .filter((w) => w.length >= 3 && !STOP.has(w.toLowerCase()))
+    .slice(0, 4)
+    .join(' ')
+}
 
-  // Cerca in parallelo: NewsAPI+Guardian in EN, GNews in 6 lingue + IT
+async function runSearches(query: string, terms: MultiLangTerms): Promise<SearchArticle[]> {
   const searches = await Promise.allSettled([
     searchNewsAPI(terms.en),
     searchGuardian(terms.en),
@@ -161,6 +180,34 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
     searchGNews(terms.ru, 'ru'),
     searchGNews(terms.ar, 'ar'),
   ])
+  // Log diagnostico: quante fonti per API
+  const counts = searches.map((r, i) => {
+    const labels = ['NewsAPI', 'Guardian', 'GNews-en', 'GNews-it', 'GNews-es', 'GNews-fr', 'GNews-de', 'GNews-ru', 'GNews-ar']
+    return r.status === 'fulfilled' ? `${labels[i]}=${r.value.length}` : `${labels[i]}=ERR`
+  }).join(' ')
+  console.log(`[veritas] query="${query}" terms.en="${terms.en}" -> ${counts}`)
+  return searches
+    .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
+    .flatMap((r) => r.value)
+}
+
+export async function searchAllSources(query: string): Promise<SearchArticle[]> {
+  // Traduci e espandi la query in 6 lingue
+  const terms = await expandQueryMultiLang(query)
+
+  let rawArticles = await runSearches(query, terms)
+
+  // FALLBACK 1: se nessuna API ha trovato nulla, prova con keyword essenziali
+  if (rawArticles.length === 0) {
+    const essential = extractEssentialKeywords(query)
+    if (essential && essential !== query) {
+      console.log(`[veritas] retry with essential keywords: "${essential}"`)
+      const essentialTerms = await expandQueryMultiLang(essential)
+      rawArticles = await runSearches(essential, essentialTerms)
+    }
+  }
+  // Riassegna a "searches"-like flow per non riscrivere tutto sotto
+  const all0 = rawArticles
 
   // Keyword di rilevanza ricavate da TUTTE le lingue espanse + query originale
   // (l'espansione multilingua produce articoli in lingue diverse, quindi serve il
@@ -181,9 +228,7 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
     ...tokenize(terms.ar),
   ])
 
-  const rawResults = searches
-    .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
-    .flatMap((r) => r.value)
+  const rawResults = all0
     // Filtra articoli con contenuto troppo scarno: solo titolo o quasi
     .filter((x) => {
       const meaningfulContent = x.content.replace(x.title, '').trim()
