@@ -20,7 +20,7 @@ export default async function FeedSection() {
   const feedArticles = ordered.slice(5, 30)
 
   const translated = await translateBatch(
-    feedArticles.map((a) => ({ title: a.title, summary: a.summary })),
+    feedArticles.map((a) => ({ title: a.title, summary: a.summary, source: a.source })),
     lang
   )
 

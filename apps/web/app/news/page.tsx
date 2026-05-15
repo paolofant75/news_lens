@@ -144,7 +144,7 @@ export default async function NewsPage({
 
   // Traduci i titoli/summary nella lingua selezionata (max 50, con cache Redis)
   const translated = await translateBatch(
-    filtered.slice(0, 50).map((a) => ({ title: a.title, summary: a.summary })),
+    filtered.slice(0, 50).map((a) => ({ title: a.title, summary: a.summary, source: a.source })),
     lang
   )
   // originalTitle = titolo EN per la ricerca Veritas, displayTitle = titolo tradotto per l'utente

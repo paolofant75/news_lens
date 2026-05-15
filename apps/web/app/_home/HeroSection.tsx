@@ -27,7 +27,7 @@ export default async function HeroSection() {
   if (!featured) return null
 
   const [[translatedFeat]] = await Promise.all([
-    translateBatch([{ title: featured.title, summary: featured.summary }], lang),
+    translateBatch([{ title: featured.title, summary: featured.summary, source: featured.source }], lang),
   ])
 
   const article = {

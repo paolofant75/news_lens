@@ -18,7 +18,7 @@ export default async function SecondaryGrid() {
   const secondary = ordered.slice(1, 5)
 
   const translated = await translateBatch(
-    secondary.map((a) => ({ title: a.title, summary: a.summary })),
+    secondary.map((a) => ({ title: a.title, summary: a.summary, source: a.source })),
     lang
   )
 

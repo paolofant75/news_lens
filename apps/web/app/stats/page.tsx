@@ -49,7 +49,7 @@ export default async function StatsPage() {
       .map(x => x.a)
 
     const translated = related.length > 0
-      ? await translateBatch(related.map((a) => ({ title: a.title, summary: '' })), lang)
+      ? await translateBatch(related.map((a) => ({ title: a.title, summary: '', source: a.source })), lang)
       : []
 
     return {

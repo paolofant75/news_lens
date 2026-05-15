@@ -54,7 +54,7 @@ export default async function MappaPage() {
     .slice(0, 200)
 
   const sortedTitles = await translateBatch(
-    sorted.map((a) => ({ title: a.title, summary: '' })),
+    sorted.map((a) => ({ title: a.title, summary: '', source: a.source })),
     lang
   )
   const sortedT = sorted.map((a, i) => ({
