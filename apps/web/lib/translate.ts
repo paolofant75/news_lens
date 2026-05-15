@@ -34,6 +34,7 @@ async function claudeTranslate(texts: string[], targetLang: string): Promise<Map
   const numbered = texts.map((t, i) => `[${i + 1}] ${t}`).join('\n')
   const raw = await aiComplete({
     tier: 'fast',
+    context: 'translate',
     maxTokens: 6000,
     messages: [{
       role: 'user',

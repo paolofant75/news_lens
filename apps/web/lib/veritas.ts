@@ -130,6 +130,7 @@ async function expandQueryMultiLang(query: string): Promise<MultiLangTerms> {
   try {
     const raw = await aiComplete({
       tier: 'fast',
+      context: 'expand-query',
       maxTokens: 300,
       messages: [{
         role: 'user',
@@ -333,7 +334,8 @@ ISTRUZIONI PER approfondimenti:
 
   try {
     const text = await aiComplete({
-      tier: 'smart',  // su DeepSeek -> deepseek-chat (V3); su Anthropic -> Sonnet
+      tier: 'smart',
+      context: 'veritas',
       maxTokens: 3500,
       messages: [{ role: 'user', content: prompt }],
     })

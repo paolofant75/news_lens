@@ -1,8 +1,13 @@
 'use client'
 import Link from 'next/link'
+import { useAuth } from './auth-provider'
+
+const ADMIN_EMAIL = 'fantinel.paolo@gmail.com'
 
 export default function LegalFooter() {
   const year = new Date().getFullYear()
+  const { user } = useAuth()
+  const isAdmin = user?.email === ADMIN_EMAIL
 
   const openCookiePrefs = () => {
     window.dispatchEvent(new CustomEvent('consent:reopen'))
@@ -35,6 +40,11 @@ export default function LegalFooter() {
               Preferenze cookie
             </button>
             <a href="mailto:paolo_fantinel@hotmail.com" className="hover:opacity-80 underline-offset-2 hover:underline">Contatti</a>
+            {isAdmin && (
+              <Link href="/admin" className="hover:opacity-80 underline-offset-2 hover:underline" style={{ color: 'var(--accent)' }}>
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
         <div className="mt-4 text-[10px] opacity-70 leading-relaxed">

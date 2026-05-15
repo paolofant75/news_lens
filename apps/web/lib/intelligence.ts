@@ -133,6 +133,7 @@ async function callClaude(
   const tier = model.includes('haiku') ? 'fast' : 'smart'
   const raw = await aiComplete({
     tier,
+    context: 'intelligence',
     maxTokens,
     messages: [
       { role: 'system', content: systemPrompt },
