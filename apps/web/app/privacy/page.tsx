@@ -26,7 +26,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>1. Chi siamo</h2>
             <p>
-              Veritas Lens (<strong>news-lens-psi.vercel.app</strong>) è un aggregatore di notizie globale con analisi AI anti-bias. Il servizio è gestito a titolo personale e non commerciale. Per qualsiasi questione relativa alla privacy puoi contattarci all&apos;indirizzo: <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>
+              Veritas Lens (<strong>lensveritas.com</strong>) è un aggregatore di notizie globale con analisi AI anti-bias. Il servizio è gestito a titolo personale e non commerciale. Per qualsiasi questione relativa alla privacy puoi contattarci all&apos;indirizzo: <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>
             </p>
           </section>
 

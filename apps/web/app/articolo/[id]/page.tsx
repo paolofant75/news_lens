@@ -191,6 +191,9 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
                   <p className="text-xs" style={{ color: 'var(--text-3)' }}>
                     Sintesi su cui {totalSources} {totalSources === 1 ? 'fonte converge' : 'fonti convergono'} · Le fonti di ogni affermazione sono indicate come pillole sotto ogni paragrafo
                   </p>
+                  <p className="text-[10px] mt-1 px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'var(--bg-s)', color: 'var(--text-3)', border: '1px solid var(--border)' }}>
+                    ✦ Generato da AI (Claude) · EU AI Act art. 50
+                  </p>
                   <div className="mt-2">
                     <AudioReader text={result.articolo_consolidato} lang={lang} />
                   </div>

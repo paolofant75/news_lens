@@ -110,7 +110,7 @@ function generateSVG(title: string, fw: FiveWs, palette: string): string {
   <rect x="0" y="${H - footerH}" width="${W}" height="${footerH}" fill="${surface}"/>
   <line x1="0" y1="${H - footerH}" x2="${W}" y2="${H - footerH}" stroke="${border}" stroke-width="1.5"/>
   <text x="${pad}" y="${H - 54}" font-family="Georgia, serif" font-size="17" fill="${textSec}">Generato da Veritas Lens</text>
-  <text x="${pad}" y="${H - 26}" font-family="Georgia, serif" font-size="13" fill="${textSec}" opacity="0.6">news-lens-psi.vercel.app</text>
+  <text x="${pad}" y="${H - 26}" font-family="Georgia, serif" font-size="13" fill="${textSec}" opacity="0.6">lensveritas.com</text>
   <circle cx="${W - pad}" cy="${H - 50}" r="26" fill="${accent}"/>
   <text x="${W - pad}" y="${H - 43}" text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="bold" fill="${hdrText}">V</text>
 </svg>`

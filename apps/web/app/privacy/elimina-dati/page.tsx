@@ -21,7 +21,7 @@ export default function EliminaDatiPage({
             Eliminazione dei tuoi dati
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-3)' }}>
-            Veritas Lens · news-lens-psi.vercel.app
+            Veritas Lens · lensveritas.com
           </p>
         </div>
 

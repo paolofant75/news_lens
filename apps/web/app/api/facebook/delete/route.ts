@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   console.log(`[Facebook Delete] Deletion request for Facebook user ${userId}, code: ${confirmationCode}`)
 
   return NextResponse.json({
-    url: `https://news-lens-psi.vercel.app/privacy/elimina-dati?id=${confirmationCode}`,
+    url: `https://lensveritas.com/privacy/elimina-dati?id=${confirmationCode}`,
     confirmation_code: confirmationCode,
   })
 }
