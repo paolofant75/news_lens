@@ -79,7 +79,6 @@ export default function PrivacyPage() {
                 { name: 'NewsAPI / GNews / The Guardian API', use: 'Fonte degli articoli di notizie', link: '#' },
                 { name: 'GDELT Project', use: 'Fonte di articoli e dati geolocalizzati (pubblico dominio)', link: 'https://www.gdeltproject.org/about.html' },
                 { name: 'Replicate', use: 'Generazione immagini AI per contenuti social (Instagram)', link: 'https://replicate.com/privacy' },
-                { name: 'Google Fonts CDN', use: 'Caricamento font Geist (trasmette IP al CDN Google ad ogni visita)', link: 'https://policies.google.com/privacy' },
               ].map((s) => (
                 <div key={s.name} className="flex items-start justify-between gap-4 py-2" style={{ borderBottom: '1px solid var(--border)' }}>
                   <div>
@@ -95,6 +94,9 @@ export default function PrivacyPage() {
                 </div>
               ))}
             </div>
+            <p className="mt-3 text-xs" style={{ color: 'var(--text-3)' }}>
+              I font (Geist, Geist Mono) sono self-hostati sul nostro server tramite <code>next/font</code> e non comportano richieste a CDN esterni durante la navigazione.
+            </p>
           </section>
 
           <section>

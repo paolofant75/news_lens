@@ -40,7 +40,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'storage failed' }, { status: 500 })
     }
 
-    return NextResponse.json({ ok: true, version: CONSENT_VERSION })
+    // Mirror consenso ai_processing su cookie server-readable per gating server-side
+    const response = NextResponse.json({ ok: true, version: CONSENT_VERSION })
+    const cookieOpts = { path: '/', sameSite: 'lax' as const, secure: true, maxAge: 60 * 60 * 24 * 365 }
+    if (acceptedCategories.includes('ai_processing')) {
+      response.cookies.set('nlv_ai_consent', '1', cookieOpts)
+    } else {
+      response.cookies.delete('nlv_ai_consent')
+    }
+    return response
   } catch {
     return NextResponse.json({ error: 'malformed request' }, { status: 400 })
   }

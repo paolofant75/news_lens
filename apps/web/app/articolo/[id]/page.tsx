@@ -9,6 +9,7 @@ import Approfondimenti from '../../../components/approfondimenti'
 import AudioReader from '../../../components/audio-reader'
 import ArticleWithCitations from '../../../components/article-with-citations'
 import ProspettiveCard from '../../../components/prospettive-card'
+import ConsentReopenButton from '../../../components/consent-reopen-button'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -44,6 +45,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
   const palette = cookieStore.get('nlv_palette')?.value ?? 'noir'
+  const aiConsent = cookieStore.get('nlv_ai_consent')?.value === '1'
 
   let query = ''
   let searchQuery = ''
@@ -54,6 +56,35 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   } catch {
     query = id
     searchQuery = id
+  }
+
+  if (!aiConsent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
+        <div className="max-w-xl text-center px-6">
+          <div className="text-5xl mb-6">✦</div>
+          <h1 className="text-xl font-bold mb-3" style={{ fontFamily: 'var(--font-h)' }}>
+            Analisi Veritas richiede il consenso AI
+          </h1>
+          <p className="text-sm mb-2" style={{ color: 'var(--text-2)' }}>
+            Per generare l&apos;Articolo Consolidato e l&apos;analisi anti-bias, Lens Veritas invia la tua ricerca ai modelli Claude (Anthropic) e Gemini (Google).
+          </p>
+          <p className="text-sm font-mono px-4 py-2 rounded-lg my-4" style={{ background: 'var(--bg-card)', color: 'var(--accent)', border: '1px solid var(--border)' }}>
+            &ldquo;{searchQuery}&rdquo;
+          </p>
+          <p className="text-xs mb-6" style={{ color: 'var(--text-3)' }}>
+            Per attivare l&apos;analisi, accetta la categoria <strong>Funzionalità AI</strong> dal banner cookie. Maggiori dettagli nella{' '}
+            <a href="/cookie-policy" className="underline" style={{ color: 'var(--accent)' }}>Cookie Policy</a>.
+          </p>
+          <ConsentReopenButton label="Attiva consenso AI" />
+          <div className="mt-6">
+            <a href="/news" className="text-xs hover:underline" style={{ color: 'var(--text-3)' }}>
+              ← Torna alle notizie
+            </a>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const [articles, allStats] = await Promise.all([

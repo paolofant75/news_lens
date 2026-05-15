@@ -34,7 +34,7 @@ Data: 15/05/2026
 - **Art. 28 GDPR — Sub-processor non dichiarati** — Tre servizi terzi che processano dati non sono menzionati nella policy:
   - **GDELT** (`apps/web/lib/gdelt.ts`, `apps/web/lib/rss.ts`) — server internazionale di aggregazione notizie, riceve query e restituisce articoli con metadati geolocalizzati.
   - **Replicate API** (`.env.example`: `REPLICATE_API_TOKEN`) — servizio USA per generazione immagini AI, processa dati trasmessi via API.
-  - **Google Fonts (CDN)** (`apps/web/app/layout.tsx:2-6`) — il font Geist viene caricato dalla CDN Google ad ogni visita, trasmettendo l'IP dell'utente a Google.
+  - ~~**Google Fonts (CDN)**~~ — **RETTIFICA (15/05/2026):** `next/font/google` self-hosta i font in build time. Nessun fetch runtime verso Google.
 
 - **Art. 13 GDPR + Considerando 60 — localStorage non dichiarato** — Il sito usa `localStorage` per preferenze visive (accent color, font, palette, layout griglia/lista) in `apps/web/components/tweaks-panel.tsx`, `apps/web/components/layout-toggle.tsx`, `apps/web/components/theme-store.tsx`. Non è menzionato nella privacy policy né classificato come dato trattato.
 

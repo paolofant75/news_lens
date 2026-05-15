@@ -1,5 +1,5 @@
 import PageLayout from '../../components/page-layout'
-import ReopenConsentLink from './reopen-consent-link'
+import ConsentReopenButton from '../../components/consent-reopen-button'
 
 export const metadata = {
   title: 'Cookie Policy — Lens Veritas',
@@ -162,7 +162,7 @@ export default function CookiePolicyPage() {
             <p className="mb-3">
               Puoi modificare o revocare il tuo consenso in qualsiasi momento riaprendo il banner cookie:
             </p>
-            <ReopenConsentLink />
+            <ConsentReopenButton label="Riapri banner cookie" />
             <p className="text-xs mt-3" style={{ color: 'var(--text-3)' }}>
               In alternativa puoi gestire i cookie direttamente dalle impostazioni del tuo browser. La disabilitazione dei cookie tecnici può compromettere il funzionamento del sito (es. impossibilità di mantenere la sessione di login).
             </p>
