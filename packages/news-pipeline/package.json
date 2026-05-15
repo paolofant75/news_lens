@@ -1,0 +1,23 @@
+{
+  "name": "@news-lens-veritas/news-pipeline",
+  "version": "1.0.0",
+  "description": "Zero-budget news intelligence pipeline: GDELT, Google News, RSSHub, Wikipedia",
+  "private": true,
+  "scripts": {
+    "dev": "node --use-system-ca node_modules/tsx/dist/cli.mjs src/index.ts",
+    "start": "node --use-system-ca dist/index.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "sql.js": "^1.12.0",
+    "node-cron": "^3.0.3",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/sql.js": "^1.4.9",
+    "@types/node": "^20.0.0",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.2"
+  }
+}
