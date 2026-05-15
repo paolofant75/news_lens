@@ -1,8 +1,23 @@
 import Parser from 'rss-parser'
+import { cacheGet, cacheSet, cacheDel } from './redis'
 
 export type TrendingTopic = {
   title: string
   traffic: string
+}
+
+const TRENDS_CACHE_TTL = 900 // 15 minuti
+function trendsCacheKey(lang: string): string {
+  return `trends:${lang}`
+}
+
+export async function invalidateTrendsCache(lang?: string): Promise<void> {
+  if (lang) {
+    await cacheDel(trendsCacheKey(lang)).catch(() => {})
+    return
+  }
+  // Nessuna lingua specificata -> invalida le piu' comuni
+  await Promise.all(['it', 'en', 'fr', 'de', 'es'].map((l) => cacheDel(trendsCacheKey(l)).catch(() => {})))
 }
 
 const LANG_TO_GEO: Record<string, string> = {
@@ -43,22 +58,32 @@ const COUNTRY_TO_GEO: Record<string, string> = {
 const parser = new Parser({ timeout: 5000 })
 
 export async function fetchTrending(lang = 'it'): Promise<TrendingTopic[]> {
+  const key = trendsCacheKey(lang)
+  // 1. Cache hit -> ritorna risultati stabili per 15 minuti
+  try {
+    const cached = await cacheGet(key)
+    if (cached) return JSON.parse(cached) as TrendingTopic[]
+  } catch { /* fall through */ }
+
+  // 2. Cold fetch dal RSS di Google Trends
   const geo = LANG_TO_GEO[lang] ?? 'IT'
   try {
     const feed = await parser.parseURL(
       `https://trends.google.com/trends/trendingsearches/daily/rss?geo=${geo}`
     )
-    return feed.items.slice(0, 8).map((item) => ({
+    const trends = feed.items.slice(0, 8).map((item) => ({
       title: item.title ?? '',
       traffic: (item as Record<string, string>)['ht:approx_traffic'] ?? '',
     })).filter((t) => t.title)
+    cacheSet(key, JSON.stringify(trends), TRENDS_CACHE_TTL).catch(() => {})
+    return trends
   } catch {
     return []
   }
 }
 
 export function geoPersonalizedArticles<T extends {
-  title: string; summary: string; pubDate: string
+  title: string; summary: string; pubDate: string; link: string
   sourceReliability: number; category: string
   geo: string; sourceBias: string
 }>(
@@ -78,10 +103,15 @@ export function geoPersonalizedArticles<T extends {
     tecnologia: 3, scienza: 2, salute: 2, ambiente: 2, sport: 1, cultura: 1, cronaca: 1,
   }
 
+  // Bucket di recency per "ore" invece di ms: due articoli pubblicati nella
+  // stessa ora ottengono lo stesso recency -> niente shuffle al secondo
+  const NOW_HOUR = Math.floor(Date.now() / 3600000)
+
   const withScore = articles.map((art) => {
     const text = (art.title + ' ' + art.summary).toLowerCase()
     const trendMatch = trendKeywords.filter((kw) => text.includes(kw)).length
-    const hoursOld = (Date.now() - new Date(art.pubDate).getTime()) / 3600000
+    const pubHour = Math.floor(new Date(art.pubDate).getTime() / 3600000)
+    const hoursOld = Math.max(0, NOW_HOUR - pubHour)
     const recency = Math.max(0, 1 - hoursOld / 12)
     const reliability = art.sourceReliability / 10
     const catScore = (categoryWeight[art.category] ?? 1) / 5
@@ -89,7 +119,12 @@ export function geoPersonalizedArticles<T extends {
     const baseScore = (trendMatch * 4 + recency * 3 + reliability * 2 + catScore) * sensationalPenalty
     const isRegional = visitorGeo ? art.geo === visitorGeo : false
     return { art, baseScore, isRegional }
-  }).sort((a, b) => b.baseScore - a.baseScore)
+  }).sort((a, b) => {
+    if (b.baseScore !== a.baseScore) return b.baseScore - a.baseScore
+    // Tiebreak deterministico: stessa coppia di articoli con stesso score
+    // -> stesso ordine sempre (no shuffle JS engine-dependent)
+    return a.art.link.localeCompare(b.art.link)
+  })
 
   // If no visitor geo, just return base-sorted with category cap
   if (!visitorGeo) {
@@ -141,7 +176,7 @@ export function geoPersonalizedArticles<T extends {
 }
 
 export function scoredArticles<T extends {
-  title: string; summary: string; pubDate: string
+  title: string; summary: string; pubDate: string; link: string
   sourceReliability: number; category: string
 }>(articles: T[], trends: TrendingTopic[]): T[] {
   const trendKeywords = trends
@@ -152,16 +187,22 @@ export function scoredArticles<T extends {
     tecnologia: 3, scienza: 2, salute: 2, ambiente: 2, sport: 1, cultura: 1, cronaca: 1,
   }
 
+  const NOW_HOUR = Math.floor(Date.now() / 3600000)
+  const score = (art: T) => {
+    const text = (art.title + ' ' + art.summary).toLowerCase()
+    const trendMatch = trendKeywords.filter((kw) => text.includes(kw)).length
+    const pubHour = Math.floor(new Date(art.pubDate).getTime() / 3600000)
+    const hoursOld = Math.max(0, NOW_HOUR - pubHour)
+    const recency = Math.max(0, 1 - hoursOld / 12)
+    const reliability = art.sourceReliability / 10
+    const catScore = (categoryWeight[art.category] ?? 1) / 5
+    return trendMatch * 4 + recency * 3 + reliability * 2 + catScore
+  }
+
   return [...articles].sort((a, b) => {
-    const score = (art: T) => {
-      const text = (art.title + ' ' + art.summary).toLowerCase()
-      const trendMatch = trendKeywords.filter((kw) => text.includes(kw)).length
-      const hoursOld = (Date.now() - new Date(art.pubDate).getTime()) / 3600000
-      const recency = Math.max(0, 1 - hoursOld / 12)
-      const reliability = art.sourceReliability / 10
-      const catScore = (categoryWeight[art.category] ?? 1) / 5
-      return trendMatch * 4 + recency * 3 + reliability * 2 + catScore
-    }
-    return score(b) - score(a)
+    const sa = score(a)
+    const sb = score(b)
+    if (sb !== sa) return sb - sa
+    return a.link.localeCompare(b.link)
   })
 }

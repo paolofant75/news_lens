@@ -7,6 +7,7 @@ import { fetchGlobalStats, getRelevantStats } from '../../lib/stats'
 import { cookies, headers } from 'next/headers'
 import { CATEGORY_COLORS } from '../../lib/geo-extract'
 import HeroStatsCarousel from '../../components/hero-stats-carousel'
+import RefreshFeedButton from '../../components/refresh-feed-button'
 
 export default async function HeroSection() {
   const cookieStore = await cookies()
@@ -66,13 +67,16 @@ export default async function HeroSection() {
 
       {/* Hero card */}
       <div className="mb-10">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
           <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
             Today&apos;s Brief
           </p>
-          <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-            {new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </p>
+          <div className="flex items-center gap-3">
+            <RefreshFeedButton />
+            <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+              {new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </p>
+          </div>
         </div>
 
         <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>

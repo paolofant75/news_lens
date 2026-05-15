@@ -1,6 +1,6 @@
 import Parser from 'rss-parser'
 import { classifyArticle, geoClassify } from './classify'
-import { cacheGet, cacheSet } from './redis'
+import { cacheGet, cacheSet, cacheDel } from './redis'
 import { articleId } from './encode'
 // GDELT Project: fonte news aggiuntiva con query tematiche (15 min refresh)
 import { fetchGdeltArticles } from './gdelt'
@@ -239,6 +239,15 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
   }
 
   return articles
+}
+
+// Invalida cache feed homepage/news (fresh + stale). Gli articoli singoli
+// art:<id> restano in cache 24h per consentire la pagina /articolo/[id]
+export async function invalidateArticleCache(): Promise<void> {
+  await Promise.all([
+    cacheDel(ARTICLES_FRESH_KEY).catch(() => {}),
+    cacheDel(ARTICLES_STALE_KEY).catch(() => {}),
+  ])
 }
 
 export async function fetchArticles(): Promise<Article[]> {
