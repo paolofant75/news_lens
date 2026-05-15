@@ -7,6 +7,7 @@ import ThemeStore from '../components/theme-store'
 import MobileNav from '../components/mobile-nav'
 import { AuthProvider } from '../components/auth-provider'
 import { cookies } from 'next/headers'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
@@ -52,6 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <MobileNav />
           </AuthProvider>
         </ClientThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
