@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useConsent } from '../lib/use-consent'
 
 type State = 'idle' | 'loading' | 'playing'
 
@@ -8,6 +9,28 @@ export default function AudioReader({ text, lang = 'it' }: { text: string; lang?
   const [state, setState] = useState<State>('idle')
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const blobUrlRef = useRef<string | null>(null)
+  const { has, reopen } = useConsent()
+
+  if (!has('ai_processing')) {
+    return (
+      <button
+        onClick={reopen}
+        title="Consenso AI richiesto per Audio Reader"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-80"
+        style={{
+          background: 'var(--bg-s)',
+          border: '1px solid var(--border)',
+          color: 'var(--text-3)',
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        Ascolta (attiva consenso AI)
+      </button>
+    )
+  }
 
   async function toggle() {
     if (state === 'playing') {
@@ -57,17 +80,17 @@ export default function AudioReader({ text, lang = 'it' }: { text: string; lang?
     >
       {state === 'loading' ? (
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="animate-spin">
-          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
         </svg>
       ) : state === 'playing' ? (
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-          <rect x="6" y="6" width="12" height="12" rx="2"/>
+          <rect x="6" y="6" width="12" height="12" rx="2" />
         </svg>
       ) : (
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
         </svg>
       )}
       {state === 'loading' ? 'Carico...' : state === 'playing' ? 'Stop' : 'Ascolta'}
