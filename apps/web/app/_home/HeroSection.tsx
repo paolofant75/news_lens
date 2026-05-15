@@ -5,7 +5,6 @@ import { geoPersonalizedArticles, fetchTrending } from '../../lib/trends'
 import { sortByPreferredLang } from '../../lib/lang-priority'
 import { fetchGlobalStats, getRelevantStats } from '../../lib/stats'
 import { cookies, headers } from 'next/headers'
-import { encodeArticleId } from '../../lib/encode'
 import { CATEGORY_COLORS } from '../../lib/geo-extract'
 import HeroStatsCarousel from '../../components/hero-stats-carousel'
 
@@ -111,7 +110,7 @@ export default async function HeroSection() {
 
               <div className="flex gap-3 flex-wrap">
                 <Link
-                  href={`/articolo/${encodeArticleId(article.originalTitle ?? article.title)}`}
+                  href={`/articolo/${article.id}`}
                   className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
                   style={{ background: 'var(--accent)' }}
                 >

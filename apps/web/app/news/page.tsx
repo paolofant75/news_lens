@@ -1,5 +1,4 @@
 import { fetchArticles, timeAgo, biasColor } from '../../lib/rss'
-import { encodeArticleId } from '../../lib/encode'
 import { translateBatch } from '../../lib/translate'
 import { sortByPreferredLang } from '../../lib/lang-priority'
 import { cookies } from 'next/headers'

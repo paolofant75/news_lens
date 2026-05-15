@@ -1,6 +1,7 @@
 import Parser from 'rss-parser'
 import { classifyArticle, geoClassify } from './classify'
 import { cacheGet, cacheSet } from './redis'
+import { articleId } from './encode'
 // GDELT Project: fonte news aggiuntiva con query tematiche (15 min refresh)
 import { fetchGdeltArticles } from './gdelt'
 
@@ -8,6 +9,7 @@ const ARTICLES_FRESH_KEY = 'nlv_articles_v3'
 const ARTICLES_STALE_KEY = 'nlv_articles_v3_stale'
 const ARTICLES_CACHE_TTL = 600   // 10 min fresh
 const ARTICLES_STALE_TTL = 1800  // 30 min stale
+const ARTICLE_BY_ID_TTL = 86400  // 24h: cache singolo articolo per lookup da URL
 
 const parser = new Parser({
   timeout: 8000,
@@ -32,6 +34,7 @@ export type FeedMeta = {
 }
 
 export type Article = {
+  id: string  // hash stabile del link, usato come URL slug e Redis key
   title: string
   link: string
   pubDate: string
@@ -119,6 +122,7 @@ async function fetchFromNewsAPI(): Promise<Article[]> {
         const title = stripHtml(a.title)
         const summary = stripHtml(a.description ?? '')
         return {
+          id: articleId(a.url),
           title, link: a.url, pubDate: a.publishedAt,
           source: a.source.name, summary,
           category: categorize(title, summary),
@@ -141,6 +145,7 @@ async function fetchFromGuardianAPI(): Promise<Article[]> {
       const title = stripHtml(a.webTitle)
       const summary = stripHtml(a.fields?.trailText ?? '')
       return {
+        id: articleId(a.webUrl),
         title, link: a.webUrl, pubDate: a.webPublicationDate,
         source: 'The Guardian', summary,
         category: categorize(title, summary),
@@ -163,6 +168,7 @@ async function fetchFromGNews(): Promise<Article[]> {
       const title = stripHtml(a.title)
       const summary = stripHtml(a.description ?? '')
       return {
+        id: articleId(a.url),
         title, link: a.url, pubDate: a.publishedAt,
         source: a.source.name, summary,
         category: categorize(title, summary),
@@ -182,9 +188,11 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
         return f.items.slice(0, 12).map((item) => {
           const title = stripHtml(item.title ?? '')
           const summary = stripHtml(item.contentSnippet ?? item.summary ?? '')
+          const link = item.link ?? ''
           return {
+            id: articleId(link),
             title,
-            link: item.link ?? '',
+            link,
             pubDate: item.pubDate ?? item.isoDate ?? '',
             source: feed.source,
             summary,
@@ -223,6 +231,12 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
       return true
     })
     .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+
+  // Indicizza ogni articolo su Redis per lookup veloce dalla pagina /articolo/[id]
+  // (la ricerca Veritas usera' il titolo nella lingua nativa della fonte, non la traduzione)
+  for (const a of articles) {
+    cacheSet(`art:${a.id}`, JSON.stringify(a), ARTICLE_BY_ID_TTL).catch(() => {})
+  }
 
   return articles
 }

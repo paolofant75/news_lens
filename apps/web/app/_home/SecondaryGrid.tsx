@@ -4,7 +4,6 @@ import { translateBatch } from '../../lib/translate'
 import { geoPersonalizedArticles, fetchTrending } from '../../lib/trends'
 import { sortByPreferredLang } from '../../lib/lang-priority'
 import { cookies, headers } from 'next/headers'
-import { encodeArticleId } from '../../lib/encode'
 
 export default async function SecondaryGrid() {
   const cookieStore = await cookies()
@@ -33,7 +32,7 @@ export default async function SecondaryGrid() {
       {items.map((article, i) => (
         <Link
           key={i}
-          href={`/articolo/${encodeArticleId(article.originalTitle ?? article.title)}`}
+          href={`/articolo/${article.id}`}
           className="group p-5 rounded-xl transition-all hover:opacity-90"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >

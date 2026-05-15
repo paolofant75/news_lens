@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers'
 import { searchAllSources, analyzeWithVeritas, extractQueryFromUrl, cleanSearchQuery } from '../../../lib/veritas'
 import { decodeArticleId } from '../../../lib/encode'
+import { cacheGet } from '../../../lib/redis'
+import type { Article } from '../../../lib/rss'
 import type { SourceAnalysis } from '../../../lib/veritas'
 import { fetchGlobalStats, getRelevantStats } from '../../../lib/stats'
 import type { GlobalStat } from '../../../lib/stats'
@@ -47,15 +49,32 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   const palette = cookieStore.get('nlv_palette')?.value ?? 'noir'
   const aiConsent = cookieStore.get('nlv_ai_consent')?.value === '1'
 
+  // Cache-first lookup: se l'articolo e' stato indicizzato durante il fetch
+  // del feed, usiamo il titolo nella lingua nativa della fonte invece della
+  // traduzione visualizzata dall'utente.
   let query = ''
   let searchQuery = ''
+  let cachedArticle: Article | null = null
   try {
-    const decoded = decodeArticleId(id)
-    query = decoded.startsWith('http') ? extractQueryFromUrl(decoded) : decoded
-    searchQuery = cleanSearchQuery(query)
+    const raw = await cacheGet(`art:${id}`)
+    if (raw) cachedArticle = JSON.parse(raw) as Article
   } catch {
-    query = id
-    searchQuery = id
+    cachedArticle = null
+  }
+
+  if (cachedArticle) {
+    query = cachedArticle.title
+    searchQuery = cleanSearchQuery(query)
+  } else {
+    // Backward compat: link vecchi base64-title o cache miss
+    try {
+      const decoded = decodeArticleId(id)
+      query = decoded.startsWith('http') ? extractQueryFromUrl(decoded) : decoded
+      searchQuery = cleanSearchQuery(query)
+    } catch {
+      query = id
+      searchQuery = id
+    }
   }
 
   if (!aiConsent) {

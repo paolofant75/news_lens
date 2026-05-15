@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import LayoutToggle from './layout-toggle'
-import { encodeArticleId } from '../lib/encode'
 
 type Article = {
+  id: string
   title: string
   originalTitle?: string
   link: string
@@ -67,7 +67,7 @@ export default function HomeNewsFeed({ articles }: { articles: Article[] }) {
                 </div>
               )}
               <a
-                href={`/articolo/${encodeArticleId(article.originalTitle ?? article.title)}`}
+                href={`/articolo/${article.id}`}
                 className="block p-4 rounded-xl transition-all hover:opacity-90"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
               >
@@ -87,7 +87,7 @@ export default function HomeNewsFeed({ articles }: { articles: Article[] }) {
           {articles.map((article, i) => (
             <a
               key={i}
-              href={`/articolo/${encodeArticleId(article.originalTitle ?? article.title)}`}
+              href={`/articolo/${article.id}`}
               className="flex items-center gap-4 px-5 py-3 transition-all hover:opacity-80"
               style={{
                 background: 'var(--bg-card)',

@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cacheGet, cacheSet } from '../../../lib/redis'
 import { COUNTRIES } from '../../../lib/countries'
 import { classifyArticle, geoClassify } from '../../../lib/classify'
+import { articleId } from '../../../lib/encode'
 
 const TTL = 3600 // 1 ora
+const ARTICLE_BY_ID_TTL = 86400 // 24h: cache singolo articolo per lookup da URL
 
 async function searchCountry(terms: string[]): Promise<{title:string;link:string;pubDate:string;source:string;summary:string}[]> {
   const query = terms[0]
@@ -56,10 +58,17 @@ export async function GET(req: NextRequest) {
 
   const articles = await searchCountry(country.searchTerms)
   const enriched = articles.map((a) => ({
+    id: articleId(a.link),
     ...a,
     category: classifyArticle(a.title, a.summary).category,
     geo: geoClassify(a.title, a.summary),
   }))
+
+  // Cache singolo articolo per consentire alla pagina /articolo/<id> di trovare
+  // il titolo nella lingua di pubblicazione della fonte
+  for (const a of enriched) {
+    cacheSet(`art:${a.id}`, JSON.stringify(a), ARTICLE_BY_ID_TTL).catch(() => {})
+  }
 
   await cacheSet(cacheKey, JSON.stringify(enriched), TTL)
   return NextResponse.json({ cached: false, articles: enriched, country: country.nameIt })

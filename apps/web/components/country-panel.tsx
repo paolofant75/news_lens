@@ -2,9 +2,8 @@
 
 import { useState, useMemo } from 'react'
 import { COUNTRIES, REGION_LABELS } from '../lib/countries'
-import { encodeArticleId } from '../lib/encode'
 
-type Article = { title: string; link: string; pubDate: string; source: string; summary: string; category: string }
+type Article = { id: string; title: string; link: string; pubDate: string; source: string; summary: string; category: string }
 
 export default function CountryPanel() {
   const [open, setOpen] = useState(false)
@@ -155,7 +154,7 @@ export default function CountryPanel() {
                           )}
                           <div className="flex gap-3">
                             <a
-                              href={`/articolo/${encodeArticleId(a.title)}`}
+                              href={`/articolo/${a.id}`}
                               className="text-xs transition-opacity hover:opacity-70"
                               style={{ color: 'var(--accent)' }}
                             >

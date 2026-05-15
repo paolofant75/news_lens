@@ -65,6 +65,7 @@ export default async function MappaPage() {
 
   const countryCount = new Map<string, number>()
   const points: {
+    id: string
     lat: number; lng: number; label: string; code: string
     title: string; originalTitle: string; source: string; link: string; category: string
     color: string; size: number; reliability: number; isPulsing: boolean
@@ -81,6 +82,7 @@ export default async function MappaPage() {
     const size = geopoliticalWeight(article.sourceReliability, article.sourceType, article.category, country.code)
 
     points.push({
+      id: article.id,
       lat, lng,
       label: country.label,
       code: country.code,

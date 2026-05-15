@@ -18,6 +18,7 @@ async function trackRead(article: { title: string; link: string; category: strin
 }
 
 type Article = {
+  id: string
   title: string
   originalTitle?: string
   link: string
@@ -39,15 +40,6 @@ function timeAgoClient(dateStr: string): string {
   return `${Math.floor(h / 24)}g fa`
 }
 
-function encodeId(title: string): string {
-  try {
-    const bytes = new TextEncoder().encode(title)
-    const binary = Array.from(bytes).map((b) => String.fromCharCode(b)).join('')
-    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  } catch {
-    return btoa(title).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  }
-}
 
 const BIAS_COLOR: Record<string, string> = {
   'center': 'text-green-400', 'center-left': 'text-blue-400',
@@ -85,7 +77,7 @@ export default function NewsArticleGrid({
       ) : layout === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {articles.map((article, i) => {
-            const id = encodeId(article.originalTitle ?? article.title)
+            const id = article.id
             return (
               <div key={i} className="art-card group relative rounded-xl transition-all hover:opacity-95"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
@@ -144,7 +136,7 @@ export default function NewsArticleGrid({
       ) : (
         <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
           {articles.map((article, i) => {
-            const id = encodeId(article.originalTitle ?? article.title)
+            const id = article.id
             return (
               <a key={i} href={`/articolo/${id}`}
                 className="flex items-center gap-4 px-5 py-3.5 transition-all hover:opacity-80 group"

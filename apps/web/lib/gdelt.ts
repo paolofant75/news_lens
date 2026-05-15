@@ -6,6 +6,7 @@
 
 import type { Article } from './rss'
 import { classifyArticle, geoClassify } from './classify'
+import { articleId } from './encode'
 
 // Struttura della risposta GDELT v2 Doc API (mode=ArtList)
 interface GdeltApiArticle {
@@ -106,6 +107,7 @@ export async function fetchGdeltArticles(
       const summary = ''
 
       articles.push({
+        id: articleId(raw.url),
         title,
         link: raw.url,
         pubDate: gdeltDateToISO(raw.seendate ?? ''),

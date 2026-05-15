@@ -2,7 +2,6 @@ import { fetchGlobalStats, STAT_KEYWORDS } from '../../lib/stats'
 import { fetchArticles } from '../../lib/rss'
 import { cookies } from 'next/headers'
 import { translateBatch, translateStatsBatch } from '../../lib/translate'
-import { encodeArticleId } from '../../lib/encode'
 import PageLayout from '../../components/page-layout'
 import Link from 'next/link'
 import Data360Insights from '../../components/data360-insights'
@@ -115,7 +114,7 @@ export default async function StatsPage() {
                     {stat.articles.map((a, i) => (
                       <Link
                         key={i}
-                        href={`/articolo/${encodeArticleId(a.originalTitle ?? a.title)}`}
+                        href={`/articolo/${a.id}`}
                         className="block text-xs transition-opacity hover:opacity-70 line-clamp-1"
                         style={{ color: 'var(--text-2)' }}
                       >
