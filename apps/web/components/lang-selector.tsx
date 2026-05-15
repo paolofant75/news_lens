@@ -22,8 +22,7 @@ export default function LangSelector({ current }: { current: string }) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-sm transition-colors"
       >
-        <span>{active.flag}</span>
-        <span className="text-gray-300">{active.code.toUpperCase()}</span>
+        <span className="text-gray-300 font-medium">{active.code.toUpperCase()}</span>
         <span className="text-gray-500 text-xs">▾</span>
       </button>
 
@@ -37,7 +36,7 @@ export default function LangSelector({ current }: { current: string }) {
                 l.code === current ? 'text-blue-400' : 'text-gray-300'
               }`}
             >
-              <span>{l.flag}</span>
+              <span className="font-medium w-7">{l.code.toUpperCase()}</span>
               <span>{l.label}</span>
             </button>
           ))}

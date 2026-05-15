@@ -149,11 +149,12 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
   // Traduci e espandi la query in 6 lingue
   const terms = await expandQueryMultiLang(query)
 
-  // Cerca in parallelo: NewsAPI+Guardian in EN, GNews in 6 lingue
+  // Cerca in parallelo: NewsAPI+Guardian in EN, GNews in 6 lingue + IT
   const searches = await Promise.allSettled([
     searchNewsAPI(terms.en),
     searchGuardian(terms.en),
     searchGNews(terms.en, 'en'),
+    searchGNews(query, 'it'),
     searchGNews(terms.es, 'es'),
     searchGNews(terms.fr, 'fr'),
     searchGNews(terms.de, 'de'),
@@ -164,6 +165,11 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
   const all = searches
     .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
+    // Filtra articoli con contenuto troppo scarno: solo titolo o quasi
+    .filter((x) => {
+      const meaningfulContent = x.content.replace(x.title, '').trim()
+      return meaningfulContent.length >= 40
+    })
 
   // Deduplica per URL (stessa notizia da API diverse)
   const byUrl = new Map<string, SearchArticle>()
