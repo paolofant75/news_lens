@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import { searchAllSources, analyzeWithVeritas } from './veritas'
 import type { SearchArticle, FiveWs } from './veritas'
 import { cacheGet, cacheSet } from './redis'
+import { aiComplete } from './ai-client'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -120,7 +121,7 @@ const DEFAULT_PARAMS: IntelligenceParams = {
   disinformation_scan: true,
 }
 
-// ─── Anthropic helper ────────────────────────────────────────────────────────
+// ─── AI helper (provider-agnostico via lib/ai-client) ──────────────────────
 
 async function callClaude(
   model: 'claude-haiku-4-5-20251001' | 'claude-sonnet-4-6',
@@ -128,22 +129,17 @@ async function callClaude(
   systemPrompt: string,
   userContent: string
 ): Promise<string> {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': process.env.ANTHROPIC_API_KEY!,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userContent }],
-    }),
+  // Mappa modello concreto -> tier logico: haiku -> 'fast', sonnet -> 'smart'
+  const tier = model.includes('haiku') ? 'fast' : 'smart'
+  const raw = await aiComplete({
+    tier,
+    maxTokens,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userContent },
+    ],
   })
-  const data = await res.json()
-  return (data.content?.[0]?.text ?? '').replace(/```json?\n?|\n?```/g, '').trim()
+  return raw.replace(/```json?\n?|\n?```/g, '').trim()
 }
 
 function articlesContext(articles: SearchArticle[], maxArticles = 8): string {

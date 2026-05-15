@@ -1,4 +1,13 @@
 import { LANG_NAMES } from './translate'
+import { aiComplete } from './ai-client'
+import { cacheGet, cacheSet } from './redis'
+import crypto from 'crypto'
+
+const VERITAS_CACHE_TTL = 86400 // 24h: stessa query+lang -> stesso risultato
+function veritasCacheKey(query: string, lang: string): string {
+  const hash = crypto.createHash('md5').update(`${query}|${lang}`).digest('hex').slice(0, 16)
+  return `veritas:v1:${hash}`
+}
 
 export type SearchArticle = {
   title: string
@@ -119,33 +128,20 @@ type MultiLangTerms = { en: string; es: string; fr: string; de: string; ru: stri
 async function expandQueryMultiLang(query: string): Promise<MultiLangTerms> {
   const fallback: MultiLangTerms = { en: query, es: query, fr: query, de: query, ru: query, ar: query }
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': process.env.ANTHROPIC_API_KEY!,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        messages: [{
-          role: 'user',
-          content: `You are a news search expert. The user gives you a news topic in any language. Extract the 2-4 most relevant search keywords and translate them to 6 target languages. Return ONLY valid JSON with this exact shape: {"en":"...","es":"...","fr":"...","de":"...","ru":"...","ar":"..."}. Each value: 2-4 words, no punctuation, lowercase except proper nouns.\n\nTopic: "${query}"\n\nExamples:\n"prezzo petrolio mercato" -> {"en":"oil price","es":"precio petróleo","fr":"prix pétrole","de":"Ölpreis","ru":"цена нефти","ar":"سعر النفط"}\n"Iran ripescaggio Mondiali" -> {"en":"Iran World Cup playoff","es":"Irán Mundial repesca","fr":"Iran Coupe Monde barrage","de":"Iran WM Playoff","ru":"Иран чемпионат мира","ar":"إيران كأس العالم"}`,
-        }],
-      }),
+    const raw = await aiComplete({
+      tier: 'fast',
+      maxTokens: 300,
+      messages: [{
+        role: 'user',
+        content: `You are a news search expert. The user gives you a news topic in any language. Extract the 2-4 most relevant search keywords and translate them to 6 target languages. Return ONLY valid JSON with this exact shape: {"en":"...","es":"...","fr":"...","de":"...","ru":"...","ar":"..."}. Each value: 2-4 words, no punctuation, lowercase except proper nouns.\n\nTopic: "${query}"\n\nExamples:\n"prezzo petrolio mercato" -> {"en":"oil price","es":"precio petróleo","fr":"prix pétrole","de":"Ölpreis","ru":"цена нефти","ar":"سعر النفط"}\n"Iran ripescaggio Mondiali" -> {"en":"Iran World Cup playoff","es":"Irán Mundial repesca","fr":"Iran Coupe Monde barrage","de":"Iran WM Playoff","ru":"Иран чемпионат мира","ar":"إيران كأس العالم"}`,
+      }],
     })
-    if (!res.ok) {
-      console.warn(`[veritas] expandQueryMultiLang HTTP ${res.status} - fallback to original query`)
-      return fallback
-    }
-    const data = await res.json()
-    const text = (data.content?.[0]?.text ?? '').replace(/```json?\n?|\n?```/g, '').trim()
+    const text = raw.replace(/```json?\n?|\n?```/g, '').trim()
     const parsed = JSON.parse(text)
     if (parsed && typeof parsed === 'object' && parsed.en) {
       return { ...fallback, ...parsed }
     }
-    console.warn('[veritas] expandQueryMultiLang invalid JSON shape:', text.slice(0, 200))
+    console.warn('[veritas] expandQueryMultiLang invalid JSON:', text.slice(0, 200))
   } catch (e) {
     console.warn('[veritas] expandQueryMultiLang failed:', (e as Error).message)
   }
@@ -262,6 +258,20 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
 }
 
 export async function analyzeWithVeritas(query: string, articles: SearchArticle[], lang = 'it'): Promise<VeritasResult> {
+  // Cache hit: stessa query + lang -> stesso risultato per 24h (anche se il pool
+  // di articoli cambia, l'analisi resta coerente per i click ripetuti)
+  const cacheKey = veritasCacheKey(query, lang)
+  try {
+    const cached = await cacheGet(cacheKey)
+    if (cached) {
+      const parsed = JSON.parse(cached) as VeritasResult
+      // Le fonti potrebbero essere "stale" rispetto al pool corrente, ma il
+      // consolidato e l'analisi sono ancora validi. Aggiorniamo solo le sources
+      // per coerenza con il pool fresco passato.
+      return { ...parsed, sources: articles }
+    }
+  } catch { /* fall through to fresh analysis */ }
+
   const articlesText = articles
     .map((a, i) => `[${i + 1}] FONTE: ${a.source}\nTITOLO: ${a.title}\nCONTENUTO: ${a.content}`)
     .join('\n\n---\n\n')
@@ -322,24 +332,13 @@ ISTRUZIONI PER approfondimenti:
 - Ogni titolo deve funzionare come query di ricerca autonoma`
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': process.env.ANTHROPIC_API_KEY!,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 3500,
-        messages: [{ role: 'user', content: prompt }],
-      }),
+    const text = await aiComplete({
+      tier: 'smart',  // su DeepSeek -> deepseek-chat (V3); su Anthropic -> Sonnet
+      maxTokens: 3500,
+      messages: [{ role: 'user', content: prompt }],
     })
-    if (!res.ok) throw new Error(`Anthropic API error: ${res.status}`)
-    const data = await res.json()
-    const text = data.content?.[0]?.text ?? '{}'
     const json = JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim())
-    return {
+    const result: VeritasResult = {
       query,
       articolo_consolidato: json.articolo_consolidato ?? '',
       five_ws: json.five_ws ?? { who: '', what: '', where: '', when: '', why: '' },
@@ -347,7 +346,13 @@ ISTRUZIONI PER approfondimenti:
       analisi: json.analisi ?? [],
       approfondimenti: Array.isArray(json.approfondimenti) ? json.approfondimenti.slice(0, 5) : [],
     }
-  } catch {
+    // Cache SOLO se l'analisi e' valida (consolidato non vuoto)
+    if (result.articolo_consolidato) {
+      cacheSet(cacheKey, JSON.stringify(result), VERITAS_CACHE_TTL).catch(() => {})
+    }
+    return result
+  } catch (e) {
+    console.warn('[veritas] analyzeWithVeritas failed:', (e as Error).message)
     return {
       query,
       articolo_consolidato: 'Analisi non disponibile al momento.',

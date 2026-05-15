@@ -13,6 +13,31 @@ async function checkSupabase() {
   }
 }
 
+async function checkDeepSeek() {
+  const start = Date.now()
+  if (!process.env.DEEPSEEK_API_KEY) {
+    return { ok: false, ms: 0, message: 'DEEPSEEK_API_KEY not configured' }
+  }
+  try {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        max_tokens: 5,
+        messages: [{ role: 'user', content: 'reply with "ok"' }],
+      }),
+    })
+    const data = await res.json()
+    return { ok: res.ok, ms: Date.now() - start, message: data.choices?.[0]?.message?.content ?? data.error?.message }
+  } catch (e) {
+    return { ok: false, ms: Date.now() - start, error: String(e) }
+  }
+}
+
 async function checkAnthropic() {
   const start = Date.now()
   try {
@@ -89,8 +114,9 @@ async function checkNYT() {
 }
 
 export async function GET() {
-  const [supabase, anthropic, redis, newsapi, guardian, nyt] = await Promise.all([
+  const [supabase, deepseek, anthropic, redis, newsapi, guardian, nyt] = await Promise.all([
     checkSupabase(),
+    checkDeepSeek(),
     checkAnthropic(),
     checkRedis(),
     checkNewsAPI(),
@@ -98,5 +124,6 @@ export async function GET() {
     checkNYT(),
   ])
 
-  return NextResponse.json({ supabase, anthropic, redis, newsapi, guardian, nyt })
+  const aiProvider = process.env.DEEPSEEK_API_KEY ? 'deepseek' : 'anthropic'
+  return NextResponse.json({ aiProvider, supabase, deepseek, anthropic, redis, newsapi, guardian, nyt })
 }

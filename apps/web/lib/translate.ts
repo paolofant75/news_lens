@@ -1,4 +1,5 @@
 import { cacheGet, cacheSet, cacheMGet } from './redis'
+import { aiComplete } from './ai-client'
 import crypto from 'crypto'
 
 export const SUPPORTED_LANGS = [
@@ -31,25 +32,14 @@ function hash(text: string): string {
 async function claudeTranslate(texts: string[], targetLang: string): Promise<Map<number, string>> {
   const langName = LANG_NAMES[targetLang] ?? targetLang
   const numbered = texts.map((t, i) => `[${i + 1}] ${t}`).join('\n')
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': process.env.ANTHROPIC_API_KEY!,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 6000,
-      messages: [{
-        role: 'user',
-        content: `Translate the following ${texts.length} numbered items into ${langName}. Each input has format [N] text. You MUST return exactly ${texts.length} lines, each starting with [N] matching the input numbering. Preserve proper nouns. Output ONLY the translations, no commentary.\n\n${numbered}`,
-      }],
-    }),
+  const raw = await aiComplete({
+    tier: 'fast',
+    maxTokens: 6000,
+    messages: [{
+      role: 'user',
+      content: `Translate the following ${texts.length} numbered items into ${langName}. Each input has format [N] text. You MUST return exactly ${texts.length} lines, each starting with [N] matching the input numbering. Preserve proper nouns. Output ONLY the translations, no commentary.\n\n${numbered}`,
+    }],
   })
-  if (!res.ok) throw new Error(`translate http ${res.status}`)
-  const data = await res.json()
-  const raw = data.content?.[0]?.text ?? ''
   const map = new Map<number, string>()
   for (const line of raw.split('\n')) {
     const m = line.match(/^\s*\[(\d+)\]\s*(.+?)\s*$/)
