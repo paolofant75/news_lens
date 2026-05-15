@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Verify the exact model ID in Google AI Studio if this name is incorrect
-const MODEL = 'gemini-3.1-flash-preview-tts'
+// Modelli TTS Gemini in ordine di preferenza. Se il primo restituisce 404
+// (modello non disponibile / deprecato) prova i successivi prima di fallire.
+// Aggiornare quando Google rilascia nuovi modelli TTS.
+const TTS_MODELS = [
+  'gemini-2.5-flash-preview-tts',
+  'gemini-2.5-pro-preview-tts',
+] as const
 const SAMPLE_RATE = 24000
 
 function pcm16ToWav(pcmBase64: string): Buffer {
@@ -65,41 +70,53 @@ export async function POST(req: NextRequest) {
   const voiceName = LANG_VOICE[lang] ?? LANG_VOICE.default
   const systemPrompt = SYSTEM_PROMPT[lang] ?? SYSTEM_PROMPT.it
 
-  console.log(`[TTS] model=${MODEL} lang=${lang} voice=${voiceName} text_len=${text.length}`)
+  let lastErr = 'unknown error'
+  let lastStatus = 500
+  let audioData: string | undefined
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ parts: [{ text: text.slice(0, 3000) }] }],
-        generationConfig: {
-          responseModalities: ['AUDIO'],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName },
+  for (const model of TTS_MODELS) {
+    console.log(`[TTS] try model=${model} lang=${lang} voice=${voiceName} text_len=${text.length}`)
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ parts: [{ text: text.slice(0, 3000) }] }],
+          generationConfig: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              voiceConfig: { prebuiltVoiceConfig: { voiceName } },
             },
           },
-        },
-      }),
-    }
-  )
+        }),
+      }
+    )
 
-  if (!res.ok) {
+    if (res.ok) {
+      const data = await res.json()
+      audioData = data?.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data
+      if (audioData) {
+        console.log(`[TTS] OK model=${model}`)
+        break
+      }
+      console.error('[TTS] No audio data in response:', JSON.stringify(data).slice(0, 500))
+      lastErr = 'No audio in response'
+      lastStatus = 500
+      continue
+    }
+
     const err = await res.text()
-    console.error(`[TTS] Gemini HTTP ${res.status}:`, err.slice(0, 500))
-    return NextResponse.json({ error: err, status: res.status }, { status: res.status })
+    console.error(`[TTS] ${model} HTTP ${res.status}:`, err.slice(0, 300))
+    lastErr = err
+    lastStatus = res.status
+    // Se 404, prova il prossimo modello. Per altri errori (401/403/429), fermati subito.
+    if (res.status !== 404) break
   }
 
-  const data = await res.json()
-  const audioData: string | undefined =
-    data?.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data
-
   if (!audioData) {
-    console.error('[TTS] No audio data in response:', JSON.stringify(data).slice(0, 500))
-    return NextResponse.json({ error: 'No audio in response' }, { status: 500 })
+    return NextResponse.json({ error: lastErr, status: lastStatus }, { status: lastStatus })
   }
 
   const wav = pcm16ToWav(audioData)
