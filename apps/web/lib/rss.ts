@@ -108,7 +108,7 @@ function categorize(title: string, summary: string): string {
 async function fetchFromNewsAPI(): Promise<Article[]> {
   try {
     const res = await fetch(
-      `https://newsapi.org/v2/top-headlines?pageSize=30&language=en&apiKey=${process.env.NEWS_API_KEY}`,
+      `https://newsapi.org/v2/top-headlines?pageSize=30&language=it&apiKey=${process.env.NEWS_API_KEY}`,
       { next: { revalidate: 300 } }
     )
     const data = await res.json()
@@ -154,7 +154,7 @@ async function fetchFromGuardianAPI(): Promise<Article[]> {
 async function fetchFromGNews(): Promise<Article[]> {
   try {
     const res = await fetch(
-      `https://gnews.io/api/v4/top-headlines?token=${process.env.GNEWS_API_KEY}&max=20&lang=en`,
+      `https://gnews.io/api/v4/top-headlines?token=${process.env.GNEWS_API_KEY}&max=20&lang=it`,
       { next: { revalidate: 300 } }
     )
     const data = await res.json()

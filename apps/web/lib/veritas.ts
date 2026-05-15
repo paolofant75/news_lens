@@ -255,12 +255,13 @@ ISTRUZIONI PER approfondimenti:
         messages: [{ role: 'user', content: prompt }],
       }),
     })
+    if (!res.ok) throw new Error(`Anthropic API error: ${res.status}`)
     const data = await res.json()
     const text = data.content?.[0]?.text ?? '{}'
     const json = JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim())
     return {
       query,
-      articolo_consolidato: json.articolo_consolidato,
+      articolo_consolidato: json.articolo_consolidato ?? '',
       five_ws: json.five_ws ?? { who: '', what: '', where: '', when: '', why: '' },
       sources: articles,
       analisi: json.analisi ?? [],

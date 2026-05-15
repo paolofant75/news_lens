@@ -199,7 +199,13 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
                   </div>
                 </div>
               </div>
-              <ArticleWithCitations text={result.articolo_consolidato} sources={result.sources} />
+              {result.articolo_consolidato ? (
+                <ArticleWithCitations text={result.articolo_consolidato} sources={result.sources} />
+              ) : (
+                <p className="text-sm italic" style={{ color: 'var(--text-3)' }}>
+                  Analisi Veritas non disponibile per questa notizia — le fonti trovate non contengono contenuto sufficiente per produrre un articolo consolidato.
+                </p>
+              )}
 
               {/* Statistiche aggregate */}
               {sourcesWithAnalysis.length > 0 && (
