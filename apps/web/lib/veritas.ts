@@ -162,13 +162,26 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
     searchGNews(terms.ar, 'ar'),
   ])
 
-  // Keyword di rilevanza ricavate dalla query originale (parole >= 3 char)
-  const queryKeywords = query
-    .toLowerCase()
-    .split(/[\s,\.;:!\?]+/)
-    .filter((w) => w.length >= 3)
+  // Keyword di rilevanza ricavate da TUTTE le lingue espanse + query originale
+  // (l'espansione multilingua produce articoli in lingue diverse, quindi serve il
+  // vocabolario completo per il filtro overlap, non solo le parole italiane)
+  const STOP = new Set(['del', 'della', 'delle', 'dei', 'and', 'the', 'for', 'with', 'over', 'from', 'into', 'que', 'der', 'die', 'das', 'les', 'des', 'avec'])
+  const tokenize = (s: string) =>
+    s.toLowerCase()
+      .split(/[\s,\.;:!\?\-—–"'«»()\[\]]+/)
+      .filter((w) => w.length >= 4 && !STOP.has(w))
 
-  const all = searches
+  const allKeywords = new Set<string>([
+    ...tokenize(query),
+    ...tokenize(terms.en),
+    ...tokenize(terms.es),
+    ...tokenize(terms.fr),
+    ...tokenize(terms.de),
+    ...tokenize(terms.ru),
+    ...tokenize(terms.ar),
+  ])
+
+  const rawResults = searches
     .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
     // Filtra articoli con contenuto troppo scarno: solo titolo o quasi
@@ -176,12 +189,16 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
       const meaningfulContent = x.content.replace(x.title, '').trim()
       return meaningfulContent.length >= 40
     })
-    // Filtra articoli che NON hanno overlap con la query (off-topic)
-    .filter((x) => {
-      if (queryKeywords.length === 0) return true
-      const haystack = `${x.title} ${x.content}`.toLowerCase()
-      return queryKeywords.some((kw) => haystack.includes(kw))
-    })
+
+  // Filtro relevance: scarta off-topic SOLO se restano almeno 3 articoli rilevanti
+  // (fallback: se il filtro azzera tutto, meglio mostrare qualcosa che niente)
+  const relevant = allKeywords.size === 0
+    ? rawResults
+    : rawResults.filter((x) => {
+        const haystack = `${x.title} ${x.content}`.toLowerCase()
+        return [...allKeywords].some((kw) => haystack.includes(kw))
+      })
+  const all = relevant.length >= 3 ? relevant : rawResults
 
   // Deduplica per URL (stessa notizia da API diverse)
   const byUrl = new Map<string, SearchArticle>()
