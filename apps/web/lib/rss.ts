@@ -1,6 +1,8 @@
 import Parser from 'rss-parser'
 import { classifyArticle, geoClassify } from './classify'
 import { cacheGet, cacheSet } from './redis'
+// GDELT Project: fonte news aggiuntiva con query tematiche (15 min refresh)
+import { fetchGdeltArticles } from './gdelt'
 
 const ARTICLES_FRESH_KEY = 'nlv_articles_v3'
 const ARTICLES_STALE_KEY = 'nlv_articles_v3_stale'
@@ -85,6 +87,18 @@ const FEEDS: FeedMeta[] = [
   { id: 'ansa_salute',    source: 'ANSA Salute',             url: 'https://www.ansa.it/sito/notizie/salute/salute_rss.xml',        country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high' },
   { id: 'ansa_ambiente',  source: 'ANSA Ambiente',           url: 'https://www.ansa.it/sito/notizie/ambiente/ambiente_rss.xml',    country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.3, aiValue: 'high', antiBiasValue: 'high' },
   { id: 'ansa_cultura',   source: 'ANSA Cultura',            url: 'https://www.ansa.it/sito/notizie/lifestyle/lifestyle_rss.xml',  country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.0, aiValue: 'medium', antiBiasValue: 'medium' },
+  // ─── Quotidiani e testate italiane — Esteri/Mondo ─────────────────────────
+  // Espansione copertura nazionale italiana per bilanciare le fonti anglofone
+  { id: 'corriere_esteri',  source: 'Corriere della Sera',  url: 'https://xml2.corriereobjects.it/rss/esteri.xml',    country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 8.3, aiValue: 'high',   antiBiasValue: 'high'   },
+  { id: 'repubblica_mondo', source: 'la Repubblica',         url: 'https://www.repubblica.it/rss/esteri/rss2.0.xml',   country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 8.2, aiValue: 'high',   antiBiasValue: 'high'   },
+  { id: 'sole24ore_mondo',  source: 'Il Sole 24 Ore',        url: 'https://www.ilsole24ore.com/rss/mondo.xml',         country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-right', reliability: 8.4, aiValue: 'high',   antiBiasValue: 'high'   },
+  { id: 'lastampa_mondo',   source: 'La Stampa',             url: 'https://www.lastampa.it/rss/esteri',                country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 7.9, aiValue: 'high',   antiBiasValue: 'high'   },
+  { id: 'fattoquotidiano',  source: 'Il Fatto Quotidiano',   url: 'https://www.ilfattoquotidiano.it/feed/',            country: 'Italy', region: 'europa', type: 'mainstream', bias: 'left',         reliability: 7.2, aiValue: 'medium', antiBiasValue: 'medium' },
+  { id: 'huffpost_it',      source: 'HuffPost Italia',       url: 'https://www.huffingtonpost.it/feeds/index.xml',     country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 7.5, aiValue: 'medium', antiBiasValue: 'medium' },
+  { id: 'skytg24_mondo',    source: 'Sky TG24',              url: 'https://tg24.sky.it/mondo/rss.xml',                 country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 8.0, aiValue: 'high',   antiBiasValue: 'high'   },
+  { id: 'adnkronos',        source: 'Adnkronos',             url: 'https://www.adnkronos.com/rss/world_rss.php',       country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 7.8, aiValue: 'high',   antiBiasValue: 'high'   },
+  { id: 'messaggero_mondo', source: 'Il Messaggero',         url: 'https://www.ilmessaggero.it/rss/mondo.xml',         country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 7.7, aiValue: 'high',   antiBiasValue: 'high'   },
+  { id: 'open_online',      source: 'Open Online',           url: 'https://www.open.online/feed/',                     country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 7.6, aiValue: 'medium', antiBiasValue: 'medium' },
 ]
 
 function categorize(title: string, summary: string): string {
@@ -160,7 +174,8 @@ async function fetchFromGNews(): Promise<Article[]> {
 }
 
 export async function fetchArticlesFresh(): Promise<Article[]> {
-  const [rssResults, newsApiArticles, guardianArticles, gnewsArticles] = await Promise.all([
+  // Fetch parallelo di tutte le fonti — ogni fonte ha il proprio fail-safe
+  const [rssResults, newsApiArticles, guardianArticles, gnewsArticles, gdeltArticles] = await Promise.all([
     Promise.allSettled(
       FEEDS.map(async (feed) => {
         const f = await parser.parseURL(feed.url)
@@ -185,13 +200,18 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
     fetchFromNewsAPI(),
     fetchFromGuardianAPI(),
     fetchFromGNews(),
+    // GDELT Project con query tematiche predefinite — fail-safe interno
+    fetchGdeltArticles().catch((err) => {
+      console.warn('[GDELT] pipeline call failed:', (err as Error).message)
+      return [] as Article[]
+    }),
   ])
 
   const rssArticles = rssResults
     .filter((r): r is PromiseFulfilledResult<Article[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
 
-  const all = [...rssArticles, ...newsApiArticles, ...guardianArticles, ...gnewsArticles]
+  const all = [...rssArticles, ...newsApiArticles, ...guardianArticles, ...gnewsArticles, ...gdeltArticles]
     .filter((a) => a.title && a.link)
 
   const seen = new Set<string>()
