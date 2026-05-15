@@ -4,6 +4,7 @@ const HomeNewsFeed = dynamic(() => import('../../components/home-news-feed'), { 
 import { fetchArticles } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { geoPersonalizedArticles, fetchTrending } from '../../lib/trends'
+import { sortByPreferredLang } from '../../lib/lang-priority'
 import { cookies, headers } from 'next/headers'
 
 export default async function FeedSection() {
@@ -14,7 +15,9 @@ export default async function FeedSection() {
 
   const [articles, trends] = await Promise.all([fetchArticles(), fetchTrending(lang)])
   const ranked = geoPersonalizedArticles(articles, trends, visitorCountry)
-  const feedArticles = ranked.slice(5, 30)
+  // Prioritizza fonti nella lingua dell'utente prima dello slice per evitare mix
+  const ordered = sortByPreferredLang(ranked, lang)
+  const feedArticles = ordered.slice(5, 30)
 
   const translated = await translateBatch(
     feedArticles.map((a) => ({ title: a.title, summary: a.summary })),

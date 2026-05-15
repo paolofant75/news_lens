@@ -6,6 +6,7 @@ import { TAXONOMY, type TaxNode } from '../lib/taxonomy'
 import {
   IconZap, IconGlobe2, IconCpu, IconTrending, IconFlask,
   IconLayers, IconEye, IconChevronRight, IconChevronDown,
+  IconActivity,
 } from './icons'
 
 type Props = {
@@ -21,13 +22,14 @@ const TYPE_COLORS: Record<string, string> = {
 }
 
 const NODE_ICONS: Record<string, React.ReactNode> = {
-  breaking:      <IconZap size={14} />,
-  geopolitics:   <IconGlobe2 size={14} />,
-  ai_tech:       <IconCpu size={14} />,
-  economy:       <IconTrending size={14} />,
-  health_science:<IconFlask size={14} />,
-  narratives:    <IconLayers size={14} />,
-  osint:         <IconEye size={14} />,
+  breaking:      <IconZap size={15} />,
+  geopolitics:   <IconGlobe2 size={15} />,
+  ai_tech:       <IconCpu size={15} />,
+  economy:       <IconTrending size={15} />,
+  health_science:<IconFlask size={15} />,
+  narratives:    <IconLayers size={15} />,
+  osint:         <IconEye size={15} />,
+  sport:         <IconActivity size={15} />,
 }
 
 function NodeRow({
@@ -55,7 +57,7 @@ function NodeRow({
           if (hasChildren) setOpen((o) => !o)
           onSelect(node.id, node.keywords)
         }}
-        className={`w-full flex items-center gap-1.5 py-1 pr-2 rounded-lg text-xs transition-all hover:opacity-80 ${pl}`}
+        className={`w-full flex items-center gap-2.5 py-2 pr-2 rounded-lg text-sm transition-all hover:opacity-80 ${pl}`}
         style={isActive
           ? { background: 'var(--accent)', color: '#fff' }
           : { color: depth === 0 ? 'var(--text)' : 'var(--text-2)' }
@@ -132,7 +134,7 @@ export default function TaxonomyTree({ counts, activeId }: Props) {
       {/* Reset */}
       <button
         onClick={() => router.push('/news')}
-        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-all hover:opacity-80"
+        className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-all hover:opacity-80"
         style={!activeId ? { background: 'var(--accent)', color: '#fff' } : { color: 'var(--text-3)' }}
       >
         <span className="font-semibold">Tutte le categorie</span>

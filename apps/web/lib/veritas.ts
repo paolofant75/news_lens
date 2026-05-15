@@ -162,6 +162,12 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
     searchGNews(terms.ar, 'ar'),
   ])
 
+  // Keyword di rilevanza ricavate dalla query originale (parole >= 3 char)
+  const queryKeywords = query
+    .toLowerCase()
+    .split(/[\s,\.;:!\?]+/)
+    .filter((w) => w.length >= 3)
+
   const all = searches
     .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
@@ -169,6 +175,12 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
     .filter((x) => {
       const meaningfulContent = x.content.replace(x.title, '').trim()
       return meaningfulContent.length >= 40
+    })
+    // Filtra articoli che NON hanno overlap con la query (off-topic)
+    .filter((x) => {
+      if (queryKeywords.length === 0) return true
+      const haystack = `${x.title} ${x.content}`.toLowerCase()
+      return queryKeywords.some((kw) => haystack.includes(kw))
     })
 
   // Deduplica per URL (stessa notizia da API diverse)

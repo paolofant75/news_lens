@@ -149,6 +149,17 @@ export const TAXONOMY: TaxNode[] = [
       { id: 'sanctions_intel', label: 'Sanzioni & Geofin.', level: 2, keywords: ['sanctions', 'ofac', 'swift ban', 'financial intelligence'] },
     ],
   },
+  {
+    id: 'sport', label: '⚽ Sport', icon: '', level: 1, type: 'static',
+    keywords: ['sport', 'football', 'soccer', 'tennis', 'basket', 'olympics', 'champions', 'serie a', 'premier league', 'la liga', 'bundesliga'],
+    children: [
+      { id: 'sport_calcio', label: 'Calcio', level: 2, keywords: ['football', 'soccer', 'serie a', 'champions league', 'premier league', 'la liga', 'fifa', 'uefa'] },
+      { id: 'sport_tennis', label: 'Tennis', level: 2, keywords: ['tennis', 'atp', 'wta', 'wimbledon', 'roland garros', 'us open', 'australian open'] },
+      { id: 'sport_basket', label: 'Basket', level: 2, keywords: ['nba', 'basketball', 'eurolega', 'lebron', 'playoff'] },
+      { id: 'sport_motori', label: 'Motori', level: 2, keywords: ['formula 1', 'f1', 'motogp', 'ferrari', 'mercedes', 'red bull'] },
+      { id: 'sport_olimpiadi', label: 'Olimpiadi', level: 2, keywords: ['olympics', 'olimpiadi', 'cio', 'medaglia', 'gold medal'] },
+    ],
+  },
 ]
 
 export function getAllKeywords(node: TaxNode): string[] {

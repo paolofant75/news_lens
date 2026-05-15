@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { fetchArticles, timeAgo } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { geoPersonalizedArticles, fetchTrending } from '../../lib/trends'
+import { sortByPreferredLang } from '../../lib/lang-priority'
 import { cookies, headers } from 'next/headers'
 import { encodeArticleId } from '../../lib/encode'
 
@@ -13,7 +14,8 @@ export default async function SecondaryGrid() {
 
   const [articles, trends] = await Promise.all([fetchArticles(), fetchTrending(lang)])
   const ranked = geoPersonalizedArticles(articles, trends, visitorCountry)
-  const secondary = ranked.slice(1, 5)
+  const ordered = sortByPreferredLang(ranked, lang)
+  const secondary = ordered.slice(1, 5)
 
   const translated = await translateBatch(
     secondary.map((a) => ({ title: a.title, summary: a.summary })),

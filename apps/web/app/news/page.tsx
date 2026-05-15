@@ -1,6 +1,7 @@
 import { fetchArticles, timeAgo, biasColor } from '../../lib/rss'
 import { encodeArticleId } from '../../lib/encode'
 import { translateBatch } from '../../lib/translate'
+import { sortByPreferredLang } from '../../lib/lang-priority'
 import { cookies } from 'next/headers'
 import PageLayout from '../../components/page-layout'
 import { TAXONOMY, getAllKeywords } from '../../lib/taxonomy'
@@ -139,27 +140,7 @@ export default async function NewsPage({
     return catOk && geoOk && sportOk && taxOk
   })
 
-  // Prioritizza fonti nella lingua dell'utente per ridurre traduzioni e migliorare freschezza
-  const SOURCE_LANG_MAP: Record<string, string[]> = {
-    it: ['ansa', 'corriere', 'repubblica', 'sole 24', 'la stampa', 'fatto quotidiano', 'huffpost', 'sky tg24', 'adnkronos', 'messaggero', 'open online', 'rai'],
-    en: ['bbc', 'reuters', 'ap news', 'guardian', 'nyt', 'cnn', 'washington post', 'bloomberg', 'al jazeera english', 'scmp', 'wired', 'techcrunch', 'mit', 'arstechnica'],
-    fr: ['france 24', 'le monde', 'le figaro', 'le parisien'],
-    de: ['dw', 'spiegel', 'zeit', 'faz'],
-    es: ['el país', 'el mundo', 'abc'],
-  }
-  const preferredSources = SOURCE_LANG_MAP[lang] ?? []
-  function sourceMatchesLang(source: string): boolean {
-    const s = source.toLowerCase()
-    return preferredSources.some((kw) => s.includes(kw))
-  }
-  const filtered = preferredSources.length > 0
-    ? [...filteredRaw].sort((a, b) => {
-        const aMatch = sourceMatchesLang(a.source) ? 1 : 0
-        const bMatch = sourceMatchesLang(b.source) ? 1 : 0
-        if (aMatch !== bMatch) return bMatch - aMatch
-        return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
-      })
-    : filteredRaw
+  const filtered = sortByPreferredLang(filteredRaw, lang)
 
   // Traduci i titoli/summary nella lingua selezionata (max 50, con cache Redis)
   const translated = await translateBatch(

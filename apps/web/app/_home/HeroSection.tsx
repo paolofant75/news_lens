@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { fetchArticles, timeAgo } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { geoPersonalizedArticles, fetchTrending } from '../../lib/trends'
+import { sortByPreferredLang } from '../../lib/lang-priority'
 import { fetchGlobalStats, getRelevantStats } from '../../lib/stats'
 import { cookies, headers } from 'next/headers'
 import { encodeArticleId } from '../../lib/encode'
@@ -21,7 +22,8 @@ export default async function HeroSection() {
   ])
 
   const ranked = geoPersonalizedArticles(articles, trends, visitorCountry)
-  const featured = ranked[0]
+  const ordered = sortByPreferredLang(ranked, lang)
+  const featured = ordered[0]
   if (!featured) return null
 
   const [[translatedFeat]] = await Promise.all([

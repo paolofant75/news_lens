@@ -321,18 +321,6 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
                 </div>
               ))}
 
-              {/* Fonti senza analisi */}
-              {result.sources
-                .filter((src) => !result.analisi.find((a) => a.fonte === src.source))
-                .map((src, i) => (
-                  <div key={`na-${i}`} className="rounded-xl border border-gray-800 bg-gray-900/50 p-4 opacity-60">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-400">{src.source}</span>
-                      <a href={src.link} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:underline">Apri ↗</a>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-1">{src.title}</p>
-                  </div>
-                ))}
             </div>
           </div>
         </div>
