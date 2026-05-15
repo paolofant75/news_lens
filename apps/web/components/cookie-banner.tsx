@@ -125,121 +125,121 @@ export default function CookieBanner() {
   if (!visible) return null
 
   return (
-    <div
-      className="fixed bottom-14 sm:bottom-0 inset-x-0 z-50 p-4 backdrop-blur-md"
-      style={{ background: 'rgba(10,10,10,0.92)', borderTop: '1px solid var(--border)' }}
-      role="dialog"
-      aria-modal="false"
-      aria-labelledby="cookie-banner-title"
-    >
-      <div className="max-w-4xl mx-auto">
-        {!showPrefs ? (
-          <>
-            <h2
-              id="cookie-banner-title"
-              className="text-sm font-semibold mb-2"
-              style={{ color: 'var(--text)' }}
-            >
-              La tua privacy
-            </h2>
-            <p className="text-xs leading-relaxed mb-4" style={{ color: 'var(--text-2)' }}>
-              Lens Veritas utilizza cookie tecnici necessari al funzionamento del sito (sempre
-              attivi) e, previo tuo consenso, strumenti di monitoraggio degli errori (Sentry) e
-              funzionalità AI (Claude, Gemini) per l&apos;analisi delle notizie. Puoi accettare,
-              rifiutare o personalizzare la tua scelta. Maggiori dettagli nella nostra{' '}
-              <Link href="/cookie-policy" className="underline" style={{ color: 'var(--accent)' }}>
-                Cookie Policy
-              </Link>{' '}
-              e{' '}
-              <Link href="/privacy" className="underline" style={{ color: 'var(--accent)' }}>
-                Privacy Policy
-              </Link>
-              .
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <button
-                onClick={rejectAll}
-                className="py-2.5 px-4 rounded-xl text-sm font-medium transition-opacity hover:opacity-80"
-                style={{
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)',
-                }}
+    <>
+      {/* Overlay che oscura e blocca l'interazione col sito */}
+      <div
+        className="fixed inset-0 z-[60]"
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+        aria-hidden="true"
+      />
+
+      {/* Banner ad alto contrasto centrato */}
+      <div
+        className="fixed inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center z-[70] p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cookie-banner-title"
+      >
+        <div
+          className="w-full max-w-2xl mx-auto rounded-2xl p-6 sm:p-7 shadow-2xl"
+          style={{ background: '#ffffff', color: '#000000', border: '2px solid #dc2626' }}
+        >
+          {!showPrefs ? (
+            <>
+              <h2
+                id="cookie-banner-title"
+                className="text-xl font-bold mb-3"
+                style={{ color: '#000000' }}
               >
-                Rifiuta tutto
-              </button>
-              <button
-                onClick={() => setShowPrefs(true)}
-                className="py-2.5 px-4 rounded-xl text-sm font-medium transition-opacity hover:opacity-80"
-                style={{
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)',
-                }}
-              >
-                Personalizza
-              </button>
-              <button
-                onClick={acceptAll}
-                className="py-2.5 px-4 rounded-xl text-sm font-semibold text-black transition-opacity hover:opacity-80"
-                style={{ background: 'var(--accent)' }}
-              >
-                Accetta tutto
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>
-              Preferenze cookie
-            </h2>
-            <div className="space-y-3 mb-4">
-              <PrefRow
-                title="Cookie tecnici"
-                desc="Necessari al funzionamento (lingua, tema, sessione). Sempre attivi."
-                checked={true}
-                disabled={true}
-                onChange={() => {}}
-              />
-              <PrefRow
-                title="Monitoraggio errori (Sentry)"
-                desc="Permette di rilevare errori tecnici e migliorare la stabilità del sito."
-                checked={prefs.analytics}
-                disabled={false}
-                onChange={(v) => setPrefs((p) => ({ ...p, analytics: v }))}
-              />
-              <PrefRow
-                title="Funzionalità AI (Veritas, Audio Reader)"
-                desc="Invia le tue query ai modelli Claude (Anthropic) e Gemini (Google) per produrre analisi anti-bias e sintesi vocali. Senza consenso queste funzioni saranno disabilitate."
-                checked={prefs.ai_processing}
-                disabled={false}
-                onChange={(v) => setPrefs((p) => ({ ...p, ai_processing: v }))}
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button
-                onClick={() => setShowPrefs(false)}
-                className="py-2.5 px-4 rounded-xl text-sm font-medium transition-opacity hover:opacity-80"
-                style={{
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)',
-                }}
-              >
-                Indietro
-              </button>
-              <button
-                onClick={saveCustom}
-                className="py-2.5 px-4 rounded-xl text-sm font-semibold text-black transition-opacity hover:opacity-80"
-                style={{ background: 'var(--accent)' }}
-              >
-                Salva preferenze
-              </button>
-            </div>
-          </>
-        )}
+                La tua privacy è importante
+              </h2>
+              <p className="text-sm leading-relaxed mb-5" style={{ color: '#1a1a1a' }}>
+                Lens Veritas utilizza cookie tecnici necessari al funzionamento del sito (sempre
+                attivi) e, previo tuo consenso, strumenti di monitoraggio degli errori (Sentry) e
+                funzionalità AI (Claude, Gemini) per l&apos;analisi delle notizie. Puoi accettare,
+                rifiutare o personalizzare la tua scelta. Maggiori dettagli nella nostra{' '}
+                <Link href="/cookie-policy" className="underline font-semibold" style={{ color: '#dc2626' }}>
+                  Cookie Policy
+                </Link>{' '}
+                e{' '}
+                <Link href="/privacy" className="underline font-semibold" style={{ color: '#dc2626' }}>
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <button
+                  onClick={rejectAll}
+                  className="py-3 px-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                  style={{ background: '#ffffff', border: '2px solid #000000', color: '#000000' }}
+                >
+                  Rifiuta tutto
+                </button>
+                <button
+                  onClick={() => setShowPrefs(true)}
+                  className="py-3 px-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                  style={{ background: '#ffffff', border: '2px solid #000000', color: '#000000' }}
+                >
+                  Personalizza
+                </button>
+                <button
+                  onClick={acceptAll}
+                  className="py-3 px-4 rounded-xl text-sm font-bold transition-all hover:brightness-110"
+                  style={{ background: '#dc2626', color: '#ffffff', border: '2px solid #dc2626' }}
+                >
+                  Accetta tutto
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#000000' }}>
+                Preferenze cookie
+              </h2>
+              <div className="space-y-3 mb-5">
+                <PrefRow
+                  title="Cookie tecnici"
+                  desc="Necessari al funzionamento (lingua, tema, sessione). Sempre attivi."
+                  checked={true}
+                  disabled={true}
+                  onChange={() => {}}
+                />
+                <PrefRow
+                  title="Monitoraggio errori (Sentry)"
+                  desc="Permette di rilevare errori tecnici e migliorare la stabilità del sito."
+                  checked={prefs.analytics}
+                  disabled={false}
+                  onChange={(v) => setPrefs((p) => ({ ...p, analytics: v }))}
+                />
+                <PrefRow
+                  title="Funzionalità AI (Veritas, Audio Reader)"
+                  desc="Invia le tue query ai modelli Claude (Anthropic) e Gemini (Google) per produrre analisi anti-bias e sintesi vocali. Senza consenso queste funzioni saranno disabilitate."
+                  checked={prefs.ai_processing}
+                  disabled={false}
+                  onChange={(v) => setPrefs((p) => ({ ...p, ai_processing: v }))}
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button
+                  onClick={() => setShowPrefs(false)}
+                  className="py-3 px-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                  style={{ background: '#ffffff', border: '2px solid #000000', color: '#000000' }}
+                >
+                  Indietro
+                </button>
+                <button
+                  onClick={saveCustom}
+                  className="py-3 px-4 rounded-xl text-sm font-bold transition-all hover:brightness-110"
+                  style={{ background: '#dc2626', color: '#ffffff', border: '2px solid #dc2626' }}
+                >
+                  Salva preferenze
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -257,26 +257,35 @@ function PrefRow({
   onChange: (v: boolean) => void
 }) {
   return (
-    <div
-      className="rounded-xl p-3 flex items-start gap-3"
-      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+    <label
+      className="rounded-xl p-3 flex items-start gap-3 cursor-pointer transition-colors"
+      style={{
+        background: checked && !disabled ? '#fef2f2' : '#f5f5f5',
+        border: `2px solid ${checked && !disabled ? '#dc2626' : disabled ? '#9ca3af' : '#d4d4d4'}`,
+      }}
     >
       <input
         type="checkbox"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-1 flex-shrink-0"
+        className="mt-0.5 flex-shrink-0 w-4 h-4 cursor-pointer"
+        style={{ accentColor: '#dc2626' }}
         aria-label={title}
       />
       <div>
-        <p className="text-xs font-semibold" style={{ color: 'var(--text)' }}>
+        <p className="text-sm font-bold" style={{ color: '#000000' }}>
           {title}
+          {disabled && (
+            <span className="ml-2 text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded" style={{ background: '#dc2626', color: '#ffffff' }}>
+              Sempre attivi
+            </span>
+          )}
         </p>
-        <p className="text-[11px] leading-snug" style={{ color: 'var(--text-3)' }}>
+        <p className="text-xs leading-snug mt-0.5" style={{ color: '#404040' }}>
           {desc}
         </p>
       </div>
-    </div>
+    </label>
   )
 }
