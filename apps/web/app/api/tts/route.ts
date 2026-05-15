@@ -36,22 +36,26 @@ function pcm16ToWav(pcmBase64: string): Buffer {
   return wav
 }
 
-const SYSTEM_PROMPT: Record<string, string> = {
-  it: 'Sei una giornalista di una TV nazionale italiana. Leggi il testo con tono caldo, accogliente e professionale, come una conduttrice esperta del telegiornale serale. Sii naturale, non meccanica.',
-  en: 'You are a professional female news anchor on national television. Read with a warm, welcoming tone — natural and authoritative, like an experienced evening news broadcaster.',
-  fr: 'Tu es une journaliste professionnelle d\'une chaîne de télévision nationale. Lis le texte avec un ton chaleureux, naturel et professionnel, comme une présentatrice expérimentée du journal télévisé.',
-  de: 'Du bist eine professionelle Nachrichtensprecherin eines nationalen Fernsehsenders. Lies den Text mit einem warmen, natürlichen und professionellen Ton.',
-  es: 'Eres una periodista profesional de una televisión nacional. Lee el texto con un tono cálido, acogedor y profesional, como una presentadora experimentada del telediario.',
+// Gemini TTS NON supporta systemInstruction: lo stile va embeddato nella stessa
+// "content text" come prefisso. Formato consigliato: "Read with <style>: <text>"
+const STYLE_PREFIX: Record<string, string> = {
+  it: 'Leggi con tono caldo, naturale e professionale, come una conduttrice esperta del telegiornale italiano: ',
+  en: 'Read with a warm, natural and professional tone, like an experienced female news anchor: ',
+  fr: 'Lis avec un ton chaleureux, naturel et professionnel, comme une présentatrice de journal télévisé: ',
+  de: 'Lies mit einem warmen, natürlichen und professionellen Ton, wie eine erfahrene Nachrichtensprecherin: ',
+  es: 'Lee con un tono cálido, natural y profesional, como una periodista experimentada del telediario: ',
 }
 
-// Female voices available in Gemini TTS — adjust if needed based on model
+// Voci Gemini TTS testate (femminili, multilingua):
+// Kore (default), Aoede, Charon, Fenrir, Leda, Orus, Puck, Zephyr, ...
+// "Kore" e' la piu' supportata cross-region/model.
 const LANG_VOICE: Record<string, string> = {
-  it: 'Aoede',
-  en: 'Aoede',
-  fr: 'Aoede',
-  de: 'Aoede',
-  es: 'Aoede',
-  default: 'Aoede',
+  it: 'Kore',
+  en: 'Kore',
+  fr: 'Kore',
+  de: 'Kore',
+  es: 'Kore',
+  default: 'Kore',
 }
 
 export async function POST(req: NextRequest) {
@@ -68,7 +72,8 @@ export async function POST(req: NextRequest) {
   }
 
   const voiceName = LANG_VOICE[lang] ?? LANG_VOICE.default
-  const systemPrompt = SYSTEM_PROMPT[lang] ?? SYSTEM_PROMPT.it
+  const stylePrefix = STYLE_PREFIX[lang] ?? STYLE_PREFIX.it
+  const contentText = stylePrefix + text.slice(0, 3000)
 
   let lastErr = 'unknown error'
   let lastStatus = 500
@@ -82,8 +87,7 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ parts: [{ text: text.slice(0, 3000) }] }],
+          contents: [{ parts: [{ text: contentText }] }],
           generationConfig: {
             responseModalities: ['AUDIO'],
             speechConfig: {
@@ -111,8 +115,10 @@ export async function POST(req: NextRequest) {
     console.error(`[TTS] ${model} HTTP ${res.status}:`, err.slice(0, 300))
     lastErr = err
     lastStatus = res.status
-    // Se 404, prova il prossimo modello. Per altri errori (401/403/429), fermati subito.
-    if (res.status !== 404) break
+    // 404 = modello inesistente, prova il prossimo
+    // 500 = errore interno Google (transient), prova il prossimo modello
+    // Altri (401/403/429/400) = fermati subito, non e' problema di modello
+    if (res.status !== 404 && res.status !== 500) break
   }
 
   if (!audioData) {
