@@ -52,16 +52,20 @@ const LANG_VOICE: Record<string, string> = {
 export async function POST(req: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
+    console.error('[TTS] GEMINI_API_KEY not configured')
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 })
   }
 
   const { text, lang = 'it' } = await req.json() as { text: string; lang?: string }
   if (!text?.trim()) {
+    console.warn('[TTS] Empty text received')
     return NextResponse.json({ error: 'No text provided' }, { status: 400 })
   }
 
   const voiceName = LANG_VOICE[lang] ?? LANG_VOICE.default
   const systemPrompt = SYSTEM_PROMPT[lang] ?? SYSTEM_PROMPT.it
+
+  console.log(`[TTS] model=${MODEL} lang=${lang} voice=${voiceName} text_len=${text.length}`)
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
@@ -85,8 +89,8 @@ export async function POST(req: NextRequest) {
 
   if (!res.ok) {
     const err = await res.text()
-    console.error('[TTS] Gemini error:', err)
-    return NextResponse.json({ error: err }, { status: res.status })
+    console.error(`[TTS] Gemini HTTP ${res.status}:`, err.slice(0, 500))
+    return NextResponse.json({ error: err, status: res.status }, { status: res.status })
   }
 
   const data = await res.json()

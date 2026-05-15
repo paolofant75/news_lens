@@ -100,6 +100,23 @@ async function checkGuardian() {
   }
 }
 
+async function checkGemini() {
+  const start = Date.now()
+  if (!process.env.GEMINI_API_KEY) {
+    return { ok: false, ms: 0, message: 'GEMINI_API_KEY not configured' }
+  }
+  try {
+    // Lista modelli disponibili: piu' leggero di una generateContent
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}&pageSize=1`,
+    )
+    const data = await res.json()
+    return { ok: res.ok, ms: Date.now() - start, message: data?.error?.message ?? `${data?.models?.length ?? 0} models available` }
+  } catch (e) {
+    return { ok: false, ms: Date.now() - start, error: String(e) }
+  }
+}
+
 async function checkNYT() {
   const start = Date.now()
   try {
@@ -114,10 +131,11 @@ async function checkNYT() {
 }
 
 export async function GET() {
-  const [supabase, deepseek, anthropic, redis, newsapi, guardian, nyt] = await Promise.all([
+  const [supabase, deepseek, anthropic, gemini, redis, newsapi, guardian, nyt] = await Promise.all([
     checkSupabase(),
     checkDeepSeek(),
     checkAnthropic(),
+    checkGemini(),
     checkRedis(),
     checkNewsAPI(),
     checkGuardian(),
@@ -125,5 +143,5 @@ export async function GET() {
   ])
 
   const aiProvider = process.env.DEEPSEEK_API_KEY ? 'deepseek' : 'anthropic'
-  return NextResponse.json({ aiProvider, supabase, deepseek, anthropic, redis, newsapi, guardian, nyt })
+  return NextResponse.json({ aiProvider, supabase, deepseek, anthropic, gemini, redis, newsapi, guardian, nyt })
 }

@@ -154,9 +154,10 @@ export default function CookieBanner() {
                 La tua privacy è importante
               </h2>
               <p className="text-sm leading-relaxed mb-5" style={{ color: '#1a1a1a' }}>
-                Lens Veritas utilizza cookie tecnici necessari al funzionamento del sito (sempre
-                attivi) e, previo tuo consenso, strumenti di monitoraggio degli errori (Sentry) e
-                funzionalità AI (Claude, Gemini) per l&apos;analisi delle notizie. Puoi accettare,
+                Lens Veritas utilizza cookie tecnici necessari al funzionamento del sito
+                (sempre attivi) e, previo tuo consenso, strumenti di monitoraggio degli errori
+                (Sentry) e funzionalità AI (DeepSeek o Anthropic Claude per analisi anti-bias
+                delle notizie e traduzioni, Google Gemini per la sintesi vocale). Puoi accettare,
                 rifiutare o personalizzare la tua scelta. Maggiori dettagli nella nostra{' '}
                 <Link href="/cookie-policy" className="underline font-semibold" style={{ color: '#dc2626' }}>
                   Cookie Policy
@@ -213,7 +214,7 @@ export default function CookieBanner() {
                 />
                 <PrefRow
                   title="Funzionalità AI (Veritas, Audio Reader)"
-                  desc="Invia le tue query ai modelli Claude (Anthropic) e Gemini (Google) per produrre analisi anti-bias e sintesi vocali. Senza consenso queste funzioni saranno disabilitate."
+                  desc="Invia le tue query ai modelli DeepSeek (Cina) o Anthropic Claude (USA) per generare analisi anti-bias e traduzioni, e a Google Gemini (USA) per la sintesi vocale degli articoli. Senza consenso queste funzioni saranno disabilitate."
                   checked={prefs.ai_processing}
                   disabled={false}
                   onChange={(v) => setPrefs((p) => ({ ...p, ai_processing: v }))}
