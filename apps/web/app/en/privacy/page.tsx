@@ -41,9 +41,17 @@ export default function PrivacyPageEN() {
         <div className="space-y-8 text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>1. Who we are</h2>
-            <p>
-              Lens Veritas (<strong>lensveritas.com</strong>) is a global news aggregator with AI anti-bias analysis. The service is operated on a personal, non-commercial basis. For any privacy-related matter you may contact us at: <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>1. Data Controller</h2>
+            <div className="rounded-xl p-4 mb-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <p className="mb-2"><strong style={{ color: 'var(--text)' }}>Name:</strong> Paolo Fantinel</p>
+              <p className="mb-2"><strong style={{ color: 'var(--text)' }}>Service:</strong> Lens Veritas (<a href="https://lensveritas.com" className="underline" style={{ color: 'var(--accent)' }}>lensveritas.com</a>) — operated on a personal, non-commercial basis</p>
+              <p className="mb-2"><strong style={{ color: 'var(--text)' }}>Privacy contact email:</strong> <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a></p>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-3)' }}>
+                Controller location: Italy. For requests relating to the exercise of GDPR rights (Arts. 15-22) please write to the email above: we will respond within 30 days as provided by Art. 12(3) GDPR.
+              </p>
+            </div>
+            <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+              <strong>Data Protection Officer (DPO):</strong> not required under Art. 37 GDPR (the processing does not fall within the cases requiring DPO appointment). For any privacy-related matter please contact the Controller directly at the email above.
             </p>
           </section>
 
@@ -114,6 +122,9 @@ export default function PrivacyPageEN() {
             </div>
             <p className="mt-3 text-xs" style={{ color: 'var(--text-3)' }}>
               Fonts (Geist, Geist Mono) are self-hosted on our server via <code>next/font</code> and do not result in requests to external CDNs during navigation.
+            </p>
+            <p className="mt-2 text-xs" style={{ color: 'var(--text-3)' }}>
+              <strong style={{ color: 'var(--text-2)' }}>Underlying infrastructure</strong>: the Vercel hosting may use underlying infrastructure services (Cloudflare/Fastly CDN, anti-DDoS, security logs) managed by its provider. These services do not have access to identifiable personal data of end users, are used for technical site-delivery purposes (legitimate interest, Art. 6(1)(f) GDPR), and are governed by the <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--accent)' }}>Vercel Privacy Policy</a>.
             </p>
           </section>
 

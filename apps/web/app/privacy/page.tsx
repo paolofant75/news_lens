@@ -35,9 +35,17 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>1. Chi siamo</h2>
-            <p>
-              Veritas Lens (<strong>lensveritas.com</strong>) è un aggregatore di notizie globale con analisi AI anti-bias. Il servizio è gestito a titolo personale e non commerciale. Per qualsiasi questione relativa alla privacy puoi contattarci all&apos;indirizzo: <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>1. Titolare del trattamento</h2>
+            <div className="rounded-xl p-4 mb-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <p className="mb-2"><strong style={{ color: 'var(--text)' }}>Nome:</strong> Paolo Fantinel</p>
+              <p className="mb-2"><strong style={{ color: 'var(--text)' }}>Servizio:</strong> Lens Veritas (<a href="https://lensveritas.com" className="underline" style={{ color: 'var(--accent)' }}>lensveritas.com</a>) — gestito a titolo personale e non commerciale</p>
+              <p className="mb-2"><strong style={{ color: 'var(--text)' }}>Email di contatto privacy:</strong> <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a></p>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-3)' }}>
+                Sede del titolare: Italia. Per richieste relative all&apos;esercizio dei diritti GDPR (artt. 15-22) puoi scrivere all&apos;email indicata sopra: rispondiamo entro 30 giorni come previsto dall&apos;art. 12(3) GDPR.
+              </p>
+            </div>
+            <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+              <strong>Responsabile della protezione dei dati (DPO):</strong> non obbligatorio ai sensi dell&apos;art. 37 GDPR (il trattamento non rientra nei casi che richiedono la nomina del DPO). Per qualsiasi questione relativa alla privacy contatta direttamente il titolare all&apos;email sopra.
             </p>
           </section>
 
@@ -108,6 +116,9 @@ export default function PrivacyPage() {
             </div>
             <p className="mt-3 text-xs" style={{ color: 'var(--text-3)' }}>
               I font (Geist, Geist Mono) sono self-hostati sul nostro server tramite <code>next/font</code> e non comportano richieste a CDN esterni durante la navigazione.
+            </p>
+            <p className="mt-2 text-xs" style={{ color: 'var(--text-3)' }}>
+              <strong style={{ color: 'var(--text-2)' }}>Infrastruttura sottostante</strong>: l&apos;hosting Vercel può utilizzare servizi infrastrutturali sottostanti (CDN Cloudflare/Fastly, anti-DDoS, log di sicurezza) gestiti dal proprio provider. Tali servizi non hanno accesso a dati personali identificabili degli utenti finali, sono utilizzati per finalità tecniche di consegna del sito (legittimo interesse art. 6(1)(f) GDPR) e sono regolati dalla <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--accent)' }}>Privacy Policy di Vercel</a>.
             </p>
           </section>
 

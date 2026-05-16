@@ -168,18 +168,21 @@ export default function CookieBanner() {
                 </Link>
                 .
               </p>
+              {/* GDPR equal-prominence: "Rifiuta" e "Accetta" stessa dimensione, peso e contrasto.
+                  Linee guida EDPB 2024 + decisione Garante DPI 2024: i pulsanti di rifiuto
+                  e accettazione devono essere visivamente equivalenti. */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <button
                   onClick={rejectAll}
-                  className="py-3 px-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                  style={{ background: '#ffffff', border: '2px solid #000000', color: '#000000' }}
+                  className="py-3 px-4 rounded-xl text-sm font-bold transition-all hover:brightness-110"
+                  style={{ background: '#1f2937', color: '#ffffff', border: '2px solid #1f2937' }}
                 >
                   Rifiuta tutto
                 </button>
                 <button
                   onClick={() => setShowPrefs(true)}
                   className="py-3 px-4 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                  style={{ background: '#ffffff', border: '2px solid #000000', color: '#000000' }}
+                  style={{ background: '#ffffff', border: '2px solid #1f2937', color: '#1f2937' }}
                 >
                   Personalizza
                 </button>
