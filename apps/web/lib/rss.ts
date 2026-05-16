@@ -5,8 +5,9 @@ import { articleId } from './encode'
 // GDELT Project: fonte news aggiuntiva con query tematiche (15 min refresh)
 import { fetchGdeltArticles } from './gdelt'
 
-const ARTICLES_FRESH_KEY = 'nlv_articles_v3'
-const ARTICLES_STALE_KEY = 'nlv_articles_v3_stale'
+// v4: introdotto dedup semantico Jaccard (was v3)
+const ARTICLES_FRESH_KEY = 'nlv_articles_v4'
+const ARTICLES_STALE_KEY = 'nlv_articles_v4_stale'
 const ARTICLES_CACHE_TTL = 600   // 10 min fresh
 const ARTICLES_STALE_TTL = 1800  // 30 min stale
 const ARTICLE_BY_ID_TTL = 86400  // 24h: cache singolo articolo per lookup da URL
@@ -18,6 +19,57 @@ const parser = new Parser({
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim()
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dedup semantico: due titoli che descrivono la stessa notizia (anche con parole
+// diverse) vengono riconosciuti come duplicati confrontando i bigrammi di parole.
+// Esempio: "Trump impone dazi alla Cina" e "Trump tariffs against China" non
+// matchano (lingue diverse, intenzionale), ma "Trump tariffs China record" e
+// "Trump imposes record tariffs on Chinese goods" sì.
+// Soglia 0.55: 55% di bigrammi in comune = stessa storia.
+// ─────────────────────────────────────────────────────────────────────────────
+const SAME_STORY_THRESHOLD = 0.55
+
+function titleBigrams(title: string): Set<string> {
+  const words = title
+    .toLowerCase()
+    .replace(/[^a-z0-9àèéìòùáéíóúäöüñç ]/gi, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 2)   // salta articoli/preposizioni corte
+  const bg = new Set<string>()
+  for (let i = 0; i < words.length - 1; i++) bg.add(`${words[i]}_${words[i + 1]}`)
+  return bg
+}
+
+function jaccardSim(a: Set<string>, b: Set<string>): number {
+  if (a.size === 0 && b.size === 0) return 1
+  if (a.size === 0 || b.size === 0) return 0
+  let inter = 0
+  for (const x of a) if (b.has(x)) inter++
+  return inter / (a.size + b.size - inter)
+}
+
+// Rimuove articoli che raccontano la stessa storia di un altro gia tenuto.
+// Input: array ordinato per data DESC (i piu recenti vincono).
+function dedupSameStory(sorted: Article[]): Article[] {
+  const kept: Article[] = []
+  const keptBigrams: Set<string>[] = []
+  for (const a of sorted) {
+    const bg = titleBigrams(a.title)
+    let dup = false
+    for (let i = keptBigrams.length - 1; i >= 0; i--) {
+      if (jaccardSim(bg, keptBigrams[i]) >= SAME_STORY_THRESHOLD) {
+        dup = true
+        break
+      }
+    }
+    if (!dup) {
+      kept.push(a)
+      keptBigrams.push(bg)
+    }
+  }
+  return kept
 }
 
 export type FeedMeta = {
@@ -222,15 +274,23 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
   const all = [...rssArticles, ...newsApiArticles, ...guardianArticles, ...gnewsArticles, ...gdeltArticles]
     .filter((a) => a.title && a.link)
 
+  // Dedup livello 1 — prefisso titolo (cattura duplicati esatti o quasi)
   const seen = new Set<string>()
-  const articles = all
-    .filter((a) => {
-      const key = a.title.toLowerCase().slice(0, 60)
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-    .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+  const prefixDeduped = all.filter((a) => {
+    const key = a.title.toLowerCase().slice(0, 60)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+
+  // Sort per data decrescente prima della dedup semantica
+  // (cosi il primo "rappresentante" di una storia e' sempre il piu recente)
+  const sorted = prefixDeduped.sort(
+    (a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
+  )
+
+  // Dedup livello 2 — semantica (Jaccard bigrammi), riconosce "stessa storia, parole diverse"
+  const articles = dedupSameStory(sorted)
 
   // Indicizza ogni articolo su Redis per lookup veloce dalla pagina /articolo/[id]
   // (la ricerca Veritas usera' il titolo nella lingua nativa della fonte, non la traduzione)
