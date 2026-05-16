@@ -192,7 +192,24 @@ export default function PrivacyPageEN() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>9. Changes to this policy</h2>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>9. Jurisdictional scope and applicability</h2>
+            <p className="mb-3">
+              Lens Veritas is a service operated on a personal, non-commercial basis from Italy. We process personal data under the <strong style={{ color: 'var(--text)' }}>GDPR standard (Regulation EU 2016/679)</strong>, which we apply as the best level of protection available to all users regardless of their geographic location.
+            </p>
+            <p className="mb-2 font-medium" style={{ color: 'var(--text)' }}>For clarity:</p>
+            <ul className="space-y-1 list-disc list-inside mb-3">
+              <li>We do not monetize via advertising and do not use profiling or commercial tracking cookies.</li>
+              <li>We do not sell or share personal data as defined by the <strong style={{ color: 'var(--text)' }}>California Consumer Privacy Act (CCPA)</strong>, Cal. Civ. Code §1798.140(t)(1).</li>
+              <li>We do not adhere to the <strong style={{ color: 'var(--text)' }}>IAB Transparency &amp; Consent Framework (TCF)</strong>, as we do not serve programmatic ads.</li>
+              <li>We do not meet the CCPA applicability thresholds (annual revenue &gt; $25M, more than 100,000 California users/year, or &gt;50% revenue from data sale): the law does not apply to our case.</li>
+            </ul>
+            <p>
+              Users residing in jurisdictions outside the EU (United States, United Kingdom, Canada, Australia, etc.) accept that the processing of their personal data occurs under the GDPR standard, which we consider to offer protection equivalent to or higher than local law. For specific requests related to your country&apos;s regulations (e.g. CCPA opt-out, UK GDPR data access request, PIPEDA inquiry), please write to <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>: we respond within 30 days following the same procedure provided by GDPR.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>10. Changes to this policy</h2>
             <p>
               Any updates will be posted on this page along with the revision date. Continued use of the service after changes constitutes acceptance of the updated policy.
             </p>

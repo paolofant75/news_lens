@@ -186,7 +186,24 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>9. Modifiche a questa policy</h2>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>9. Ambito giurisdizionale e applicabilità</h2>
+            <p className="mb-3">
+              Lens Veritas è un servizio gestito a titolo personale e non commerciale dall&apos;Italia. Trattiamo i dati personali secondo lo standard <strong style={{ color: 'var(--text)' }}>GDPR (Regolamento UE 2016/679)</strong>, che applichiamo come miglior livello di tutela disponibile a tutti gli utenti, indipendentemente dalla loro localizzazione geografica.
+            </p>
+            <p className="mb-2 font-medium" style={{ color: 'var(--text)' }}>Per chiarezza:</p>
+            <ul className="space-y-1 list-disc list-inside mb-3">
+              <li>Non monetizziamo con pubblicità e non utilizziamo cookie di profilazione o tracciamento commerciale.</li>
+              <li>Non vendiamo né condividiamo dati personali ai sensi del <strong style={{ color: 'var(--text)' }}>California Consumer Privacy Act (CCPA)</strong>, Cal. Civ. Code §1798.140(t)(1).</li>
+              <li>Non aderiamo all&apos;<strong style={{ color: 'var(--text)' }}>IAB Transparency &amp; Consent Framework (TCF)</strong>, in quanto non serviamo annunci programmatici.</li>
+              <li>Non rientriamo nelle soglie di applicabilità del CCPA (fatturato annuo &gt; 25M$, oltre 100.000 utenti californiani/anno, o &gt;50% ricavi da vendita dati): la legge non si applica al nostro caso.</li>
+            </ul>
+            <p>
+              Gli utenti residenti in giurisdizioni extra-UE (Stati Uniti, Regno Unito, Canada, Australia, ecc.) accettano che il trattamento dei loro dati personali avvenga secondo gli standard GDPR, che riteniamo offrire una tutela equivalente o superiore alla normativa locale. Per richieste specifiche relative alla normativa del proprio paese (es. CCPA opt-out, UK GDPR data access request, PIPEDA inquiry), scrivi a <a href="mailto:paolo_fantinel@hotmail.com" className="underline" style={{ color: 'var(--accent)' }}>paolo_fantinel@hotmail.com</a>: rispondiamo entro 30 giorni con la stessa procedura prevista dal GDPR.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>10. Modifiche a questa policy</h2>
             <p>
               Eventuali aggiornamenti verranno pubblicati su questa pagina con la data di revisione. L&apos;uso continuato del servizio dopo le modifiche costituisce accettazione della nuova policy.
             </p>
