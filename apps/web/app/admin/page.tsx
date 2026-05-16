@@ -7,6 +7,12 @@ import { useAuth } from '../../components/auth-provider'
 const ADMIN_EMAIL = 'fantinel.paolo@gmail.com'
 
 type HealthEntry = { ok: boolean; ms: number; message?: string; error?: string }
+type FeedDim = { key: string; feeds: number; articles: number; healthy: number }
+type FeedEntry = {
+  id: string; source: string; country: string; region: string
+  type: string; bias: string; reliability: number; url: string
+  articlesInCache: number; healthy: boolean
+}
 type DashboardData = {
   health: {
     aiProvider: 'deepseek' | 'anthropic'
@@ -28,6 +34,17 @@ type DashboardData = {
     byDay: { day: string; calls: number; cost: number }[]
     recent: { provider: string; model: string; context: string | null; input_tokens: number; output_tokens: number; success: boolean; created_at: string }[]
     error?: string
+  }
+  feeds: {
+    totalFeeds: number
+    healthyFeeds: number
+    failedFeeds: number
+    totalArticles: number
+    byRegion: FeedDim[]
+    byCountry: FeedDim[]
+    byBias: FeedDim[]
+    byType: FeedDim[]
+    feeds: FeedEntry[]
   }
   generatedAt: string
 }
@@ -156,6 +173,67 @@ export default function AdminDashboard() {
                 </div>
               )
             })}
+          </div>
+        </section>
+
+        {/* FEED RSS — Sintesi */}
+        <section className="mb-10">
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>Stato feed RSS</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <FeedStat label="Feed configurati"      value={data.feeds.totalFeeds}    accent />
+            <FeedStat label="Feed sani (>=1 art.)"  value={data.feeds.healthyFeeds}  ok />
+            <FeedStat label="Feed senza articoli"   value={data.feeds.failedFeeds}   fail={data.feeds.failedFeeds > 0} />
+            <FeedStat label="Articoli totali pool"  value={data.feeds.totalArticles} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FeedBarChart title="Per regione" rows={data.feeds.byRegion} />
+            <FeedBarChart title="Per tipo fonte" rows={data.feeds.byType} />
+            <FeedBarChart title="Per bias editoriale" rows={data.feeds.byBias} />
+            <FeedBarChart title="Per paese" rows={data.feeds.byCountry.slice(0, 10)} />
+          </div>
+        </section>
+
+        {/* FEED RSS — Tabella dettagliata */}
+        <section className="mb-10">
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>
+            Dettaglio singoli feed ({data.feeds.feeds.length})
+          </h2>
+          <div className="rounded-xl overflow-x-auto" style={{ border: '1px solid var(--border)' }}>
+            <table className="w-full text-xs min-w-[800px]">
+              <thead style={{ background: 'var(--bg-card)' }}>
+                <tr>
+                  <th className="text-center px-3 py-2 w-8">●</th>
+                  <th className="text-left px-3 py-2">Fonte</th>
+                  <th className="text-left px-3 py-2">Paese</th>
+                  <th className="text-left px-3 py-2">Regione</th>
+                  <th className="text-left px-3 py-2">Tipo</th>
+                  <th className="text-left px-3 py-2">Bias</th>
+                  <th className="text-right px-3 py-2">Affidabilità</th>
+                  <th className="text-right px-3 py-2">Articoli</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.feeds.feeds.map((f) => (
+                  <tr key={f.id} style={{ borderTop: '1px solid var(--border)' }}>
+                    <td className="px-3 py-2 text-center">
+                      <span className={`inline-block w-2 h-2 rounded-full ${f.healthy ? 'bg-green-500' : 'bg-red-500'}`} />
+                    </td>
+                    <td className="px-3 py-2 font-semibold">{f.source}</td>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.country}</td>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.region}</td>
+                    <td className="px-3 py-2 font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>{f.type}</td>
+                    <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.bias}</td>
+                    <td className="px-3 py-2 text-right font-mono" style={{ color: f.reliability >= 8 ? '#22c55e' : f.reliability >= 6 ? '#eab308' : '#ef4444' }}>
+                      {f.reliability.toFixed(1)}
+                    </td>
+                    <td className="px-3 py-2 text-right font-semibold" style={{ color: f.articlesInCache > 0 ? 'var(--accent)' : 'var(--text-3)' }}>
+                      {f.articlesInCache}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -297,6 +375,52 @@ export default function AdminDashboard() {
           </div>
         </section>
 
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Componenti helper — usati nella sezione "Stato feed RSS"
+// ─────────────────────────────────────────────────────────────────────────────
+
+function FeedStat({
+  label, value, accent, ok, fail,
+}: { label: string; value: number; accent?: boolean; ok?: boolean; fail?: boolean }) {
+  const color = fail ? '#ef4444' : ok ? '#22c55e' : accent ? 'var(--accent)' : 'var(--text)'
+  const borderColor = fail
+    ? 'rgba(239,68,68,0.4)'
+    : ok
+    ? 'rgba(34,197,94,0.4)'
+    : 'var(--border)'
+  return (
+    <div className="rounded-xl p-4" style={{ background: 'var(--bg-card)', border: `1px solid ${borderColor}` }}>
+      <p className="text-[10px] uppercase tracking-wider mb-2" style={{ color: 'var(--text-3)' }}>{label}</p>
+      <p className="text-2xl font-bold" style={{ color }}>{value}</p>
+    </div>
+  )
+}
+
+function FeedBarChart({ title, rows }: { title: string; rows: FeedDim[] }) {
+  const max = Math.max(...rows.map((r) => r.articles), 1)
+  return (
+    <div className="rounded-xl p-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <p className="text-[11px] uppercase tracking-wider mb-3" style={{ color: 'var(--text-3)' }}>{title}</p>
+      <div className="space-y-2">
+        {rows.map((r) => (
+          <div key={r.key} className="flex items-center gap-3 text-xs">
+            <span className="w-28 truncate" style={{ color: 'var(--text-2)' }}>{r.key}</span>
+            <div className="flex-1 h-5 rounded relative overflow-hidden" style={{ background: 'var(--bg-s)' }}>
+              <div className="h-full" style={{ width: `${(r.articles / max) * 100}%`, background: 'var(--accent)' }} />
+              <span className="absolute right-2 top-0 h-full flex items-center font-semibold text-[10px]" style={{ color: 'var(--text)' }}>
+                {r.articles} art · {r.healthy}/{r.feeds} feed
+              </span>
+            </div>
+          </div>
+        ))}
+        {rows.length === 0 && (
+          <p className="text-center text-xs py-2" style={{ color: 'var(--text-3)' }}>Nessun dato</p>
+        )}
       </div>
     </div>
   )

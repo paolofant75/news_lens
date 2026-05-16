@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { PRICING_PER_M, tokenCost } from '../../../../lib/ai-pricing'
+import { FEEDS } from '../../../../lib/rss'
+import { cacheGet } from '../../../../lib/redis'
 
 const ADMIN_EMAIL = 'fantinel.paolo@gmail.com'
 
@@ -180,10 +182,79 @@ async function getUsageStats() {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Statistiche sui feed RSS: legge il pool cachato e raggruppa per source/region/
+// country/bias/type. Niente fetch live (sarebbe troppo lento con 125+ feed).
+// Un feed e' considerato "sano" se ha almeno 1 articolo nel pool corrente.
+// ─────────────────────────────────────────────────────────────────────────────
+type CachedArticle = { source: string; pubDate?: string; category?: string; geo?: string }
+
+async function getFeedsStats() {
+  // Pool corrente in cache (chiave v5 sincronizzata con lib/rss.ts)
+  let cached: CachedArticle[] = []
+  try {
+    const raw = await cacheGet('nlv_articles_v5')
+    if (raw) cached = JSON.parse(raw) as CachedArticle[]
+  } catch { /* pool vuoto, prima fetch non ancora avvenuta */ }
+
+  // Conteggio articoli per source
+  const articlesBySource = new Map<string, number>()
+  for (const a of cached) {
+    articlesBySource.set(a.source, (articlesBySource.get(a.source) ?? 0) + 1)
+  }
+
+  // Lista feed con stato
+  const feedsList = FEEDS.map((f) => ({
+    id: f.id,
+    source: f.source,
+    country: f.country,
+    region: f.region,
+    type: f.type,
+    bias: f.bias,
+    reliability: f.reliability,
+    url: f.url,
+    articlesInCache: articlesBySource.get(f.source) ?? 0,
+    healthy: (articlesBySource.get(f.source) ?? 0) > 0,
+  }))
+
+  const totalFeeds = FEEDS.length
+  const healthyFeeds = feedsList.filter((f) => f.healthy).length
+  const failedFeeds = totalFeeds - healthyFeeds
+
+  // Helper di aggregazione su una chiave categorica
+  type Dim = 'country' | 'region' | 'type' | 'bias'
+  const aggBy = (key: Dim) => {
+    const m = new Map<string, { feeds: number; articles: number; healthy: number }>()
+    for (const f of feedsList) {
+      const k = String(f[key])
+      const cur = m.get(k) ?? { feeds: 0, articles: 0, healthy: 0 }
+      cur.feeds += 1
+      cur.articles += f.articlesInCache
+      if (f.healthy) cur.healthy += 1
+      m.set(k, cur)
+    }
+    return Array.from(m.entries())
+      .map(([key, v]) => ({ key, ...v }))
+      .sort((a, b) => b.articles - a.articles)
+  }
+
+  return {
+    totalFeeds,
+    healthyFeeds,
+    failedFeeds,
+    totalArticles: cached.length,
+    byRegion: aggBy('region'),
+    byCountry: aggBy('country'),
+    byBias: aggBy('bias'),
+    byType: aggBy('type'),
+    feeds: feedsList.sort((a, b) => b.articlesInCache - a.articlesInCache),
+  }
+}
+
 export async function GET(req: NextRequest) {
   const auth = await authorize(req)
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status })
 
-  const [health, usage] = await Promise.all([getHealth(), getUsageStats()])
-  return NextResponse.json({ health, usage, generatedAt: new Date().toISOString() })
+  const [health, usage, feeds] = await Promise.all([getHealth(), getUsageStats(), getFeedsStats()])
+  return NextResponse.json({ health, usage, feeds, generatedAt: new Date().toISOString() })
 }

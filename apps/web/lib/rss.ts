@@ -100,7 +100,7 @@ export type Article = {
   sourceType: string
 }
 
-const FEEDS: FeedMeta[] = [
+export const FEEDS: FeedMeta[] = [
   // Agenzie / Mainstream globali
   { id: 'bbc_world',      source: 'BBC World News',          url: 'http://feeds.bbci.co.uk/news/world/rss.xml',              country: 'UK',            region: 'europe',     type: 'mainstream',    bias: 'center',        reliability: 8.8, aiValue: 'high', antiBiasValue: 'high' },
   { id: 'reuters_world',  source: 'Reuters',                 url: 'https://feeds.reuters.com/Reuters/worldNews',             country: 'USA',           region: 'americhe',   type: 'mainstream',    bias: 'center',        reliability: 9.2, aiValue: 'high', antiBiasValue: 'high' },
