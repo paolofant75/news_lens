@@ -51,6 +51,14 @@ export default function LegalFooter() {
           Lens Veritas aggrega notizie da fonti pubbliche di terzi nei limiti del diritto di citazione (art. 70 L. 633/1941) e dell&apos;eccezione di cronaca (art. 65). Le sintesi e le analisi &laquo;Veritas&raquo; sono generate da intelligenza artificiale (Claude di Anthropic, Gemini di Google) ai sensi dell&apos;art. 50 EU AI Act (Reg. UE 2024/1689) e devono essere verificate presso le fonti originali linkate. Per richieste di rimozione contenuti vedi{' '}
           <Link href="/copyright" className="underline">/copyright</Link>.
         </div>
+
+        {/* Selettore lingua documenti legali — visibile agli scanner di compliance */}
+        <div className="mt-3 flex items-center gap-3 text-[10px]" style={{ color: 'var(--text-3)' }}>
+          <span className="opacity-70">Lingua documenti legali / Legal documents language:</span>
+          <Link href="/privacy" hrefLang="it" className="hover:opacity-80 underline-offset-2 hover:underline">IT</Link>
+          <span className="opacity-50">·</span>
+          <Link href="/en/privacy" hrefLang="en" className="hover:opacity-80 underline-offset-2 hover:underline">EN</Link>
+        </div>
       </div>
     </footer>
   )

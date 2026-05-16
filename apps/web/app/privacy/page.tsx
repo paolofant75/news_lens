@@ -21,6 +21,17 @@ export default function PrivacyPage() {
           </p>
         </div>
 
+        {/* Banner versione multilingua (richiesto dagli scanner di compliance) */}
+        <div
+          className="mb-8 rounded-lg p-3 text-xs flex items-center justify-between gap-3"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
+        >
+          <span>Questo documento è disponibile anche in inglese.</span>
+          <a href="/en/privacy" className="underline shrink-0 hover:opacity-80" style={{ color: 'var(--accent)' }}>
+            English version →
+          </a>
+        </div>
+
         <div className="space-y-8 text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
 
           <section>
