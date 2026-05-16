@@ -1,0 +1,18 @@
+{
+  // ── Sincronizzazione automatica con GitHub ─────────────────────────────────
+  // Ogni 3 minuti VS Code controlla se ci sono commit nuovi sul remoto.
+  // Se sì, mostra un piccolo "↓ N" sul pulsante in basso a sinistra:
+  // basta cliccarci per fare il pull. Niente più divergenze tra desktop e portatile.
+  "git.autofetch": true,
+  "git.autofetchPeriod": 180,
+
+  // Mostra una piccola notifica dopo un push riuscito (conferma visiva)
+  "git.showPushSuccessNotification": true,
+
+  // Non chiede conferma ogni volta che premi "Sync Changes": fa pull + push diretto
+  "git.confirmSync": false,
+
+  // Permette di committare anche se non hai messo nulla nello stage:
+  // VS Code stagga automaticamente tutti i file modificati
+  "git.enableSmartCommit": true
+}
