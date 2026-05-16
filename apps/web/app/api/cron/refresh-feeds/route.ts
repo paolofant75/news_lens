@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { fetchArticlesFresh } from '../../../../lib/rss'
 import { cacheSet } from '../../../../lib/redis'
 
-// v4: deve combaciare con la chiave usata in lib/rss.ts
-const ARTICLES_FRESH_KEY = 'nlv_articles_v4'
-const ARTICLES_STALE_KEY = 'nlv_articles_v4_stale'
+// v5: deve combaciare con la chiave usata in lib/rss.ts
+const ARTICLES_FRESH_KEY = 'nlv_articles_v5'
+const ARTICLES_STALE_KEY = 'nlv_articles_v5_stale'
 const ARTICLES_CACHE_TTL = 600
 const ARTICLES_STALE_TTL = 1800
 
