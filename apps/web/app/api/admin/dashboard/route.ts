@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { PRICING_PER_M, tokenCost } from '../../../../lib/ai-pricing'
-import { FEEDS } from '../../../../lib/rss'
+import { FEEDS, FEEDS_STATUS_KEY, type FeedStatus } from '../../../../lib/rss'
 import { cacheGet } from '../../../../lib/redis'
 
 const ADMIN_EMAIL = 'fantinel.paolo@gmail.com'
@@ -197,29 +197,58 @@ async function getFeedsStats() {
     if (raw) cached = JSON.parse(raw) as CachedArticle[]
   } catch { /* pool vuoto, prima fetch non ancora avvenuta */ }
 
-  // Conteggio articoli per source
+  // Stato per-feed dall'ultimo fetchArticlesFresh (popolato in lib/rss.ts)
+  let statusById = new Map<string, FeedStatus>()
+  try {
+    const raw = await cacheGet(FEEDS_STATUS_KEY)
+    if (raw) {
+      const list = JSON.parse(raw) as FeedStatus[]
+      statusById = new Map(list.map((s) => [s.id, s]))
+    }
+  } catch { /* nessun snapshot disponibile (prima fetch non ancora avvenuta) */ }
+
+  // Conteggio articoli per source (post-dedup → puo' essere < di status.count)
   const articlesBySource = new Map<string, number>()
   for (const a of cached) {
     articlesBySource.set(a.source, (articlesBySource.get(a.source) ?? 0) + 1)
   }
 
-  // Lista feed con stato
-  const feedsList = FEEDS.map((f) => ({
-    id: f.id,
-    source: f.source,
-    country: f.country,
-    region: f.region,
-    type: f.type,
-    bias: f.bias,
-    reliability: f.reliability,
-    url: f.url,
-    articlesInCache: articlesBySource.get(f.source) ?? 0,
-    healthy: (articlesBySource.get(f.source) ?? 0) > 0,
-  }))
+  // Lista feed con stato esteso
+  const feedsList = FEEDS.map((f) => {
+    const status = statusById.get(f.id) ?? null
+    const articlesInCache = articlesBySource.get(f.source) ?? 0
+    // healthy = il feed e' stato fetchato con successo e ha portato item, oppure (legacy) c'e' qualcosa in pool
+    const healthy = status ? status.success && status.count > 0 : articlesInCache > 0
+    return {
+      id: f.id,
+      source: f.source,
+      country: f.country,
+      region: f.region,
+      type: f.type,
+      bias: f.bias,
+      reliability: f.reliability,
+      url: f.url,
+      articlesInCache,
+      healthy,
+      lastFetchAt: status?.fetchedAt ?? null,
+      fetchSuccess: status?.success ?? null,
+      fetchDurationMs: status?.durationMs ?? null,
+      fetchCount: status?.count ?? null,             // # item dal feed prima della dedup
+      latestPubDate: status?.latestPubDate ?? null,
+      fetchError: status?.error ?? null,
+    }
+  })
 
   const totalFeeds = FEEDS.length
   const healthyFeeds = feedsList.filter((f) => f.healthy).length
   const failedFeeds = totalFeeds - healthyFeeds
+  const hasStatusSnapshot = statusById.size > 0
+  const lastSnapshotAt = hasStatusSnapshot
+    ? Array.from(statusById.values()).reduce<string | null>((acc, s) => {
+        if (!acc) return s.fetchedAt
+        return new Date(s.fetchedAt).getTime() > new Date(acc).getTime() ? s.fetchedAt : acc
+      }, null)
+    : null
 
   // Helper di aggregazione su una chiave categorica
   type Dim = 'country' | 'region' | 'type' | 'bias'
@@ -243,11 +272,19 @@ async function getFeedsStats() {
     healthyFeeds,
     failedFeeds,
     totalArticles: cached.length,
+    hasStatusSnapshot,
+    lastSnapshotAt,
     byRegion: aggBy('region'),
     byCountry: aggBy('country'),
     byBias: aggBy('bias'),
     byType: aggBy('type'),
-    feeds: feedsList.sort((a, b) => b.articlesInCache - a.articlesInCache),
+    // Ordina: prima i feed con fetch riuscito recente, poi a parita' per # articoli in cache
+    feeds: feedsList.sort((a, b) => {
+      const ta = a.lastFetchAt ? new Date(a.lastFetchAt).getTime() : 0
+      const tb = b.lastFetchAt ? new Date(b.lastFetchAt).getTime() : 0
+      if (tb !== ta) return tb - ta
+      return b.articlesInCache - a.articlesInCache
+    }),
   }
 }
 

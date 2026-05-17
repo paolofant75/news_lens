@@ -12,6 +12,12 @@ type FeedEntry = {
   id: string; source: string; country: string; region: string
   type: string; bias: string; reliability: number; url: string
   articlesInCache: number; healthy: boolean
+  lastFetchAt: string | null
+  fetchSuccess: boolean | null
+  fetchDurationMs: number | null
+  fetchCount: number | null
+  latestPubDate: string | null
+  fetchError: string | null
 }
 type DashboardData = {
   health: {
@@ -40,6 +46,8 @@ type DashboardData = {
     healthyFeeds: number
     failedFeeds: number
     totalArticles: number
+    hasStatusSnapshot: boolean
+    lastSnapshotAt: string | null
     byRegion: FeedDim[]
     byCountry: FeedDim[]
     byBias: FeedDim[]
@@ -56,6 +64,26 @@ function fmtNum(n: number): string {
 }
 function fmtCost(n: number): string {
   return n < 0.01 ? `<$0.01` : `$${n.toFixed(2)}`
+}
+function fmtAgo(iso: string | null): string {
+  if (!iso) return '—'
+  const t = new Date(iso).getTime()
+  if (Number.isNaN(t)) return '—'
+  const diff = Date.now() - t
+  if (diff < 0) return 'ora'
+  const s = Math.floor(diff / 1000)
+  if (s < 60) return `${s}s fa`
+  const m = Math.floor(s / 60)
+  if (m < 60) return `${m}m fa`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h fa`
+  return `${Math.floor(h / 24)}g fa`
+}
+function fmtClock(iso: string | null): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
 }
 
 export default function AdminDashboard() {
@@ -178,7 +206,15 @@ export default function AdminDashboard() {
 
         {/* FEED RSS — Sintesi */}
         <section className="mb-10">
-          <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>Stato feed RSS</h2>
+          <div className="flex items-baseline justify-between flex-wrap gap-2 mb-3">
+            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>Stato feed RSS</h2>
+            <span className="text-[11px] font-mono" style={{ color: data.feeds.hasStatusSnapshot ? 'var(--text-3)' : '#ef4444' }}>
+              {data.feeds.hasStatusSnapshot
+                ? <>Ultimo fetch globale: <strong style={{ color: 'var(--text-2)' }}>{fmtAgo(data.feeds.lastSnapshotAt)}</strong> ({fmtClock(data.feeds.lastSnapshotAt)})</>
+                : <>⚠ Nessuno snapshot fetch ancora registrato — la cron <code>/api/cron/refresh-feeds</code> non e&apos; mai partita o ha fallito</>
+              }
+            </span>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             <FeedStat label="Feed configurati"      value={data.feeds.totalFeeds}    accent />
             <FeedStat label="Feed sani (>=1 art.)"  value={data.feeds.healthyFeeds}  ok />
@@ -200,7 +236,7 @@ export default function AdminDashboard() {
             Dettaglio singoli feed ({data.feeds.feeds.length})
           </h2>
           <div className="rounded-xl overflow-x-auto" style={{ border: '1px solid var(--border)' }}>
-            <table className="w-full text-xs min-w-[800px]">
+            <table className="w-full text-xs min-w-[1100px]">
               <thead style={{ background: 'var(--bg-card)' }}>
                 <tr>
                   <th className="text-center px-3 py-2 w-8">●</th>
@@ -210,28 +246,57 @@ export default function AdminDashboard() {
                   <th className="text-left px-3 py-2">Tipo</th>
                   <th className="text-left px-3 py-2">Bias</th>
                   <th className="text-right px-3 py-2">Affidabilità</th>
-                  <th className="text-right px-3 py-2">Articoli</th>
+                  <th className="text-right px-3 py-2" title="Item restituiti dal feed prima della dedup globale">Item feed</th>
+                  <th className="text-right px-3 py-2" title="Articoli nel pool corrente, post-dedup">In pool</th>
+                  <th className="text-left px-3 py-2" title="Quando il fetch e' stato eseguito l'ultima volta">Ultimo fetch</th>
+                  <th className="text-left px-3 py-2" title="Data pubblicazione dell'articolo piu recente arrivato da questo feed">Ultimo art.</th>
                 </tr>
               </thead>
               <tbody>
-                {data.feeds.feeds.map((f) => (
-                  <tr key={f.id} style={{ borderTop: '1px solid var(--border)' }}>
-                    <td className="px-3 py-2 text-center">
-                      <span className={`inline-block w-2 h-2 rounded-full ${f.healthy ? 'bg-green-500' : 'bg-red-500'}`} />
-                    </td>
-                    <td className="px-3 py-2 font-semibold">{f.source}</td>
-                    <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.country}</td>
-                    <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.region}</td>
-                    <td className="px-3 py-2 font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>{f.type}</td>
-                    <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.bias}</td>
-                    <td className="px-3 py-2 text-right font-mono" style={{ color: f.reliability >= 8 ? '#22c55e' : f.reliability >= 6 ? '#eab308' : '#ef4444' }}>
-                      {f.reliability.toFixed(1)}
-                    </td>
-                    <td className="px-3 py-2 text-right font-semibold" style={{ color: f.articlesInCache > 0 ? 'var(--accent)' : 'var(--text-3)' }}>
-                      {f.articlesInCache}
-                    </td>
-                  </tr>
-                ))}
+                {data.feeds.feeds.map((f) => {
+                  const fetchStatus = f.fetchSuccess === null
+                    ? { dot: 'bg-gray-500', label: 'sconosciuto', color: 'var(--text-3)' }
+                    : f.fetchSuccess
+                      ? (f.fetchCount && f.fetchCount > 0
+                          ? { dot: 'bg-green-500', label: 'ok', color: '#22c55e' }
+                          : { dot: 'bg-yellow-500', label: 'vuoto', color: '#eab308' })
+                      : { dot: 'bg-red-500', label: 'errore', color: '#ef4444' }
+                  return (
+                    <tr key={f.id} style={{ borderTop: '1px solid var(--border)' }}>
+                      <td className="px-3 py-2 text-center" title={f.fetchError ?? fetchStatus.label}>
+                        <span className={`inline-block w-2 h-2 rounded-full ${fetchStatus.dot}`} />
+                      </td>
+                      <td className="px-3 py-2 font-semibold">
+                        {f.source}
+                        {f.fetchError && (
+                          <div className="text-[10px] font-normal mt-0.5 truncate max-w-[260px]" style={{ color: '#ef4444' }} title={f.fetchError}>
+                            ⚠ {f.fetchError}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.country}</td>
+                      <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.region}</td>
+                      <td className="px-3 py-2 font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>{f.type}</td>
+                      <td className="px-3 py-2" style={{ color: 'var(--text-2)' }}>{f.bias}</td>
+                      <td className="px-3 py-2 text-right font-mono" style={{ color: f.reliability >= 8 ? '#22c55e' : f.reliability >= 6 ? '#eab308' : '#ef4444' }}>
+                        {f.reliability.toFixed(1)}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono" style={{ color: fetchStatus.color }}>
+                        {f.fetchCount ?? '—'}
+                      </td>
+                      <td className="px-3 py-2 text-right font-semibold" style={{ color: f.articlesInCache > 0 ? 'var(--accent)' : 'var(--text-3)' }}>
+                        {f.articlesInCache}
+                      </td>
+                      <td className="px-3 py-2 font-mono text-[10px]" style={{ color: 'var(--text-2)' }} title={f.lastFetchAt ? new Date(f.lastFetchAt).toLocaleString('it-IT') : 'mai'}>
+                        {fmtAgo(f.lastFetchAt)}
+                        {f.fetchDurationMs !== null && <span style={{ color: 'var(--text-3)' }}> · {f.fetchDurationMs}ms</span>}
+                      </td>
+                      <td className="px-3 py-2 font-mono text-[10px]" style={{ color: 'var(--text-3)' }} title={f.latestPubDate ?? ''}>
+                        {fmtAgo(f.latestPubDate)}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

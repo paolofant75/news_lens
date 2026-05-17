@@ -11,6 +11,9 @@ const ARTICLES_STALE_KEY = 'nlv_articles_v5_stale'
 const ARTICLES_CACHE_TTL = 600   // 10 min fresh
 const ARTICLES_STALE_TTL = 1800  // 30 min stale
 const ARTICLE_BY_ID_TTL = 86400  // 24h: cache singolo articolo per lookup da URL
+// Per-feed health snapshot: aggiornato ad ogni fetchArticlesFresh, consumato dall'admin dashboard
+export const FEEDS_STATUS_KEY = 'nlv_feeds_status_v1'
+const FEEDS_STATUS_TTL = 3600    // 1h: vogliamo conservare l'ultimo esito anche se il refresh fallisce
 
 const parser = new Parser({
   timeout: 8000,
@@ -83,6 +86,18 @@ export type FeedMeta = {
   reliability: number
   aiValue: string
   antiBiasValue: string
+}
+
+// Esito per singolo feed dell'ultimo fetch (popolato da fetchArticlesFresh, letto da /api/admin/dashboard)
+export type FeedStatus = {
+  id: string
+  source: string
+  success: boolean
+  fetchedAt: string         // ISO timestamp del termine del fetch
+  durationMs: number
+  count: number             // # item restituiti dal feed (post slice(0,12), pre-dedup globale)
+  latestPubDate: string | null
+  error: string | null
 }
 
 export type Article = {
@@ -327,29 +342,62 @@ async function fetchFromGNews(): Promise<Article[]> {
 }
 
 export async function fetchArticlesFresh(): Promise<Article[]> {
+  // Snapshot per-feed: popolato dentro la mappa qui sotto e flushato su Redis a fine funzione
+  const perFeedStatus: FeedStatus[] = []
+
   // Fetch parallelo di tutte le fonti — ogni fonte ha il proprio fail-safe
   const [rssResults, newsApiArticles, guardianArticles, gnewsArticles, gdeltArticles] = await Promise.all([
     Promise.allSettled(
       FEEDS.map(async (feed) => {
-        const f = await parser.parseURL(feed.url)
-        return f.items.slice(0, 12).map((item) => {
-          const title = stripHtml(item.title ?? '')
-          const summary = stripHtml(item.contentSnippet ?? item.summary ?? '')
-          const link = item.link ?? ''
-          return {
-            id: articleId(link),
-            title,
-            link,
-            pubDate: item.pubDate ?? item.isoDate ?? '',
-            source: feed.source,
-            summary,
-            category: categorize(title, summary),
-            geo: geoClassify(title, summary),
-            sourceBias: feed.bias,
-            sourceReliability: feed.reliability,
-            sourceType: feed.type,
+        const start = Date.now()
+        try {
+          const f = await parser.parseURL(feed.url)
+          const articles = f.items.slice(0, 12).map((item) => {
+            const title = stripHtml(item.title ?? '')
+            const summary = stripHtml(item.contentSnippet ?? item.summary ?? '')
+            const link = item.link ?? ''
+            return {
+              id: articleId(link),
+              title,
+              link,
+              pubDate: item.pubDate ?? item.isoDate ?? '',
+              source: feed.source,
+              summary,
+              category: categorize(title, summary),
+              geo: geoClassify(title, summary),
+              sourceBias: feed.bias,
+              sourceReliability: feed.reliability,
+              sourceType: feed.type,
+            }
+          })
+          // pubDate piu recente trovata nel feed (alcuni item potrebbero non averla)
+          let latest: string | null = null
+          for (const a of articles) {
+            if (!a.pubDate) continue
+            if (!latest || new Date(a.pubDate).getTime() > new Date(latest).getTime()) latest = a.pubDate
           }
-        })
+          perFeedStatus.push({
+            id: feed.id, source: feed.source,
+            success: true,
+            fetchedAt: new Date().toISOString(),
+            durationMs: Date.now() - start,
+            count: articles.length,
+            latestPubDate: latest,
+            error: null,
+          })
+          return articles
+        } catch (e) {
+          perFeedStatus.push({
+            id: feed.id, source: feed.source,
+            success: false,
+            fetchedAt: new Date().toISOString(),
+            durationMs: Date.now() - start,
+            count: 0,
+            latestPubDate: null,
+            error: ((e as Error)?.message ?? String(e)).slice(0, 240),
+          })
+          throw e
+        }
       })
     ),
     fetchFromNewsAPI(),
@@ -392,6 +440,9 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
   for (const a of articles) {
     cacheSet(`art:${a.id}`, JSON.stringify(a), ARTICLE_BY_ID_TTL).catch(() => {})
   }
+
+  // Flush stato per-feed: l'admin dashboard lo legge per mostrare ultimo fetch ed errori
+  cacheSet(FEEDS_STATUS_KEY, JSON.stringify(perFeedStatus), FEEDS_STATUS_TTL).catch(() => {})
 
   return articles
 }
