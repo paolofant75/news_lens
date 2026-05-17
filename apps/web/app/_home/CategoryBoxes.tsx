@@ -1,12 +1,14 @@
 // Dashboard a riquadri stile Google News: 6 box per categoria, ognuno con 4 articoli (2x2).
-// Le notizie sono raggruppate per category (via FEED_DEFAULT_CATEGORY in lib/rss.ts), e
-// ogni box pesca dai propri articoli i 4 piu recenti che siano nella lingua preferita dell'utente.
+// Vista MONDO: tutto il pool passa per applyWorldFilter prima del grouping
+// -> niente cronaca regionale italiana, niente sport locali, niente affari Quebec.
+// Notizie nazionali (ANSA Politica, Corriere Esteri, ecc.) entrano solo se globalImpactScore >= 6.
 
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { fetchArticles, type Article } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { sortByPreferredLang } from '../../lib/lang-priority'
+import { applyWorldFilter } from '../../lib/world-filter'
 
 type BoxDef = { slug: string; label: string; icon: string }
 
@@ -38,7 +40,10 @@ export default async function CategoryBoxes() {
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
 
-  const all = await fetchArticles()
+  const allRaw = await fetchArticles()
+  // Filtro Mondo: applicato a monte. Tutto il pool che entra nei box e' world-eligible.
+  // Cap soft 12/paese (piu' permissivo del default 8 perche' qui poi splittiamo per categoria).
+  const all = applyWorldFilter(allRaw, { capPerCountry: 12 })
 
   // Indicizza per categoria, prendendo i 4 piu recenti per ognuna nella lingua preferita
   const byCategory = new Map<string, Article[]>()

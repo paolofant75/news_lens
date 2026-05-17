@@ -1,7 +1,9 @@
-// Dashboard a riquadri per categoria — stile Google News.
-// 6 box (Esteri, Cronaca, Politica, Economia, Sport, Tecnologia), ognuno con 4 articoli (2x2).
-// Le vecchie HeroSection / SecondaryGrid / FeedSection restano in repo (usate da _home/*) ma
-// non sono piu' montate qui: la categorizzazione mescolata era la causa del problema segnalato.
+// Dashboard MONDO — terminale geopolitico globale.
+// 6 box per categoria (Esteri, Cronaca, Politica, Economia, Sport, Tecnologia), ognuno con 4 articoli (2x2).
+// Il pool e' pre-filtrato via applyWorldFilter (lib/world-filter.ts): zero notizie regionali italiane,
+// nazionali (ANSA Politica, Corriere) ammesse solo se globalImpactScore >= 6 (G7/Vaticano/elezioni
+// tier-1/crisi finanziaria), boost ×1.4 per fonti Tier-1 (Reuters/BBC/AP/Guardian/AlJazeera/...).
+// HeroSection / SecondaryGrid / FeedSection: orfane in app/_home/ (non piu' montate).
 
 import { Suspense } from 'react'
 import Link from 'next/link'
@@ -24,11 +26,14 @@ export default function DashboardPage() {
           {/* Intestazione pagina */}
           <header className="mb-6 flex items-end justify-between flex-wrap gap-3">
             <div>
+              <p className="text-[11px] font-mono uppercase tracking-widest mb-1" style={{ color: 'var(--accent)' }}>
+                Lens Veritas · Mondo
+              </p>
               <h1 className="text-3xl font-bold leading-tight" style={{ color: 'var(--text)', fontFamily: 'var(--font-h)' }}>
-                Le notizie di oggi
+                Tutto il mondo, le notizie principali
               </h1>
               <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>
-                Sei categorie, gli articoli piu recenti da tutte le fonti monitorate.
+                Sei categorie filtrate per rilevanza geopolitica e affidabilita delle fonti.
               </p>
             </div>
             <Link

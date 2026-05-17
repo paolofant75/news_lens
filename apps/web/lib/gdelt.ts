@@ -119,6 +119,10 @@ export async function fetchGdeltArticles(
         sourceBias: 'unknown',
         sourceReliability: 7.0,
         sourceType: 'mainstream',
+        // GDELT e' un aggregatore globale: scope international tier 3 di default
+        sourceScope: 'international',
+        sourceCountry: raw.sourcecountry,
+        sourceGlobalTier: 3,
       })
     }
   }

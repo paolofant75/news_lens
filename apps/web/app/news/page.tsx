@@ -1,6 +1,7 @@
 import { fetchArticles, timeAgo, biasColor } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { sortByPreferredLang } from '../../lib/lang-priority'
+import { applyWorldFilter } from '../../lib/world-filter'
 import { cookies } from 'next/headers'
 import PageLayout from '../../components/page-layout'
 import { TAXONOMY, getAllKeywords } from '../../lib/taxonomy'
@@ -91,7 +92,8 @@ const SPORT_KEYWORDS: Record<string, string[]> = {
 }
 
 const GEO = [
-  { label: 'Tutto il mondo', slug: '',             flag: '🌐' },
+  { label: 'Tutte',          slug: '',             flag: '∞'  },
+  { label: 'Mondo',          slug: 'mondo',        flag: '🌐' },  // terminale geopolitico: applica applyWorldFilter
   { label: 'Europa',         slug: 'europa',       flag: '🇪🇺' },
   { label: 'Americhe',       slug: 'americhe',     flag: '🌎' },
   { label: 'Medio Oriente',  slug: 'medio-oriente',flag: '🕌' },
@@ -128,9 +130,17 @@ export default async function NewsPage({
   }
   const taxKws = taxonomy ? findTaxNode(taxonomy) : []
 
-  const filteredRaw = allArticles.filter((a) => {
+  // Quando l'utente seleziona area=mondo, applichiamo la policy editoriale del feed Mondo
+  // (lib/world-filter.ts): zero ANSA regionali, zero La Presse Régional, nazionali italiane
+  // solo se globalImpactScore >= 6 (G7/Vaticano/elezioni tier-1/crisi finanziaria), cap soft
+  // 8 articoli/paese per evitare dominanza USA/UK.
+  const pool = area === 'mondo' ? applyWorldFilter(allArticles, { capPerCountry: 8 }) : allArticles
+
+  const filteredRaw = pool.filter((a) => {
     const catOk = !categoria || a.category === categoria
-    const geoOk = !area || a.geo === area
+    // Per area=mondo NON facciamo piu' il match letterale su a.geo: applyWorldFilter ha gia'
+    // selezionato l'eligible set, e accettiamo articoli da qualunque continente (e' il senso del Mondo).
+    const geoOk = !area || area === 'mondo' || a.geo === area
     const sportOk = !sport || sportKws.some((kw) =>
       (a.title + ' ' + a.summary).toLowerCase().includes(kw)
     )
@@ -155,9 +165,13 @@ export default async function NewsPage({
     summary: translated[i]?.summary ?? a.summary,
   }))
 
-  // Conteggio per area geografica
+  // Conteggio per area geografica. 'mondo' usa il pool world-filtered (la stessa policy
+  // applicata alla visualizzazione), gli altri continenti contano sul pool originale.
+  const worldEligibleCount = applyWorldFilter(allArticles, { capPerCountry: 8 }).length
   const geoCounts = GEO.reduce((acc, g) => {
-    acc[g.slug] = g.slug === '' ? allArticles.length : allArticles.filter((a) => a.geo === g.slug).length
+    if (g.slug === '') acc[g.slug] = allArticles.length
+    else if (g.slug === 'mondo') acc[g.slug] = worldEligibleCount
+    else acc[g.slug] = allArticles.filter((a) => a.geo === g.slug).length
     return acc
   }, {} as Record<string, number>)
 

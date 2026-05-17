@@ -1,5 +1,6 @@
 import Parser from 'rss-parser'
 import { cacheGet, cacheSet, cacheDel } from './redis'
+import { isWorldEligible, worldTierBoost, capByCountry } from './world-filter'
 
 export type TrendingTopic = {
   title: string
@@ -86,14 +87,35 @@ export function geoPersonalizedArticles<T extends {
   title: string; summary: string; pubDate: string; link: string
   sourceReliability: number; category: string
   geo: string; sourceBias: string
+  // Campi opzionali popolati da fetchArticlesFresh dopo la migrazione scope/tier (lib/rss.ts)
+  sourceScope?: 'local' | 'national' | 'international'
+  sourceCountry?: string
+  sourceGlobalTier?: 1 | 2 | 3
 }>(
   articles: T[],
   trends: TrendingTopic[],
   visitorCountry: string | null,
-  options: { globalRatio?: number; maxPerCategory?: number } = {}
+  options: {
+    globalRatio?: number
+    maxPerCategory?: number
+    // worldMode: applica isWorldEligible (esclude local, ammette national solo se highimpact)
+    // + boost moltiplicativo per fonti tier-1 (×1.4) e tier-2 (×1.15)
+    // + cap soft per sourceCountry (default 8 articoli/paese)
+    worldMode?: boolean
+    maxPerCountry?: number
+  } = {}
 ): T[] {
-  const { globalRatio = 0.5, maxPerCategory = 5 } = options
+  const {
+    globalRatio = 0.5,
+    maxPerCategory = 5,
+    worldMode = false,
+    maxPerCountry = 8,
+  } = options
   const visitorGeo = visitorCountry ? (COUNTRY_TO_GEO[visitorCountry] ?? null) : null
+
+  // worldMode: filtro editoriale a monte. Le notizie locali (ANSA regionali) escono qui,
+  // le nazionali italiane senza impatto globale anche. Vedi lib/world-filter.ts.
+  const eligible: T[] = worldMode ? articles.filter(isWorldEligible) : articles
 
   // Base scoring with sensationalism penalty
   const trendKeywords = trends
@@ -101,13 +123,15 @@ export function geoPersonalizedArticles<T extends {
   const categoryWeight: Record<string, number> = {
     breaking: 5, conflitti: 4, politica: 4, economia: 3,
     tecnologia: 3, scienza: 2, salute: 2, ambiente: 2, sport: 1, cultura: 1, cronaca: 1,
+    // worldMode: 'esteri' deve ricevere lo stesso peso di politica/conflitti
+    esteri: 4,
   }
 
   // Bucket di recency per "ore" invece di ms: due articoli pubblicati nella
   // stessa ora ottengono lo stesso recency -> niente shuffle al secondo
   const NOW_HOUR = Math.floor(Date.now() / 3600000)
 
-  const withScore = articles.map((art) => {
+  const withScore = eligible.map((art) => {
     const text = (art.title + ' ' + art.summary).toLowerCase()
     const trendMatch = trendKeywords.filter((kw) => text.includes(kw)).length
     const pubHour = Math.floor(new Date(art.pubDate).getTime() / 3600000)
@@ -116,7 +140,9 @@ export function geoPersonalizedArticles<T extends {
     const reliability = art.sourceReliability / 10
     const catScore = (categoryWeight[art.category] ?? 1) / 5
     const sensationalPenalty = art.sourceBias === 'state-aligned' ? 0.7 : 1.0
-    const baseScore = (trendMatch * 4 + recency * 3 + reliability * 2 + catScore) * sensationalPenalty
+    // Tier boost solo in worldMode: Reuters/BBC/AP ×1.4, ANSA Mondo / NYT World / La Presse Int ×1.15
+    const tierBoost = worldMode ? worldTierBoost(art) : 1.0
+    const baseScore = (trendMatch * 4 + recency * 3 + reliability * 2 + catScore) * sensationalPenalty * tierBoost
     const isRegional = visitorGeo ? art.geo === visitorGeo : false
     return { art, baseScore, isRegional }
   }).sort((a, b) => {
@@ -126,10 +152,10 @@ export function geoPersonalizedArticles<T extends {
     return a.art.link.localeCompare(b.art.link)
   })
 
-  // If no visitor geo, just return base-sorted with category cap
+  // If no visitor geo, just return base-sorted with category cap (+ country cap in worldMode)
   if (!visitorGeo) {
     const catCount: Record<string, number> = {}
-    return withScore
+    const ordered = withScore
       .filter(({ art }) => {
         const c = catCount[art.category] ?? 0
         if (c >= maxPerCategory) return false
@@ -137,6 +163,7 @@ export function geoPersonalizedArticles<T extends {
         return true
       })
       .map(({ art }) => art)
+    return worldMode ? capByCountry(ordered, maxPerCountry, (a) => a.sourceCountry ?? '') : ordered
   }
 
   // Partition: regional vs global
@@ -172,7 +199,7 @@ export function geoPersonalizedArticles<T extends {
     if (useGlobal) gi++; else ri++
   }
 
-  return result
+  return worldMode ? capByCountry(result, maxPerCountry, (a) => a.sourceCountry ?? '') : result
 }
 
 export function scoredArticles<T extends {

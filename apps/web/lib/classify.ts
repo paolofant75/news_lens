@@ -97,7 +97,15 @@ export function classifyArticle(title: string, summary: string): ClassificationR
   return { category: 'cronaca', confidence: topScore, scores }
 }
 
-export function geoClassify(title: string, summary: string): string {
+export function geoClassify(
+  title: string,
+  summary: string,
+  // Hint dal feed di origine: se il titolo non matcha alcun continente E il source e' italian local/national,
+  // forziamo 'europa' invece del fallback generico 'mondo'. Risolve il "Cosenza problem" (citta' italiane
+  // piccole non presenti nel regex europa cadevano nel fallback 'mondo' inquinando il feed globale).
+  sourceScope?: 'local' | 'national' | 'international',
+  sourceCountry?: string,
+): string {
   const t = (title + ' ' + summary).toLowerCase()
 
   // Medio Oriente — molto specifico, va prima
@@ -117,6 +125,12 @@ export function geoClassify(title: string, summary: string): string {
 
   // Oceania
   if (/australia|new zealand|\bpacific islands\b|oceania|papua new guinea|fiji|samoa|tonga|vanuatu|solomon islands|sydney|melbourne|canberra|auckland|wellington|scott morrison|albanese/.test(t)) return 'oceania'
+
+  // Cosenza-problem fallback: il titolo non matcha alcun continente, ma il source e' italiano local/national.
+  // Cronaca regionale italiana o testata italiana che parla di cose italiane senza citta' grosse va in 'europa',
+  // NON nel bucket 'mondo' (che dev'essere riservato a news veramente globali/internazionali).
+  if (sourceCountry === 'Italy' && (sourceScope === 'local' || sourceScope === 'national')) return 'europa'
+  if (sourceCountry === 'Canada' && (sourceScope === 'local' || sourceScope === 'national')) return 'americhe'
 
   return 'mondo'
 }
