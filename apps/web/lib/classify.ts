@@ -10,6 +10,13 @@ const CATEGORY_WEIGHTS: Record<string, CategoryWeights> = {
     primary: ['breaking news', 'breaking:', 'urgent', 'alert:', 'just in'],
     secondary: ['developing', 'update:', 'live:'],
   },
+  // Esteri: cattura affari internazionali / diplomazia / politica estera quando il feed
+  // di origine non e' gia stato classificato come "esteri" tramite FEED_DEFAULT_CATEGORY
+  esteri: {
+    saturate: 30,
+    primary: ['foreign minister', 'ambassador', 'un security council', 'eu summit', 'nato summit', 'g7 summit', 'g20 summit', 'state department', 'foreign policy'],
+    secondary: ['esteri', 'foreign affairs', 'international', 'diplomatic', 'embassy', 'consulate', 'bilateral', 'treaty', 'sanctions', 'geopolitical'],
+  },
   conflitti: {
     saturate: 40,
     primary: ['war', 'airstrike', 'invasion', 'ceasefire', 'missile strike', 'bombing', 'troops deployed', 'military offensive'],

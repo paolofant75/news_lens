@@ -266,7 +266,86 @@ export const FEEDS: FeedMeta[] = [
   { id: 'lapresse_cinema',      source: 'La Presse Cinéma',          url: 'https://www.lapresse.ca/cinema/rss',                              country: 'Canada', region: 'americhe', type: 'mainstream', bias: 'center-left', reliability: 7.8, aiValue: 'medium', antiBiasValue: 'medium' },
 ]
 
-function categorize(title: string, summary: string): string {
+// Categoria predefinita per feed-source: l'origine del feed sa gia' di cosa parla.
+// I feed assenti da questa mappa (BBC World, Reuters, ANSA Top, ANSA Home, ANSA English,
+// Il Fatto, HuffPost, Open, fattoquotidiano) sono generici e usano il classifier euristico.
+// Per gli altri si usa direttamente questa categoria, evitando misclassificazioni del tipo
+// "ANSA Sport titolo cripto -> cronaca".
+const FEED_DEFAULT_CATEGORY: Record<string, string> = {
+  // ─── Esteri (World feeds) ────────────────────────────────────────────────
+  bbc_world: 'esteri', reuters_world: 'esteri', ap_news: 'esteri',
+  al_jazeera: 'esteri', dw_world: 'esteri', france24: 'esteri',
+  guardian_world: 'esteri', nyt_world: 'esteri', scmp: 'esteri', rt_world: 'esteri',
+  ansa_mondo: 'esteri', corriere_esteri: 'esteri', repubblica_mondo: 'esteri',
+  sole24ore_mondo: 'esteri', lastampa_mondo: 'esteri', skytg24_mondo: 'esteri',
+  adnkronos: 'esteri', messaggero_mondo: 'esteri',
+  ansamed_it: 'esteri', ansamed_ar: 'esteri',
+  ansa_nuovaeuropa_it: 'esteri', ansa_nuovaeuropa_en: 'esteri',
+  ansa_brasil: 'esteri', ansa_latina: 'esteri', ansa_china: 'esteri',
+  lapresse_int: 'esteri', lapresse_usa: 'esteri', lapresse_eu: 'esteri',
+  lapresse_mo: 'esteri', lapresse_asia_oc: 'esteri', lapresse_afrique: 'esteri',
+  lapresse_amlat: 'esteri', lapresse_caraibes: 'esteri',
+
+  // ─── Politica ────────────────────────────────────────────────────────────
+  ansa_politica: 'politica', ansa_europa: 'politica',
+  bellingcat: 'politica', politifact: 'politica',
+  brookings: 'politica', rand: 'politica',
+  lapresse_politique: 'politica',
+
+  // ─── Economia ────────────────────────────────────────────────────────────
+  ansa_economia: 'economia', cointelegraph: 'economia',
+  lapresse_affaires: 'economia', lapresse_economie: 'economia',
+  lapresse_entreprises: 'economia', lapresse_finperso: 'economia',
+  lapresse_pme: 'economia', lapresse_portfolio: 'economia',
+  lapresse_grande_ent: 'economia', lapresse_tetes: 'economia',
+
+  // ─── Tecnologia ──────────────────────────────────────────────────────────
+  ars_technica: 'tecnologia', techcrunch: 'tecnologia', mit_tech: 'tecnologia',
+  wired: 'tecnologia', hacker_news: 'tecnologia', bleeping: 'tecnologia',
+  ansa_tech: 'tecnologia', lapresse_techno: 'tecnologia',
+
+  // ─── Sport ───────────────────────────────────────────────────────────────
+  ansa_sport: 'sport', ansa_calcio: 'sport', ansa_golf: 'sport',
+  lapresse_sports: 'sport', lapresse_hockey: 'sport', lapresse_soccer: 'sport',
+  lapresse_nfl: 'sport', lapresse_tennis: 'sport', lapresse_baseball: 'sport',
+  lapresse_basketball: 'sport', lapresse_golf: 'sport',
+  lapresse_combat: 'sport', lapresse_cyclisme: 'sport',
+
+  // ─── Salute ──────────────────────────────────────────────────────────────
+  who_news: 'salute', ansa_salute: 'salute',
+  lapresse_sante_a: 'salute', lapresse_societe_sante: 'salute',
+
+  // ─── Scienza ─────────────────────────────────────────────────────────────
+  nasa_news: 'scienza', ansa_scienza: 'scienza', lapresse_sciences: 'scienza',
+
+  // ─── Ambiente ────────────────────────────────────────────────────────────
+  ansa_ambiente: 'ambiente', lapresse_environnement: 'ambiente',
+
+  // ─── Cultura ─────────────────────────────────────────────────────────────
+  ansa_cultura: 'cultura', ansa_cultura_t: 'cultura',
+  ansa_cinema: 'cultura', ansa_viaggi: 'cultura',
+  lapresse_cinema: 'cultura', lapresse_medias: 'cultura',
+
+  // ─── Cronaca (locale italiana + La Presse locale Quebec) ─────────────────
+  snopes: 'cronaca',
+  ansa_cronaca: 'cronaca', ansa_motori: 'cronaca', ansa_terra_gusto: 'cronaca',
+  ansa_abruzzo: 'cronaca', ansa_basilicata: 'cronaca', ansa_calabria: 'cronaca',
+  ansa_campania: 'cronaca', ansa_emiliaromagna: 'cronaca', ansa_fvg: 'cronaca',
+  ansa_lazio: 'cronaca', ansa_liguria: 'cronaca', ansa_lombardia: 'cronaca',
+  ansa_marche: 'cronaca', ansa_molise: 'cronaca', ansa_piemonte: 'cronaca',
+  ansa_puglia: 'cronaca', ansa_sardegna: 'cronaca', ansa_sicilia: 'cronaca',
+  ansa_toscana: 'cronaca', ansa_trentino: 'cronaca', ansa_umbria: 'cronaca',
+  ansa_vda: 'cronaca', ansa_veneto: 'cronaca',
+  lapresse_actu: 'cronaca', lapresse_national: 'cronaca',
+  lapresse_education: 'cronaca', lapresse_enquetes: 'cronaca',
+  lapresse_regional: 'cronaca', lapresse_insolite: 'cronaca',
+}
+
+function categorize(feedId: string, title: string, summary: string): string {
+  // 1) Hint forte dal source feed (es. "ANSA Sport" -> sport, NASA -> scienza)
+  const fromFeed = FEED_DEFAULT_CATEGORY[feedId]
+  if (fromFeed) return fromFeed
+  // 2) Fallback: classifier euristico su title+summary (per feed generici tipo BBC World, Reuters)
   return classifyArticle(title, summary).category
 }
 
@@ -287,7 +366,7 @@ async function fetchFromNewsAPI(): Promise<Article[]> {
           id: articleId(a.url),
           title, link: a.url, pubDate: a.publishedAt,
           source: a.source.name, summary,
-          category: categorize(title, summary),
+          category: categorize('', title, summary),
           geo: geoClassify(title, summary),
           sourceBias: 'unknown', sourceReliability: 7.0, sourceType: 'mainstream',
         }
@@ -310,7 +389,7 @@ async function fetchFromGuardianAPI(): Promise<Article[]> {
         id: articleId(a.webUrl),
         title, link: a.webUrl, pubDate: a.webPublicationDate,
         source: 'The Guardian', summary,
-        category: categorize(title, summary),
+        category: categorize('', title, summary),
         geo: geoClassify(title, summary),
         sourceBias: 'center-left', sourceReliability: 8.4, sourceType: 'mainstream',
       }
@@ -333,7 +412,7 @@ async function fetchFromGNews(): Promise<Article[]> {
         id: articleId(a.url),
         title, link: a.url, pubDate: a.publishedAt,
         source: a.source.name, summary,
-        category: categorize(title, summary),
+        category: categorize('', title, summary),
         geo: geoClassify(title, summary),
         sourceBias: 'unknown', sourceReliability: 7.0, sourceType: 'mainstream',
       }
@@ -363,7 +442,7 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
               pubDate: item.pubDate ?? item.isoDate ?? '',
               source: feed.source,
               summary,
-              category: categorize(title, summary),
+              category: categorize(feed.id, title, summary),
               geo: geoClassify(title, summary),
               sourceBias: feed.bias,
               sourceReliability: feed.reliability,

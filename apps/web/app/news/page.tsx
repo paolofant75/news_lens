@@ -10,16 +10,17 @@ import { IconGlobe, IconMap, IconMapPin } from '../../components/icons'
 const CATEGORIES = [
   { label: 'Tutte', slug: '', icon: '' },
   { label: 'Ultime notizie', slug: 'breaking', icon: '🔴' },
-  { label: 'Conflitti', slug: 'conflitti', icon: '⚔️' },
+  { label: 'Esteri', slug: 'esteri', icon: '🌍' },
+  { label: 'Cronaca', slug: 'cronaca', icon: '📰' },
   { label: 'Politica', slug: 'politica', icon: '🏛️' },
   { label: 'Economia', slug: 'economia', icon: '📈' },
+  { label: 'Sport', slug: 'sport', icon: '⚽' },
   { label: 'Tecnologia', slug: 'tecnologia', icon: '🤖' },
+  { label: 'Conflitti', slug: 'conflitti', icon: '⚔️' },
   { label: 'Scienza', slug: 'scienza', icon: '🔬' },
   { label: 'Salute', slug: 'salute', icon: '🏥' },
   { label: 'Ambiente', slug: 'ambiente', icon: '🌿' },
-  { label: 'Sport', slug: 'sport', icon: '⚽' },
   { label: 'Cultura', slug: 'cultura', icon: '🎭' },
-  { label: 'Cronaca', slug: 'cronaca', icon: '📰' },
 ]
 
 const SPORTS = [
