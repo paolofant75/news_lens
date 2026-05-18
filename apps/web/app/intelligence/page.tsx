@@ -61,11 +61,13 @@ export default function IntelligencePage() {
   const [error, setError] = useState('')
   const [loadingStep, setLoadingStep] = useState(0)
   const [showParams, setShowParams] = useState(false)
+  // Notizie ordinate per pubDate desc: visualizzate 10 alla volta + "Mostra altre" carica +10
+  const [visibleNews, setVisibleNews] = useState(10)
   const stepTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   async function runAnalysis(q: string) {
     if (!q.trim()) return
-    setLoading(true); setError(''); setReport(null); setLoadingStep(0)
+    setLoading(true); setError(''); setReport(null); setLoadingStep(0); setVisibleNews(10)
 
     stepTimer.current = setInterval(() => {
       setLoadingStep((s) => Math.min(s + 1, LOADING_STEPS.length - 1))
@@ -144,6 +146,13 @@ export default function IntelligencePage() {
           {showParams && (
             <IntelligenceParams params={params} onChange={setParams} disabled={loading} />
           )}
+
+          {/* Hint UX: piu' parole = ricerca piu' specifica. Suggerimento dell'utente per evitare query
+              troppo brevi che restituiscono risultati eterogenei. */}
+          <p className="text-[11px]" style={{ color: 'var(--text-3)' }}>
+            Suggerimento: per una ricerca piu' approfondita, aggiungi piu' parole alla chiave
+            (es. <span className="font-mono" style={{ color: 'var(--text-2)' }}>&quot;sinner finale atp&quot;</span> invece di <span className="font-mono" style={{ color: 'var(--text-2)' }}>&quot;sinner&quot;</span>).
+          </p>
         </div>
 
         {/* Loading terminal */}
@@ -160,22 +169,96 @@ export default function IntelligencePage() {
         {report && !loading && (
           <div className="space-y-8" style={{ animation: 'intel-reveal 0.4s ease' }}>
 
-            {/* 1. Expanded Framework */}
-            <section>
-              <h2 className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-3)' }}>
-                Framework Investigativo
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {Object.entries(report.expanded_framework).filter(([, v]) => v.length > 0).map(([key, values]) => (
-                  <div key={key} className="rounded-xl p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                    <p className="text-[9px] font-bold uppercase tracking-widest mb-2 opacity-50">{key.replace(/_/g, ' ')}</p>
-                    {(values as string[]).map((v, i) => (
-                      <p key={i} className="text-xs mb-1" style={{ color: 'var(--text-2)' }}>· {v}</p>
-                    ))}
+            {/* 1. Notizie piu' recenti (sostituisce il vecchio "Framework Investigativo")
+                Ordine: pubDate DESC e' la priorita' assoluta (tempistica al primo posto),
+                a parita' di data usiamo overall reliability come tie-breaker (solidita' secondaria). */}
+            {report.sources.length > 0 && (() => {
+              const reliabilityBySource = new Map(
+                report.source_reliability_scores.map((s) => [s.source, s.overall])
+              )
+              const sorted = [...report.sources].sort((a, b) => {
+                const ta = new Date(a.pubDate).getTime() || 0
+                const tb = new Date(b.pubDate).getTime() || 0
+                if (tb !== ta) return tb - ta
+                const ra = reliabilityBySource.get(a.source) ?? 50
+                const rb = reliabilityBySource.get(b.source) ?? 50
+                return rb - ra
+              })
+              const shown = sorted.slice(0, visibleNews)
+              const hasMore = visibleNews < sorted.length
+
+              const fmtAgo = (iso: string): string => {
+                const t = new Date(iso).getTime()
+                if (!t || Number.isNaN(t)) return ''
+                const diff = Date.now() - t
+                const m = Math.floor(diff / 60000)
+                if (m < 1) return 'ora'
+                if (m < 60) return `${m}m fa`
+                const h = Math.floor(m / 60)
+                if (h < 24) return `${h}h fa`
+                return `${Math.floor(h / 24)}g fa`
+              }
+
+              return (
+                <section>
+                  <div className="flex items-baseline justify-between mb-4">
+                    <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
+                      Notizie piu' recenti
+                    </h2>
+                    <span className="text-[11px] font-mono" style={{ color: 'var(--text-3)' }}>
+                      {sorted.length} fonti · ordinate per data
+                    </span>
                   </div>
-                ))}
-              </div>
-            </section>
+                  <ul className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                    {shown.map((src, i) => {
+                      const rel = reliabilityBySource.get(src.source)
+                      return (
+                        <li key={`${src.link}-${i}`} style={{ borderTop: i === 0 ? 'none' : '1px solid var(--border)', background: 'var(--bg-card)' }}>
+                          <a
+                            href={src.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-start gap-3 px-4 py-3 transition-opacity hover:opacity-80"
+                          >
+                            <span className="text-[10px] font-mono w-12 flex-shrink-0 pt-0.5" style={{ color: 'var(--text-3)' }}>
+                              {fmtAgo(src.pubDate)}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-[11px] font-semibold truncate" style={{ color: 'var(--accent)' }}>{src.source}</span>
+                                {typeof rel === 'number' && (
+                                  <span
+                                    className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+                                    style={{
+                                      background: rel >= 70 ? 'rgba(34,197,94,0.12)' : rel >= 40 ? 'rgba(234,179,8,0.12)' : 'rgba(239,68,68,0.12)',
+                                      color: rel >= 70 ? '#22c55e' : rel >= 40 ? '#eab308' : '#ef4444',
+                                    }}
+                                  >
+                                    {rel}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm leading-snug line-clamp-2" style={{ color: 'var(--text)' }}>{src.title}</p>
+                            </div>
+                          </a>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                  {hasMore && (
+                    <div className="mt-3 flex justify-center">
+                      <button
+                        onClick={() => setVisibleNews((n) => n + 10)}
+                        className="px-5 py-2 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
+                        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
+                      >
+                        Mostra altre 10 ({sorted.length - visibleNews} rimanenti)
+                      </button>
+                    </div>
+                  )}
+                </section>
+              )
+            })()}
 
             {/* 2. Core article */}
             <section>
