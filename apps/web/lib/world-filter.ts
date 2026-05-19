@@ -43,9 +43,12 @@ const RE_TIER1_COUNTRY = /\b(united states|usa|stati uniti|america|china|cina|ru
 /**
  * Punteggio 0-10 di impatto globale per un articolo.
  * Heuristic puramente keyword-based, niente AI (volutamente economico).
- * v2: embedding cached se la heuristic mostra troppi falsi negativi.
+ *
+ * @deprecated Sostituita dalla classificazione AI. Mantenuta per fallback e rollback
+ *   (vedi lib/classifier-mode.ts → useAIClassifier()). Quando USE_AI_CLASSIFIER=false
+ *   o assente, questa funzione resta il path attivo via l'alias globalImpactScore.
  */
-export function globalImpactScore(a: WorldFilterShape): number {
+export function globalImpactScoreLegacy(a: WorldFilterShape): number {
   const text = `${a.title ?? ''} ${a.summary ?? ''}`.toLowerCase()
   let score = 0
   if (RE_INSTITUTIONS.test(text)) score += 3
@@ -59,10 +62,20 @@ export function globalImpactScore(a: WorldFilterShape): number {
 }
 
 /**
+ * Alias del nome originale: tutti i consumer attuali continuano a importare
+ * `globalImpactScore` invariato. Lo switch a AI passera' da classifier-mode.ts.
+ */
+export const globalImpactScore = globalImpactScoreLegacy
+
+/**
  * Decide se un articolo puo' apparire nel feed Mondo.
  * Vedi commento di file in cima per le regole.
+ *
+ * @deprecated Sostituita dalla classificazione AI. Mantenuta per fallback e rollback
+ *   (vedi lib/classifier-mode.ts → useAIClassifier()). Quando USE_AI_CLASSIFIER=false
+ *   o assente, questa funzione resta il path attivo via l'alias isWorldEligible.
  */
-export function isWorldEligible(a: WorldFilterShape): boolean {
+export function isWorldEligibleLegacy(a: WorldFilterShape): boolean {
   // Hard exclude: feed locali (ANSA regionali, La Presse Régional/Insolite/Education)
   if (a.sourceScope === 'local') return false
 
@@ -70,12 +83,18 @@ export function isWorldEligible(a: WorldFilterShape): boolean {
   if (a.sourceScope === 'international') return true
 
   // National (ANSA italiana, quotidiani italiani, La Presse Affaires/Sports): solo se impatto globale
-  if (a.sourceScope === 'national') return globalImpactScore(a) >= NATIONAL_ADMIT_THRESHOLD
+  if (a.sourceScope === 'national') return globalImpactScoreLegacy(a) >= NATIONAL_ADMIT_THRESHOLD
 
   // Undefined (cache legacy serializzata prima della migrazione): fail-open per non spezzare la UX
   // durante i ~5 min tra deploy e prossimo cron refresh-feeds.
   return true
 }
+
+/**
+ * Alias del nome originale: tutti i consumer attuali continuano a importare
+ * `isWorldEligible` invariato. Lo switch a AI passera' da classifier-mode.ts.
+ */
+export const isWorldEligible = isWorldEligibleLegacy
 
 /**
  * Soft cap per chiave (tipicamente sourceCountry): scorre gli articoli in ordine

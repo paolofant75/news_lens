@@ -97,7 +97,14 @@ export function classifyArticle(title: string, summary: string): ClassificationR
   return { category: 'cronaca', confidence: topScore, scores }
 }
 
-export function geoClassify(
+/**
+ * Classificazione geografica continentale di un articolo via regex keyword-based.
+ *
+ * @deprecated Sostituita dalla classificazione AI. Mantenuta per fallback e rollback
+ *   (vedi lib/classifier-mode.ts → useAIClassifier()). Quando USE_AI_CLASSIFIER=false
+ *   o assente, questa funzione resta il path attivo via l'alias geoClassify.
+ */
+export function geoClassifyLegacy(
   title: string,
   summary: string,
   // Hint dal feed di origine: se il titolo non matcha alcun continente E il source e' italian local/national,
@@ -134,6 +141,13 @@ export function geoClassify(
 
   return 'mondo'
 }
+
+/**
+ * Alias del nome originale: tutti i consumer attuali (lib/rss.ts, lib/gdelt.ts,
+ * mapper API esterne) continuano a importare `geoClassify` invariato. Lo switch
+ * a AI passera' da classifier-mode.ts.
+ */
+export const geoClassify = geoClassifyLegacy
 
 export function relevanceScore(text: string, query: string): number {
   const words = query.toLowerCase().split(/\s+/).filter((w) => w.length > 2)
