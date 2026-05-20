@@ -20,3 +20,40 @@ model Article {
 
   @@map("articles")
 }
+
+model AgentRun {
+  id           String      @id @default(cuid())
+  agentName    String
+  agentVersion String
+  status       String      // 'running' | 'completed' | 'failed'
+  input        Json
+  output       Json?
+  errorMessage String?
+  tokensIn     Int         @default(0)
+  tokensOut    Int         @default(0)
+  costUsd      Decimal     @default(0) @db.Decimal(10, 6)
+  latencyMs    Int?
+  startedAt    DateTime    @default(now())
+  completedAt  DateTime?
+  steps        AgentStep[]
+
+  @@index([agentName, startedAt])
+  @@index([status])
+}
+
+model AgentStep {
+  id        String   @id @default(cuid())
+  runId     String
+  run       AgentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  stepIndex Int
+  stepName  String
+  input     Json
+  output    Json?
+  tokensIn  Int      @default(0)
+  tokensOut Int      @default(0)
+  latencyMs Int?
+  model     String?
+  createdAt DateTime @default(now())
+
+  @@index([runId, stepIndex])
+}

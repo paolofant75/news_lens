@@ -18,7 +18,8 @@
     "react-simple-maps": "^3.0.0",
     "d3-scale": "^4.0.2",
     "globe.gl": "^2.28.0",
-    "@supabase/supabase-js": "^2.49.4"
+    "@supabase/supabase-js": "^2.49.4",
+    "@news-lens-veritas/ai": "workspace:*"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.2.6",
