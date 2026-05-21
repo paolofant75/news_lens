@@ -1,5 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "installCommand": "pnpm install --frozen-lockfile"
+  "installCommand": "pnpm install --frozen-lockfile",
+  "functions": {
+    "app/api/cron/refresh-feeds/route.ts": { "maxDuration": 60 },
+    "app/api/cron/classify-articles/route.ts": { "maxDuration": 60 }
+  }
 }

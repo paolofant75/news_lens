@@ -20,6 +20,26 @@ const parser = new Parser({
   headers: { 'User-Agent': 'NewsLensVeritas/1.0' },
 })
 
+// Limite concorrente per fetch HTTP paralleli. Su Vercel Node runtime il limite
+// di file descriptor e' circa 100. Lanciare 80+ feed in parallelo causava
+// "EMFILE: too many open files" e crash 500. 10 paralleli sono safe e veloci
+// abbastanza (80 feed / 10 = 8 batch da ~1.5s = ~12s totali).
+const FETCH_CONCURRENCY = 10
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>,
+): Promise<PromiseSettledResult<R>[]> {
+  const results: PromiseSettledResult<R>[] = []
+  for (let i = 0; i < items.length; i += concurrency) {
+    const chunk = items.slice(i, i + concurrency)
+    const settled = await Promise.allSettled(chunk.map(fn))
+    results.push(...settled)
+  }
+  return results
+}
+
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim()
 }
@@ -470,9 +490,9 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
   const perFeedStatus: FeedStatus[] = []
 
   // Fetch parallelo di tutte le fonti — ogni fonte ha il proprio fail-safe
+  // RSS feeds processati in batch da FETCH_CONCURRENCY per evitare EMFILE
   const [rssResults, newsApiArticles, guardianArticles, gnewsArticles, gdeltArticles] = await Promise.all([
-    Promise.allSettled(
-      FEEDS.map(async (feed) => {
+    mapWithConcurrency(FEEDS, FETCH_CONCURRENCY, async (feed) => {
         const start = Date.now()
         try {
           const f = await parser.parseURL(feed.url)
@@ -525,8 +545,7 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
           })
           throw e
         }
-      })
-    ),
+      }),
     fetchFromNewsAPI(),
     fetchFromGuardianAPI(),
     fetchFromGNews(),
