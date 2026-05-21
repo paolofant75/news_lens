@@ -13,7 +13,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export type AIMessage = { role: 'user' | 'system' | 'assistant'; content: string }
 export type AITier = 'fast' | 'smart'
-export type AIContext = 'translate' | 'veritas' | 'expand-query' | 'intelligence' | 'other'
+export type AIContext = 'translate' | 'veritas' | 'expand-query' | 'intelligence' | 'world-filter' | 'other'
 
 type ProviderConfig = {
   name: 'deepseek' | 'anthropic'

@@ -43,7 +43,9 @@ export default async function CategoryBoxes() {
   const allRaw = await fetchArticles()
   // Filtro Mondo: applicato a monte. Tutto il pool che entra nei box e' world-eligible.
   // Cap soft 12/paese (piu' permissivo del default 8 perche' qui poi splittiamo per categoria).
-  const all = applyWorldFilter(allRaw, { capPerCountry: 12 })
+  // applyWorldFilter e' async per supportare la classificazione AI (USE_AI_CLASSIFIER=true);
+  // in modalita' Legacy l'await e' praticamente gratis (microtask boundary).
+  const all = await applyWorldFilter(allRaw, { capPerCountry: 12 })
 
   // Indicizza per categoria, prendendo i 4 piu recenti per ognuna nella lingua preferita
   const byCategory = new Map<string, Article[]>()

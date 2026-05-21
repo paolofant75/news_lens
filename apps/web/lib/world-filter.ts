@@ -17,7 +17,11 @@
 // Le funzioni qui accettano qualsiasi T che soddisfi questo shape (generic safe
 // per l'integrazione con geoPersonalizedArticles in lib/trends.ts, che usa proprio
 // un generic T extends {...} non identico ad Article).
-type WorldFilterShape = {
+export type WorldFilterShape = {
+  // id: hash stabile dell'articolo. Usato come cache key in world-filter-ai.ts
+  // (ai:wf:v1:{id}). Opzionale: se assente, la classificazione AI bypassa la cache.
+  id?: string
+  source?: string
   title?: string
   summary?: string
   sourceScope?: 'local' | 'national' | 'international'
@@ -119,12 +123,32 @@ export function capByCountry<T>(items: T[], cap: number, key: (x: T) => string):
  * Applica l'intera pipeline editoriale del feed Mondo: filtro + cap per paese.
  * L'ordine in input dovrebbe essere gia' rilevanza-DESC (oppure pubDate-DESC),
  * cosi' il cap-per-paese scarta gli articoli meno rilevanti del paese saturo.
+ *
+ * Diventa async per supportare il classifier AI (USE_AI_CLASSIFIER=true): in
+ * quel caso fa una pre-classificazione batch via DeepSeek (cached) e poi
+ * filtra usando i risultati. In modalita' Legacy il filtraggio resta sync
+ * sotto e l'await e' praticamente gratis (microtask boundary).
+ *
+ * Il toggle e' interno: i consumer chiamano sempre lo stesso simbolo.
  */
-export function applyWorldFilter<T extends WorldFilterShape>(
+export async function applyWorldFilter<T extends WorldFilterShape>(
   articles: T[],
   opts?: { capPerCountry?: number },
-): T[] {
-  const filtered = articles.filter(isWorldEligible)
+): Promise<T[]> {
+  // Import dinamico per evitare cicli (world-filter-ai importa Legacy da qui).
+  // Anche per tree-shaking: in build legacy il bundler puo' droppare ai-client.
+  const { useAIClassifier } = await import('./classifier-mode')
+
+  let eligibilityFn: (a: T) => boolean
+  if (useAIClassifier()) {
+    const { classifyManyAI } = await import('./world-filter-ai')
+    const map = await classifyManyAI(articles)
+    eligibilityFn = (a) => map.get(a)?.isWorldEligible ?? isWorldEligibleLegacy(a)
+  } else {
+    eligibilityFn = isWorldEligible  // alias di isWorldEligibleLegacy
+  }
+
+  const filtered = articles.filter(eligibilityFn)
   return capByCountry(filtered, opts?.capPerCountry ?? 8, (a) => a.sourceCountry ?? '')
 }
 

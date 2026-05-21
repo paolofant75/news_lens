@@ -134,7 +134,8 @@ export default async function NewsPage({
   // (lib/world-filter.ts): zero ANSA regionali, zero La Presse Régional, nazionali italiane
   // solo se globalImpactScore >= 6 (G7/Vaticano/elezioni tier-1/crisi finanziaria), cap soft
   // 8 articoli/paese per evitare dominanza USA/UK.
-  const pool = area === 'mondo' ? applyWorldFilter(allArticles, { capPerCountry: 8 }) : allArticles
+  // applyWorldFilter e' async per supportare la classificazione AI (USE_AI_CLASSIFIER=true).
+  const pool = area === 'mondo' ? await applyWorldFilter(allArticles, { capPerCountry: 8 }) : allArticles
 
   const filteredRaw = pool.filter((a) => {
     const catOk = !categoria || a.category === categoria
@@ -167,7 +168,8 @@ export default async function NewsPage({
 
   // Conteggio per area geografica. 'mondo' usa il pool world-filtered (la stessa policy
   // applicata alla visualizzazione), gli altri continenti contano sul pool originale.
-  const worldEligibleCount = applyWorldFilter(allArticles, { capPerCountry: 8 }).length
+  // Riusiamo `pool` quando area=mondo per non rifare la classificazione AI/cache lookup.
+  const worldEligibleCount = area === 'mondo' ? pool.length : (await applyWorldFilter(allArticles, { capPerCountry: 8 })).length
   const geoCounts = GEO.reduce((acc, g) => {
     if (g.slug === '') acc[g.slug] = allArticles.length
     else if (g.slug === 'mondo') acc[g.slug] = worldEligibleCount
