@@ -32,6 +32,9 @@ import { runAgent } from '@news-lens-veritas/ai'
 import { categoryClassifier, getCachedClassification } from '@news-lens-veritas/ai/category-classifier'
 import type { Article } from '../../../../lib/rss'
 
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
 // Stessa chiave usata da fetchArticlesFresh / refresh-feeds
 const ARTICLES_FRESH_KEY = 'nlv_articles_v5'
 const ARTICLES_STALE_KEY = 'nlv_articles_v5_stale'

@@ -8,6 +8,9 @@ const ARTICLES_STALE_KEY = 'nlv_articles_v5_stale'
 const ARTICLES_CACHE_TTL = 600
 const ARTICLES_STALE_TTL = 1800
 
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
 export async function GET(req: NextRequest) {
   if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
