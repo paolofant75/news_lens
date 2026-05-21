@@ -3,9 +3,5 @@
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm --filter=web build",
-  "outputDirectory": "apps/web/.next",
-  "crons": [
-    { "path": "/api/cron/refresh-feeds",     "schedule": "*/5 * * * *" },
-    { "path": "/api/cron/classify-articles", "schedule": "*/10 * * * *" }
-  ]
+  "outputDirectory": "apps/web/.next"
 }

@@ -1,0 +1,33 @@
+name: Cron - Refresh Feeds
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: cron-refresh-feeds
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call /api/cron/refresh-feeds
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -uo pipefail
+          if [ -z "${PROD_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "Missing required secrets PROD_URL or CRON_SECRET"
+            exit 1
+          fi
+          http_code=$(curl -sS --max-time 60 -o /tmp/body.json -w "%{http_code}" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$PROD_URL/api/cron/refresh-feeds")
+          echo "HTTP $http_code"
+          cat /tmp/body.json || true
+          echo
+          if [ "$http_code" -ge 400 ]; then exit 1; fi

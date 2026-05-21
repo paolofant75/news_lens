@@ -1,6 +1,0 @@
-{
-  "crons": [
-    { "path": "/api/cron/refresh-feeds",     "schedule": "*/5 * * * *" },
-    { "path": "/api/cron/classify-articles", "schedule": "*/10 * * * *" }
-  ]
-}
