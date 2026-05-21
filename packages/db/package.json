@@ -7,6 +7,10 @@
   "exports": {
     ".": "./index.ts"
   },
+  "scripts": {
+    "postinstall": "prisma generate",
+    "prisma:generate": "prisma generate"
+  },
   "dependencies": {
     "@prisma/client": "^5.20.0"
   },
