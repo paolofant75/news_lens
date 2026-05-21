@@ -440,7 +440,184 @@ export default function AdminDashboard() {
           </div>
         </section>
 
+        {/* CLASSIFIER SHADOW COMPARISON — Legacy vs AI side-by-side per valutare qualita' AI
+            prima di flippare USE_AI_CLASSIFIER=true in produzione. */}
+        <ClassifierCompareSection />
+
       </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shadow comparison classifier (FASE B AI rollout)
+// ─────────────────────────────────────────────────────────────────────────────
+
+type CompareItem = {
+  id: string
+  source: string
+  title: string
+  sourceScope: string | undefined
+  sourceCountry: string | undefined
+  legacy: { globalImpactScore: number; isWorldEligible: boolean }
+  ai: { globalImpactScore: number; isWorldEligible: boolean; reasoning?: string; error?: string }
+  match: { eligibility: boolean; scoreDelta: number }
+}
+type CompareSummary = {
+  total: number
+  eligibilityMatchPct: number
+  avgAbsScoreDelta: number
+  aiAdmittedMorePct: number
+  aiAdmittedLessPct: number
+  aiFallbackCount: number
+  generatedAt: string
+}
+
+function ClassifierCompareSection() {
+  const [limit, setLimit] = useState(20)
+  const [running, setRunning] = useState(false)
+  const [summary, setSummary] = useState<CompareSummary | null>(null)
+  const [items, setItems] = useState<CompareItem[]>([])
+  const [error, setError] = useState<string | null>(null)
+
+  async function runComparison() {
+    setRunning(true); setError(null); setItems([]); setSummary(null)
+    try {
+      const { data: { session } } = await getSupabaseClient().auth.getSession()
+      if (!session?.access_token) { setError('non autenticato'); return }
+      const res = await fetch(`/api/admin/classifier-compare?limit=${limit}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const json = await res.json()
+      if (!res.ok) { setError(json.error ?? `HTTP ${res.status}`); return }
+      setSummary(json.summary)
+      setItems(json.items)
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setRunning(false)
+    }
+  }
+
+  return (
+    <section className="mb-10">
+      <div className="flex items-baseline justify-between flex-wrap gap-2 mb-3">
+        <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
+          Classifier shadow comparison · Legacy vs AI
+        </h2>
+        <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>
+          Costo stimato: ~${(limit * 0.0015).toFixed(3)} (DeepSeek, sample {limit})
+        </span>
+      </div>
+
+      <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="text-xs" style={{ color: 'var(--text-2)' }}>
+            Sample size:{' '}
+            <input
+              type="number"
+              value={limit}
+              min={1}
+              max={100}
+              onChange={(e) => setLimit(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
+              disabled={running}
+              className="ml-1 w-16 px-2 py-1 rounded font-mono text-xs"
+              style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text)' }}
+            />
+          </label>
+          <button
+            onClick={runComparison}
+            disabled={running}
+            className="px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-40"
+            style={{ background: 'var(--accent)', color: '#000' }}
+          >
+            {running ? 'Eseguendo…' : '▶ Esegui comparison'}
+          </button>
+          {error && <span className="text-xs" style={{ color: '#ef4444' }}>Errore: {error}</span>}
+          <span className="text-[10px] ml-auto" style={{ color: 'var(--text-3)' }}>
+            Bypassa USE_AI_CLASSIFIER. Cache 24h: le prime 20 chiamate ti costeranno; i refresh sono praticamente gratis.
+          </span>
+        </div>
+      </div>
+
+      {summary && (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+          <CompareStat label="Match eligibility"  value={`${summary.eligibilityMatchPct}%`} accent={summary.eligibilityMatchPct >= 80} fail={summary.eligibilityMatchPct < 50} />
+          <CompareStat label="Δ score medio"      value={summary.avgAbsScoreDelta.toFixed(1)} />
+          <CompareStat label="AI ammette + del Legacy" value={`${summary.aiAdmittedMorePct}%`} />
+          <CompareStat label="AI ammette − del Legacy" value={`${summary.aiAdmittedLessPct}%`} />
+          <CompareStat label="AI fallback (errori)"   value={String(summary.aiFallbackCount)} fail={summary.aiFallbackCount > 0} />
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className="rounded-xl overflow-x-auto" style={{ border: '1px solid var(--border)' }}>
+          <table className="w-full text-xs min-w-[900px]">
+            <thead style={{ background: 'var(--bg-card)' }}>
+              <tr>
+                <th className="text-center px-3 py-2 w-8" title="Match eligibility tra Legacy e AI">●</th>
+                <th className="text-left px-3 py-2">Articolo</th>
+                <th className="text-left px-3 py-2">Source · scope</th>
+                <th className="text-center px-3 py-2">Legacy score</th>
+                <th className="text-center px-3 py-2">AI score</th>
+                <th className="text-center px-3 py-2">Δ</th>
+                <th className="text-center px-3 py-2">Legacy elig</th>
+                <th className="text-center px-3 py-2">AI elig</th>
+                <th className="text-left px-3 py-2">AI reasoning</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((it) => (
+                <tr key={it.id} style={{ borderTop: '1px solid var(--border)' }}>
+                  <td className="px-3 py-2 text-center">
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full ${it.match.eligibility ? 'bg-green-500' : 'bg-red-500'}`}
+                      title={it.match.eligibility ? 'concordano' : 'discordano'}
+                    />
+                  </td>
+                  <td className="px-3 py-2" style={{ color: 'var(--text)' }}>
+                    <p className="line-clamp-2 font-semibold">{it.title}</p>
+                  </td>
+                  <td className="px-3 py-2 text-[10px]" style={{ color: 'var(--text-2)' }}>
+                    <strong>{it.source}</strong>
+                    <span style={{ color: 'var(--text-3)' }}> · {it.sourceScope ?? '?'} · {it.sourceCountry ?? '?'}</span>
+                  </td>
+                  <td className="px-3 py-2 text-center font-mono" style={{ color: 'var(--text-2)' }}>{it.legacy.globalImpactScore}</td>
+                  <td className="px-3 py-2 text-center font-mono" style={{ color: 'var(--text)' }}>{it.ai.globalImpactScore}</td>
+                  <td className="px-3 py-2 text-center font-mono" style={{ color: Math.abs(it.match.scoreDelta) >= 4 ? '#ef4444' : Math.abs(it.match.scoreDelta) >= 2 ? '#eab308' : 'var(--text-3)' }}>
+                    {it.match.scoreDelta > 0 ? `+${it.match.scoreDelta}` : it.match.scoreDelta}
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    <span style={{ color: it.legacy.isWorldEligible ? '#22c55e' : '#ef4444' }}>{it.legacy.isWorldEligible ? '✓' : '✗'}</span>
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    <span style={{ color: it.ai.isWorldEligible ? '#22c55e' : '#ef4444' }}>{it.ai.isWorldEligible ? '✓' : '✗'}</span>
+                  </td>
+                  <td className="px-3 py-2 text-[10px] max-w-[280px]" style={{ color: 'var(--text-3)' }}>
+                    {it.ai.error ? <span style={{ color: '#ef4444' }}>⚠ {it.ai.error}</span> : (it.ai.reasoning ?? '—')}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {!summary && !running && (
+        <p className="text-xs text-center py-6" style={{ color: 'var(--text-3)' }}>
+          Premi <strong>▶ Esegui comparison</strong> per confrontare la classificazione AI con quella Legacy su un sample del pool corrente.
+        </p>
+      )}
+    </section>
+  )
+}
+
+function CompareStat({ label, value, accent, fail }: { label: string; value: string; accent?: boolean; fail?: boolean }) {
+  const color = fail ? '#ef4444' : accent ? '#22c55e' : 'var(--text)'
+  return (
+    <div className="rounded-xl p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--text-3)' }}>{label}</p>
+      <p className="text-lg font-bold font-mono" style={{ color }}>{value}</p>
     </div>
   )
 }
