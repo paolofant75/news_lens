@@ -1,6 +1,6 @@
 import Parser from 'rss-parser'
 import { classifyArticle, geoClassify } from './classify'
-import { cacheGet, cacheSet, cacheDel } from './redis'
+import { cacheGet, cacheSet, cacheSetMany, cacheDel } from './redis'
 import { articleId } from './encode'
 // GDELT Project: fonte news aggiuntiva con query tematiche (15 min refresh)
 import { fetchGdeltArticles } from './gdelt'
@@ -582,10 +582,15 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
   const articles = dedupSameStory(sorted)
 
   // Indicizza ogni articolo su Redis per lookup veloce dalla pagina /articolo/[id]
-  // (la ricerca Veritas usera' il titolo nella lingua nativa della fonte, non la traduzione)
-  for (const a of articles) {
-    cacheSet(`art:${a.id}`, JSON.stringify(a), ARTICLE_BY_ID_TTL).catch(() => {})
-  }
+  // Bulk via Upstash pipeline: una singola HTTP request per tutti i SET.
+  // Il vecchio loop senza await apriva un socket per articolo (~500) causando EMFILE.
+  await cacheSetMany(
+    articles.map((a) => ({
+      key: `art:${a.id}`,
+      value: JSON.stringify(a),
+      ttlSeconds: ARTICLE_BY_ID_TTL,
+    })),
+  ).catch(() => {})
 
   // Flush stato per-feed: l'admin dashboard lo legge per mostrare ultimo fetch ed errori
   cacheSet(FEEDS_STATUS_KEY, JSON.stringify(perFeedStatus), FEEDS_STATUS_TTL).catch(() => {})

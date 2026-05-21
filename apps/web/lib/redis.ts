@@ -20,6 +20,17 @@ export async function cacheSet(key: string, value: string, ttlSeconds = 86400): 
   await redisCall([['SET', key, value, 'EX', ttlSeconds]])
 }
 
+// Bulk SET: invia tutti i comandi in una singola HTTP request (Upstash pipeline).
+// Usato quando si devono indicizzare centinaia di chiavi (es. art:<id>) per evitare
+// di aprire un socket per ogni SET — un singolo loop senza await causava EMFILE.
+export async function cacheSetMany(
+  items: Array<{ key: string; value: string; ttlSeconds: number }>,
+): Promise<void> {
+  if (!items.length) return
+  const commands = items.map(({ key, value, ttlSeconds }) => ['SET', key, value, 'EX', ttlSeconds])
+  await redisCall(commands)
+}
+
 export async function cacheMGet(keys: string[]): Promise<(string | null)[]> {
   if (!keys.length) return []
   const [result] = await redisCall([['MGET', ...keys]])
