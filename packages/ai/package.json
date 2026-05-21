@@ -5,7 +5,8 @@
   "main": "./src/index.ts",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./category-classifier": "./agents/src/category-classifier/index.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

@@ -127,6 +127,18 @@ export type Article = {
   sourceScope?: 'local' | 'national' | 'international'
   sourceCountry?: string
   sourceGlobalTier?: 1 | 2 | 3
+  // ─── Campi AI (popolati dal cron /api/cron/classify-articles) ──────────────
+  // Tutti opzionali per retrocompatibilita': la cache Redis nlv_articles_v5 ha
+  // articoli pre-AI per ~ore dopo il deploy. Quando l'AI flag e' off, questi
+  // campi sono sempre undefined.
+  aiCategory?: string
+  aiCategoriesSecondary?: string[]
+  aiGeoScope?: string
+  aiGlobalImpactScore?: number
+  aiGlobalImpactReasoning?: string
+  aiWorldEligible?: boolean
+  aiConfidence?: number
+  aiFlags?: string[]
 }
 
 // Scope+globalTier per il filtro Mondo (vedi lib/world-filter.ts):

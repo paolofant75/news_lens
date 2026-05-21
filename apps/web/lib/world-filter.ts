@@ -13,6 +13,8 @@
 // il fetch con policy editoriale che evolvera' nel tempo.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { useAIClassifier } from './classifier-mode'
+
 // Subset di Article che basta a tutte le decisioni del filtro Mondo.
 // Le funzioni qui accettano qualsiasi T che soddisfi questo shape (generic safe
 // per l'integrazione con geoPersonalizedArticles in lib/trends.ts, che usa proprio
@@ -66,10 +68,18 @@ export function globalImpactScoreLegacy(a: WorldFilterShape): number {
 }
 
 /**
- * Alias del nome originale: tutti i consumer attuali continuano a importare
- * `globalImpactScore` invariato. Lo switch a AI passera' da classifier-mode.ts.
+ * Score "live" di impatto globale. Router AI/Legacy con fallback automatico:
+ *   - Se USE_AI_CLASSIFIER=true E l'articolo ha aiGlobalImpactScore prepopolato
+ *     (dal cron classify-articles) -> usa l'AI score.
+ *   - Altrimenti -> Legacy (anche se il flag e' true: NO crash se il cron non
+ *     ha ancora classificato quell'articolo, il feed resta vivo).
  */
-export const globalImpactScore = globalImpactScoreLegacy
+export function globalImpactScore(a: WorldFilterShape & { aiGlobalImpactScore?: number }): number {
+  if (useAIClassifier() && typeof a.aiGlobalImpactScore === 'number') {
+    return a.aiGlobalImpactScore
+  }
+  return globalImpactScoreLegacy(a)
+}
 
 /**
  * Decide se un articolo puo' apparire nel feed Mondo.
@@ -95,10 +105,18 @@ export function isWorldEligibleLegacy(a: WorldFilterShape): boolean {
 }
 
 /**
- * Alias del nome originale: tutti i consumer attuali continuano a importare
- * `isWorldEligible` invariato. Lo switch a AI passera' da classifier-mode.ts.
+ * Decisione "live" di world eligibility. Router AI/Legacy con fallback:
+ *   - Se USE_AI_CLASSIFIER=true E aiWorldEligible e' un boolean prepopolato
+ *     -> usa l'AI eligibility (decisa via globalImpactScore AI >= 6 o
+ *     internazionalita' oggettiva).
+ *   - Altrimenti -> Legacy (fallback automatico, mai feed vuoto).
  */
-export const isWorldEligible = isWorldEligibleLegacy
+export function isWorldEligible(a: WorldFilterShape & { aiWorldEligible?: boolean }): boolean {
+  if (useAIClassifier() && typeof a.aiWorldEligible === 'boolean') {
+    return a.aiWorldEligible
+  }
+  return isWorldEligibleLegacy(a)
+}
 
 /**
  * Soft cap per chiave (tipicamente sourceCountry): scorre gli articoli in ordine
@@ -124,31 +142,16 @@ export function capByCountry<T>(items: T[], cap: number, key: (x: T) => string):
  * L'ordine in input dovrebbe essere gia' rilevanza-DESC (oppure pubDate-DESC),
  * cosi' il cap-per-paese scarta gli articoli meno rilevanti del paese saturo.
  *
- * Diventa async per supportare il classifier AI (USE_AI_CLASSIFIER=true): in
- * quel caso fa una pre-classificazione batch via DeepSeek (cached) e poi
- * filtra usando i risultati. In modalita' Legacy il filtraggio resta sync
- * sotto e l'await e' praticamente gratis (microtask boundary).
- *
- * Il toggle e' interno: i consumer chiamano sempre lo stesso simbolo.
+ * Async per signature stabilita' (futuri agenti potrebbero richiedere I/O), ma
+ * internamente sync: il routing AI/Legacy avviene dentro isWorldEligible che
+ * legge campi prepopolati dal cron classify-articles (vedi packages/ai/agents).
+ * Quando USE_AI_CLASSIFIER=false la pipeline e' interamente Legacy/sync.
  */
-export async function applyWorldFilter<T extends WorldFilterShape>(
+export async function applyWorldFilter<T extends WorldFilterShape & { aiWorldEligible?: boolean }>(
   articles: T[],
   opts?: { capPerCountry?: number },
 ): Promise<T[]> {
-  // Import dinamico per evitare cicli (world-filter-ai importa Legacy da qui).
-  // Anche per tree-shaking: in build legacy il bundler puo' droppare ai-client.
-  const { useAIClassifier } = await import('./classifier-mode')
-
-  let eligibilityFn: (a: T) => boolean
-  if (useAIClassifier()) {
-    const { classifyManyAI } = await import('./world-filter-ai')
-    const map = await classifyManyAI(articles)
-    eligibilityFn = (a) => map.get(a)?.isWorldEligible ?? isWorldEligibleLegacy(a)
-  } else {
-    eligibilityFn = isWorldEligible  // alias di isWorldEligibleLegacy
-  }
-
-  const filtered = articles.filter(eligibilityFn)
+  const filtered = articles.filter(isWorldEligible)
   return capByCountry(filtered, opts?.capPerCountry ?? 8, (a) => a.sourceCountry ?? '')
 }
 
