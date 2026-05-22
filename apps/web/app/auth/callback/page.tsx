@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { getSupabaseClient } from '../../../lib/supabase-client'
 import Link from 'next/link'
+import { IconLink } from '../../../components/icons'
 
 export default function AuthCallbackPage() {
   const searchParams = useSearchParams()
@@ -53,7 +54,9 @@ export default function AuthCallbackPage() {
 
         {status === 'error' && (
           <div>
-            <div className="text-4xl mb-4">🔗</div>
+            <div className="flex justify-center mb-4" style={{ color: 'var(--text-3)' }}>
+              <IconLink size={36} />
+            </div>
             <h1 className="text-xl font-bold mb-2" style={{ color: 'var(--text)' }}>
               Link scaduto o non valido
             </h1>

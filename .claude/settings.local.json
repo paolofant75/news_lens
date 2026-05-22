@@ -17,7 +17,16 @@
       "Bash(npm list *)",
       "Bash(node -e ' *)",
       "PowerShell(cd \"d:\\\\New_lens_veritas\\\\apps\\\\web\"; npm install @supabase/supabase-js --legacy-peer-deps; Write-Output \"DONE:$LASTEXITCODE\")",
-      "Bash(node -e \"require\\('@supabase/supabase-js'\\); console.log\\('OK'\\)\")"
+      "Bash(node -e \"require\\('@supabase/supabase-js'\\); console.log\\('OK'\\)\")",
+      "Bash(Get-ChildItem -Path \"e:\\\\Lens Veritas\\\\news_lens\\\\apps\\\\web\\\\app\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(Test-Path \"e:\\\\Lens Veritas\\\\news_lens\\\\apps\\\\web\\\\public\\\\robots.txt\")",
+      "Bash(Write-Output)",
+      "PowerShell($env:NODE_OPTIONS='--use-system-ca'; pnpm install 2>&1 | Tail -n 80)",
+      "PowerShell($env:NODE_OPTIONS='--use-system-ca'; pnpm install)",
+      "Bash(tail -n 30 \"/c/Users/user/AppData/Local/Temp/claude/e--Lens-Veritas-news-lens/506daf32-c1de-4fec-a128-41fb0055f3e3/tasks/bpu5fcfbx.output\")",
+      "Read(//c/Users/user/AppData/Local/Temp/claude/e--Lens-Veritas-news-lens/506daf32-c1de-4fec-a128-41fb0055f3e3/tasks/**)",
+      "PowerShell($env:NODE_OPTIONS='--use-system-ca'; pnpm --filter=web dev)"
     ]
   }
 }

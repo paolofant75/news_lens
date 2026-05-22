@@ -5,6 +5,7 @@ import { translateBatch, translateStatsBatch } from '../../lib/translate'
 import PageLayout from '../../components/page-layout'
 import Link from 'next/link'
 import Data360Insights from '../../components/data360-insights'
+import { IconLightbulb, IconScale } from '../../components/icons'
 
 export const revalidate = 86400 // 24h
 
@@ -100,8 +101,8 @@ export default async function StatsPage() {
               </div>
 
               {/* Fatto curioso */}
-              <p className="text-xs mb-4 leading-relaxed" style={{ color: 'var(--text-2)' }}>
-                💡 {stat.curiosity}
+              <p className="inline-flex items-start gap-1.5 text-xs mb-4 leading-relaxed" style={{ color: 'var(--text-2)' }}>
+                <IconLightbulb size={14} className="mt-0.5 flex-shrink-0 opacity-70" /> <span>{stat.curiosity}</span>
               </p>
 
               {/* Notizie correlate */}
@@ -140,9 +141,9 @@ export default async function StatsPage() {
             Analizza l&apos;argomento con Veritas per vedere come diverse fonti lo raccontano
           </p>
           <Link href="/veritas"
-            className="inline-block px-5 py-2 rounded-xl text-sm font-semibold text-black transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold text-black transition-opacity hover:opacity-80"
             style={{ background: 'var(--accent)' }}>
-            Apri Veritas ⚖️
+            Apri Veritas <IconScale size={14} />
           </Link>
         </div>
 

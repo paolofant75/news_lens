@@ -1,4 +1,5 @@
 import type { SourceReliabilityScore } from '../lib/intelligence'
+import { IconCheck, IconAlert } from './icons'
 
 type Props = {
   reliability?: number
@@ -9,11 +10,13 @@ type Props = {
 
 type Classification = 'verified' | 'neutral' | 'unverified' | 'propaganda_risk'
 
-const CONFIG: Record<Classification, { label: string; color: string; icon: string; bg: string }> = {
-  verified:        { label: 'Verificato', color: '#22c55e', icon: '✓', bg: 'rgba(34,197,94,0.12)' },
-  neutral:         { label: '',           color: '#6b7280', icon: '',  bg: 'transparent'           },
-  unverified:      { label: 'Bassa aff.', color: '#94a3b8', icon: '–', bg: 'rgba(148,163,184,0.1)' },
-  propaganda_risk: { label: 'Propaganda', color: '#ef4444', icon: '⚠', bg: 'rgba(239,68,68,0.12)' },
+type IconComp = (p: { size?: number; className?: string }) => React.ReactElement
+
+const CONFIG: Record<Classification, { label: string; color: string; Icon: IconComp | null; bg: string }> = {
+  verified:        { label: 'Verificato', color: '#22c55e', Icon: IconCheck, bg: 'rgba(34,197,94,0.12)' },
+  neutral:         { label: '',           color: '#6b7280', Icon: null,      bg: 'transparent'           },
+  unverified:      { label: 'Bassa aff.', color: '#94a3b8', Icon: null,      bg: 'rgba(148,163,184,0.1)' },
+  propaganda_risk: { label: 'Propaganda', color: '#ef4444', Icon: IconAlert, bg: 'rgba(239,68,68,0.12)' },
 }
 
 function classify(reliability?: number, bias?: string, score?: SourceReliabilityScore): Classification {
@@ -34,13 +37,13 @@ const SUB_SCORES: { key: keyof SourceReliabilityScore; label: string }[] = [
 
 export default function SourceReliabilityBadge({ reliability, bias, score, compact = false }: Props) {
   const cls = classify(reliability, bias, score)
-  const { label, color, icon, bg } = CONFIG[cls]
+  const { label, color, Icon, bg } = CONFIG[cls]
 
   if (compact) {
     if (cls === 'neutral') {
       return (
-        <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>
-          ★ {reliability?.toFixed(1) ?? '?'}
+        <span className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>
+          rel {reliability?.toFixed(1) ?? '?'}
         </span>
       )
     }
@@ -50,7 +53,7 @@ export default function SourceReliabilityBadge({ reliability, bias, score, compa
         style={{ background: bg, color, border: `1px solid ${color}33` }}
         title={score ? `Affidabilità: ${score.overall}/100` : `Reliability: ${reliability ?? '?'}/10`}
       >
-        {icon && <span>{icon}</span>}
+        {Icon && <Icon size={10} />}
         {label && <span>{label}</span>}
       </span>
     )
@@ -60,7 +63,7 @@ export default function SourceReliabilityBadge({ reliability, bias, score, compa
     <div className="rounded-lg p-3" style={{ background: bg, border: `1px solid ${color}33` }}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-bold flex items-center gap-1.5" style={{ color }}>
-          <span>{icon}</span>
+          {Icon && <Icon size={12} />}
           <span>{label}</span>
         </span>
         {score && (

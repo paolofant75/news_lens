@@ -4,6 +4,7 @@ import { cacheGet, cacheSet, cacheSetMany, cacheDel } from './redis'
 import { articleId } from './encode'
 // GDELT Project: fonte news aggiuntiva con query tematiche (15 min refresh)
 import { fetchGdeltArticles } from './gdelt'
+import { ITALIAN_FEEDS } from './feeds-it'
 
 // v5: +75 feed (ANSA estese + La Presse Canada), invalida cache post-deploy
 const ARTICLES_FRESH_KEY = 'nlv_articles_v5'

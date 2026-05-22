@@ -12,6 +12,7 @@ import AudioReader from '../../../components/audio-reader'
 import ArticleWithCitations from '../../../components/article-with-citations'
 import ProspettiveCard from '../../../components/prospettive-card'
 import ConsentReopenButton from '../../../components/consent-reopen-button'
+import { IconSparkle, IconSearch, IconScale, IconNewspaper, IconCheck } from '../../../components/icons'
 
 function BiasBar({ value, color }: { value: number; color: string }) {
   return (
@@ -81,7 +82,9 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
         <div className="max-w-xl text-center px-6">
-          <div className="text-5xl mb-6">✦</div>
+          <div className="flex justify-center mb-6" style={{ color: 'var(--accent)' }}>
+            <IconSparkle size={48} />
+          </div>
           <h1 className="text-xl font-bold mb-3" style={{ fontFamily: 'var(--font-h)' }}>
             Analisi Veritas richiede il consenso AI
           </h1>
@@ -115,7 +118,9 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
         <div className="max-w-xl text-center px-6">
-          <div className="text-5xl mb-6">🔍</div>
+          <div className="flex justify-center mb-6" style={{ color: 'var(--text-3)' }}>
+            <IconSearch size={48} />
+          </div>
           <h1 className="text-xl font-bold mb-3" style={{ fontFamily: 'var(--font-h)' }}>Nessuna fonte trovata</h1>
           <p className="text-sm mb-2" style={{ color: 'var(--text-2)' }}>
             Le API di notizie non hanno restituito risultati per:
@@ -132,9 +137,9 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
               ← Torna alle notizie
             </a>
             <a href={`/veritas?q=${encodeURIComponent(searchQuery)}`}
-              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-80"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-80"
               style={{ background: 'var(--accent)' }}>
-              Cerca su Veritas ⚖️
+              Cerca su Veritas <IconScale size={14} />
             </a>
           </div>
         </div>
@@ -235,14 +240,14 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
           <div className="lg:col-span-3">
             <div className="rounded-2xl p-7 h-full" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)' }}>
               <div className="flex items-center gap-3 mb-5">
-                <span className="text-2xl">📰</span>
+                <IconNewspaper size={22} className="opacity-80" />
                 <div>
                   <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>Articolo Consolidato Veritas</h2>
                   <p className="text-xs" style={{ color: 'var(--text-3)' }}>
                     Sintesi su cui {totalSources} {totalSources === 1 ? 'fonte converge' : 'fonti convergono'} · Le fonti di ogni affermazione sono indicate come pillole sotto ogni paragrafo
                   </p>
                   <p className="text-[10px] mt-1 px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'var(--bg-s)', color: 'var(--text-3)', border: '1px solid var(--border)' }}>
-                    ✦ Generato da AI (Claude) · EU AI Act art. 50
+                    <IconSparkle size={10} /> Generato da AI (Claude) · EU AI Act art. 50
                   </p>
                   <div className="mt-2">
                     <AudioReader text={result.articolo_consolidato} lang={lang} />
@@ -299,7 +304,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
                   {/* Badge posizione */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      {i === 0 && <span className="text-xs px-2 py-0.5 rounded-full bg-green-800 text-green-200">✓ Migliore</span>}
+                      {i === 0 && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-green-800 text-green-200"><IconCheck size={11} /> Migliore</span>}
                       <span className="font-semibold text-sm text-white">{src.source}</span>
                     </div>
                     <a href={src.link} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:underline">

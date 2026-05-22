@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { COUNTRIES, REGION_LABELS } from '../lib/countries'
+import { IconGlobe, IconClose, IconSearch, IconScale } from './icons'
 
 type Article = { id: string; title: string; link: string; pubDate: string; source: string; summary: string; category: string }
 
@@ -51,7 +52,7 @@ export default function CountryPanel() {
         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-opacity hover:opacity-80 mt-1"
         style={{ color: 'var(--accent)', border: '1px solid var(--border)', background: 'var(--bg-card)' }}
       >
-        🌐 Cerca per paese
+        <IconGlobe size={14} /> Cerca per paese
       </button>
 
       {open && (
@@ -66,10 +67,10 @@ export default function CountryPanel() {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-              <h2 className="font-bold text-lg" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
-                🌐 Notizie per paese
+              <h2 className="inline-flex items-center gap-2 font-bold text-lg" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
+                <IconGlobe size={18} /> Notizie per paese
               </h2>
-              <button onClick={() => setOpen(false)} className="text-xl hover:opacity-60" style={{ color: 'var(--text-3)' }}>✕</button>
+              <button onClick={() => setOpen(false)} className="hover:opacity-60" style={{ color: 'var(--text-3)' }} aria-label="Chiudi"><IconClose size={18} /></button>
             </div>
 
             <div className="flex flex-1 overflow-hidden">
@@ -113,7 +114,7 @@ export default function CountryPanel() {
                 {!selected && (
                   <div className="flex items-center justify-center h-full" style={{ color: 'var(--text-3)' }}>
                     <div className="text-center">
-                      <div className="text-4xl mb-3">🌍</div>
+                      <div className="flex justify-center mb-3"><IconGlobe size={36} /></div>
                       <p className="text-sm">Seleziona un paese per vedere le notizie</p>
                     </div>
                   </div>
@@ -122,7 +123,7 @@ export default function CountryPanel() {
                 {loading && (
                   <div className="flex items-center justify-center h-full animate-pulse" style={{ color: 'var(--text-3)' }}>
                     <div className="text-center">
-                      <div className="text-3xl mb-2">🔍</div>
+                      <div className="flex justify-center mb-2"><IconSearch size={28} /></div>
                       <p className="text-sm">Ricerca notizie per {countryName || '...'}...</p>
                     </div>
                   </div>
@@ -155,10 +156,10 @@ export default function CountryPanel() {
                           <div className="flex gap-3">
                             <a
                               href={`/articolo/${a.id}`}
-                              className="text-xs transition-opacity hover:opacity-70"
+                              className="inline-flex items-center gap-1 text-xs transition-opacity hover:opacity-70"
                               style={{ color: 'var(--accent)' }}
                             >
-                              ⚖️ Veritas
+                              <IconScale size={11} /> Veritas
                             </a>
                             <a
                               href={a.link}

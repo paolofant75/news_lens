@@ -117,7 +117,7 @@ const FEATURES: Feature[] = [
 
 export default function FeaturePreview() {
   return (
-    <section className="fade-in" style={{ paddingTop: 96, paddingBottom: 96 }}>
+    <section id="features" className="fade-in" style={{ paddingTop: 96, paddingBottom: 96 }}>
       <div className="mx-auto px-6" style={{ maxWidth: 1200 }}>
 
         <p

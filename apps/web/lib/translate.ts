@@ -3,14 +3,14 @@ import { aiComplete } from './ai-client'
 import crypto from 'crypto'
 
 export const SUPPORTED_LANGS = [
-  { code: 'it', label: 'Italiano',   flag: '🇮🇹' },
-  { code: 'en', label: 'English',    flag: '🇬🇧' },
-  { code: 'fr', label: 'Français',   flag: '🇫🇷' },
-  { code: 'de', label: 'Deutsch',    flag: '🇩🇪' },
-  { code: 'es', label: 'Español',    flag: '🇪🇸' },
-  { code: 'zh', label: '中文',        flag: '🇨🇳' },
-  { code: 'hi', label: 'हिन्दी',       flag: '🇮🇳' },
-  { code: 'ar', label: 'العربية',    flag: '🇸🇦' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'en', label: 'English' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'es', label: 'Español' },
+  { code: 'zh', label: '中文' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'ar', label: 'العربية' },
 ]
 
 export const LANG_NAMES: Record<string, string> = {

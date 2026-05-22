@@ -107,10 +107,10 @@ export const COUNTRIES: Country[] = [
 ]
 
 export const REGION_LABELS: Record<string, string> = {
-  'europa':        '🇪🇺 Europa',
-  'americhe':      '🌎 Americhe',
-  'medio-oriente': '🕌 Medio Oriente',
-  'asia':          '🌏 Asia',
-  'africa':        '🌍 Africa',
-  'oceania':       '🌊 Oceania',
+  'europa':        'Europa',
+  'americhe':      'Americhe',
+  'medio-oriente': 'Medio Oriente',
+  'asia':          'Asia',
+  'africa':        'Africa',
+  'oceania':       'Oceania',
 }

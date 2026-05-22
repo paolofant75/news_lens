@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { getSupabaseClient } from '../lib/supabase-client'
+import { IconClose } from './icons'
 
 type Mode = 'login' | 'register'
 
@@ -41,7 +42,7 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
       <div className="w-full max-w-sm rounded-2xl p-8 relative" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-xl opacity-50 hover:opacity-100" style={{ color: 'var(--text)' }}>✕</button>
+        <button onClick={onClose} className="absolute top-4 right-4 opacity-50 hover:opacity-100" style={{ color: 'var(--text)' }} aria-label="Chiudi"><IconClose size={18} /></button>
 
         <h2 className="text-xl font-bold mb-1" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
           {mode === 'login' ? 'Accedi' : 'Crea account'}

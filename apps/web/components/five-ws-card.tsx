@@ -2,13 +2,16 @@
 
 import type { FiveWs } from '../lib/veritas'
 import InfographicDownload from './infographic-download'
+import { IconUser, IconPin, IconMapPin, IconClock, IconLightbulb } from './icons'
 
-const LABELS: { key: keyof FiveWs; icon: string; label: string }[] = [
-  { key: 'who',   icon: '👤', label: 'Who' },
-  { key: 'what',  icon: '📌', label: 'What' },
-  { key: 'where', icon: '📍', label: 'Where' },
-  { key: 'when',  icon: '🕐', label: 'When' },
-  { key: 'why',   icon: '💡', label: 'Why' },
+type IconComp = (p: { size?: number; className?: string }) => React.ReactElement
+
+const LABELS: { key: keyof FiveWs; Icon: IconComp; label: string }[] = [
+  { key: 'who',   Icon: IconUser,      label: 'Who' },
+  { key: 'what',  Icon: IconPin,       label: 'What' },
+  { key: 'where', Icon: IconMapPin,    label: 'Where' },
+  { key: 'when',  Icon: IconClock,     label: 'When' },
+  { key: 'why',   Icon: IconLightbulb, label: 'Why' },
 ]
 
 type Props = {
@@ -33,7 +36,7 @@ export default function FiveWsCard({ five_ws, title, palette }: Props) {
 
       {/* Grid 5Ws */}
       <div className="grid grid-cols-1 sm:grid-cols-5" style={{ background: 'var(--bg-card)' }}>
-        {LABELS.map(({ key, icon, label }, i) => (
+        {LABELS.map(({ key, Icon, label }, i) => (
           <div
             key={key}
             className="p-4"
@@ -42,9 +45,9 @@ export default function FiveWsCard({ five_ws, title, palette }: Props) {
               borderBottom: '0',
             }}
           >
-            <div className="flex items-center gap-1.5 mb-2">
-              <span className="text-sm">{icon}</span>
-              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--accent)' }}>
+            <div className="flex items-center gap-1.5 mb-2" style={{ color: 'var(--accent)' }}>
+              <Icon size={14} />
+              <span className="text-xs font-bold uppercase tracking-widest">
                 {label}
               </span>
             </div>

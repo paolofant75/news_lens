@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { IconSettings, IconClose } from './icons'
 
 const PALETTES = [
   { id: 'noir',   label: 'Noir',   bg: '#0a0a0a', text: '#f1f1f1' },
@@ -77,10 +78,11 @@ export default function TweaksPanel({ palette, font }: Props) {
       <button
         onClick={() => setOpen(true)}
         title="Tweaks"
-        className="p-2 rounded-lg hover:opacity-80 transition-opacity text-sm"
+        aria-label="Tweaks"
+        className="p-2 rounded-lg hover:opacity-80 transition-opacity inline-flex items-center"
         style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text)' }}
       >
-        ⚙
+        <IconSettings size={16} />
       </button>
 
       {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
@@ -92,7 +94,7 @@ export default function TweaksPanel({ palette, font }: Props) {
         >
           <div className="flex items-center justify-between">
             <span className="font-semibold text-sm">Personalizza</span>
-            <button onClick={() => setOpen(false)} className="hover:opacity-80 text-lg leading-none" style={{ color: 'var(--text-3)' }}>✕</button>
+            <button onClick={() => setOpen(false)} className="hover:opacity-80" style={{ color: 'var(--text-3)' }} aria-label="Chiudi"><IconClose size={16} /></button>
           </div>
 
           {/* Sfondo */}

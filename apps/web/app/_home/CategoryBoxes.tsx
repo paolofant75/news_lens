@@ -9,17 +9,26 @@ import { fetchArticles, type Article } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { sortByPreferredLang } from '../../lib/lang-priority'
 import { applyWorldFilter } from '../../lib/world-filter'
+import {
+  IconGlobe,
+  IconNewspaper,
+  IconLandmark,
+  IconTrending,
+  IconBall,
+  IconCpu,
+} from '../../components/icons'
 
-type BoxDef = { slug: string; label: string; icon: string }
+type IconComp = (p: { size?: number; className?: string }) => React.ReactElement
+type BoxDef = { slug: string; label: string; Icon: IconComp }
 
 // Ordine richiesto dall'utente: Esteri -> Cronaca -> Politica -> Economia -> Sport -> Tecnologia
 const BOXES: BoxDef[] = [
-  { slug: 'esteri',     label: 'Esteri',     icon: '🌍' },
-  { slug: 'cronaca',    label: 'Cronaca',    icon: '📰' },
-  { slug: 'politica',   label: 'Politica',   icon: '🏛️' },
-  { slug: 'economia',   label: 'Economia',   icon: '📈' },
-  { slug: 'sport',      label: 'Sport',      icon: '⚽' },
-  { slug: 'tecnologia', label: 'Tecnologia', icon: '🤖' },
+  { slug: 'esteri',     label: 'Esteri',     Icon: IconGlobe },
+  { slug: 'cronaca',    label: 'Cronaca',    Icon: IconNewspaper },
+  { slug: 'politica',   label: 'Politica',   Icon: IconLandmark },
+  { slug: 'economia',   label: 'Economia',   Icon: IconTrending },
+  { slug: 'sport',      label: 'Sport',      Icon: IconBall },
+  { slug: 'tecnologia', label: 'Tecnologia', Icon: IconCpu },
 ]
 
 const ARTICLES_PER_BOX = 4
@@ -87,7 +96,7 @@ export default async function CategoryBoxes() {
             {/* Header del box: categoria + count + "Vedi tutto" */}
             <header className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2">
-                <span className="text-base leading-none">{box.icon}</span>
+                <box.Icon size={16} className="opacity-70" />
                 <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--text)', fontFamily: 'var(--font-h)' }}>
                   {box.label}
                 </h2>

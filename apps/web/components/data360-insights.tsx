@@ -2,27 +2,34 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import {
+  IconSwords, IconTrending, IconLeaf, IconGlobe, IconHospital, IconSatellite,
+  IconCoins, IconBook, IconZap, IconVote, IconBarChart, IconLink as IconLinkSvg,
+  IconScale, IconClose, IconSearch,
+} from './icons'
+
+type IconComp = (p: { size?: number; className?: string }) => React.ReactElement
 
 type Indicator = { idno: string; name: string; database_id: string }
 type DataPoint  = { TIME_PERIOD: string; OBS_VALUE: string }
 
-const TOPICS = [
-  { label: 'Spesa militare',  icon: '⚔️', q: 'military expenditure defense arms' },
-  { label: 'Inflazione',      icon: '📈', q: 'inflation consumer prices CPI' },
-  { label: 'Clima & CO₂',    icon: '🌱', q: 'climate emissions carbon dioxide temperature' },
-  { label: 'Rifugiati',       icon: '🌍', q: 'refugees displacement migration asylum' },
-  { label: 'Sanità',          icon: '🏥', q: 'health mortality disease hospital' },
-  { label: 'Tecnologia',      icon: '📡', q: 'technology internet innovation digital patents' },
-  { label: 'Povertà',         icon: '💰', q: 'poverty inequality income wages' },
-  { label: 'Istruzione',      icon: '📚', q: 'education literacy school enrollment' },
-  { label: 'Energia',         icon: '⚡', q: 'energy renewable electricity access' },
-  { label: 'Democrazia',      icon: '🗳️', q: 'democracy governance corruption rule of law' },
+const TOPICS: { label: string; Icon: IconComp; q: string }[] = [
+  { label: 'Spesa militare',  Icon: IconSwords,    q: 'military expenditure defense arms' },
+  { label: 'Inflazione',      Icon: IconTrending,  q: 'inflation consumer prices CPI' },
+  { label: 'Clima & CO₂',     Icon: IconLeaf,      q: 'climate emissions carbon dioxide temperature' },
+  { label: 'Rifugiati',       Icon: IconGlobe,     q: 'refugees displacement migration asylum' },
+  { label: 'Sanità',          Icon: IconHospital,  q: 'health mortality disease hospital' },
+  { label: 'Tecnologia',      Icon: IconSatellite, q: 'technology internet innovation digital patents' },
+  { label: 'Povertà',         Icon: IconCoins,     q: 'poverty inequality income wages' },
+  { label: 'Istruzione',      Icon: IconBook,      q: 'education literacy school enrollment' },
+  { label: 'Energia',         Icon: IconZap,       q: 'energy renewable electricity access' },
+  { label: 'Democrazia',      Icon: IconVote,      q: 'democracy governance corruption rule of law' },
 ]
 
-const CAPABILITIES = [
-  { icon: '📊', title: 'Timeline Storica',   desc: '50+ anni di dati per ogni indicatore. Visualizza trend e punti di svolta storici.' },
-  { icon: '🔗', title: 'Multi-Indicatore',   desc: 'Confronta metriche su 200+ paesi. Dal PIL alla mortalità, tutto in un workspace.' },
-  { icon: '⚖️', title: 'Contesto Veritas',   desc: 'Ogni indicatore è collegabile all\'analisi AI di Veritas per il contesto narrativo.' },
+const CAPABILITIES: { Icon: IconComp; title: string; desc: string }[] = [
+  { Icon: IconBarChart,  title: 'Timeline Storica',   desc: '50+ anni di dati per ogni indicatore. Visualizza trend e punti di svolta storici.' },
+  { Icon: IconLinkSvg,   title: 'Multi-Indicatore',   desc: 'Confronta metriche su 200+ paesi. Dal PIL alla mortalità, tutto in un workspace.' },
+  { Icon: IconScale,     title: 'Contesto Veritas',   desc: 'Ogni indicatore è collegabile all\'analisi AI di Veritas per il contesto narrativo.' },
 ]
 
 export default function Data360Insights() {
@@ -138,7 +145,7 @@ export default function Data360Insights() {
               className="flex-1 flex items-center gap-3 rounded-xl px-4"
               style={{ background: 'var(--bg-s)', border: '1px solid var(--border)' }}
             >
-              <span className="text-base shrink-0" style={{ color: 'var(--text-3)' }}>⌕</span>
+              <IconSearch size={14} className="shrink-0 opacity-70" />
               <input
                 ref={inputRef}
                 value={query}
@@ -171,7 +178,7 @@ export default function Data360Insights() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80 active:scale-95"
                 style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
               >
-                <span>{t.icon}</span>{t.label}
+                <t.Icon size={12} className="opacity-80" />{t.label}
               </button>
             ))}
           </div>
@@ -184,7 +191,7 @@ export default function Data360Insights() {
                 className="rounded-xl p-4 cursor-default"
                 style={{ background: 'var(--bg-s)', border: '1px solid var(--border)' }}
               >
-                <div className="text-xl mb-2">{c.icon}</div>
+                <div className="mb-2" style={{ color: 'var(--text-2)' }}><c.Icon size={20} /></div>
                 <p className="text-xs font-bold mb-1" style={{ color: 'var(--text)' }}>{c.title}</p>
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--text-3)' }}>{c.desc}</p>
               </div>
@@ -229,7 +236,7 @@ export default function Data360Insights() {
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg min-w-0"
                   style={{ background: 'var(--bg-s)', border: '1px solid var(--border)' }}
                 >
-                  <span className="text-xs shrink-0" style={{ color: 'var(--text-3)' }}>⌕</span>
+                  <IconSearch size={12} className="shrink-0 opacity-70" />
                   <span className="text-sm font-medium truncate" style={{ color: 'var(--text)' }}>{query}</span>
                 </div>
                 {!searching && results.length > 0 && (
@@ -241,17 +248,18 @@ export default function Data360Insights() {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => { close(); setTimeout(() => { setOpen(false); inputRef.current?.focus() }, 50) }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-80 hidden sm:block"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-80 hidden sm:flex"
                   style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
                 >
-                  ⌕ Nuova ricerca
+                  <IconSearch size={12} /> Nuova ricerca
                 </button>
                 <button
                   onClick={close}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-opacity hover:opacity-70"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg transition-opacity hover:opacity-70"
                   style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
+                  aria-label="Chiudi"
                 >
-                  ✕
+                  <IconClose size={14} />
                 </button>
               </div>
             </div>
@@ -346,7 +354,7 @@ export default function Data360Insights() {
                         className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-opacity hover:opacity-80 whitespace-nowrap"
                         style={{ background: 'var(--accent)', color: '#fff' }}
                       >
-                        ⚖️ Analizza su Veritas
+                        <IconScale size={12} /> Analizza su Veritas
                       </Link>
                     </div>
 

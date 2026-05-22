@@ -1,5 +1,6 @@
 import PageLayout from '../../../components/page-layout'
 import ConsentReopenButton from '../../../components/consent-reopen-button'
+import { IconAlert } from '../../../components/icons'
 
 export const metadata = {
   title: 'Cookie Policy — Lens Veritas',
@@ -183,8 +184,8 @@ export default function CookiePolicyPageEN() {
               <li><a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--accent)' }}>Microsoft Edge ↗</a></li>
             </ul>
             <div className="rounded-xl p-4 mt-3" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.3)' }}>
-              <p className="text-xs" style={{ color: 'var(--text-2)' }}>
-                ⚠ Disabling technical cookies may cause some parts of the site to malfunction (e.g. login session persistence).
+              <p className="inline-flex items-start gap-1.5 text-xs" style={{ color: 'var(--text-2)' }}>
+                <IconAlert size={12} className="mt-0.5 flex-shrink-0" /> <span>Disabling technical cookies may cause some parts of the site to malfunction (e.g. login session persistence).</span>
               </p>
             </div>
           </section>
