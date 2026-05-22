@@ -79,13 +79,15 @@ export async function GET(req: NextRequest) {
   // 1) Pool corrente
   const raw = await cacheGet(ARTICLES_FRESH_KEY)
   if (!raw) {
+    // Pool vuoto e' uno stato transitorio normale (cold-start, migrazione):
+    // refresh-feeds popola la cache ogni 5 min, non e' un errore del server.
     return NextResponse.json({
-      ok: false,
+      ok: true,
       processed: 0,
       cached: 0,
       errors: 0,
       reason: 'pool vuoto, aspetta cron refresh-feeds',
-    }, { status: 503 })
+    })
   }
 
   let pool: Article[]
