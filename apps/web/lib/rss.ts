@@ -207,19 +207,21 @@ export const FEEDS: FeedMeta[] = [
   { id: 'ansa_economia',  source: 'ANSA Economia',           url: 'https://www.ansa.it/sito/notizie/economia/economia_rss.xml',    country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high', scope: 'national' },
   { id: 'ansa_tech',      source: 'ANSA Tecnologia',         url: 'https://www.ansa.it/sito/notizie/tecnologia/tecnologia_rss.xml',country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.3, aiValue: 'high', antiBiasValue: 'medium', scope: 'national' },
   { id: 'ansa_sport',     source: 'ANSA Sport',              url: 'https://www.ansa.it/sito/notizie/sport/sport_rss.xml',          country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.3, aiValue: 'medium', antiBiasValue: 'medium', scope: 'national' },
-  { id: 'ansa_salute',    source: 'ANSA Salute',             url: 'https://www.ansa.it/sito/notizie/salute/salute_rss.xml',        country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high', scope: 'national' },
-  { id: 'ansa_ambiente',  source: 'ANSA Ambiente',           url: 'https://www.ansa.it/sito/notizie/ambiente/ambiente_rss.xml',    country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.3, aiValue: 'high', antiBiasValue: 'high', scope: 'national' },
-  { id: 'ansa_cultura',   source: 'ANSA Cultura',            url: 'https://www.ansa.it/sito/notizie/lifestyle/lifestyle_rss.xml',  country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.0, aiValue: 'medium', antiBiasValue: 'medium', scope: 'national' },
+  { id: 'ansa_salute',    source: 'ANSA Salute',             url: 'https://www.ansa.it/canale_saluteebenessere/notizie/saluteebenessere_rss.xml', country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.5, aiValue: 'high', antiBiasValue: 'high', scope: 'national' },
+  { id: 'ansa_ambiente',  source: 'ANSA Ambiente',           url: 'https://www.ansa.it/canale_ambiente/notizie/ambiente_rss.xml',  country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.3, aiValue: 'high', antiBiasValue: 'high', scope: 'national' },
+  { id: 'ansa_cultura',   source: 'ANSA Cultura',            url: 'https://www.ansa.it/sito/notizie/cultura/cultura_rss.xml',      country: 'Italy', region: 'europa',   type: 'mainstream',  bias: 'center',      reliability: 8.0, aiValue: 'medium', antiBiasValue: 'medium', scope: 'national' },
   // ─── Quotidiani e testate italiane — Esteri/Mondo ─────────────────────────
   // Tutte scope national: ammesse in Mondo solo se globalImpactScore >= 6 (G7, ONU, Vaticano, crisi finanziaria nazionale...)
   { id: 'corriere_esteri',  source: 'Corriere della Sera',  url: 'https://xml2.corriereobjects.it/rss/esteri.xml',    country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 8.3, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
   { id: 'repubblica_mondo', source: 'la Repubblica',         url: 'https://www.repubblica.it/rss/esteri/rss2.0.xml',   country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 8.2, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
   { id: 'sole24ore_mondo',  source: 'Il Sole 24 Ore',        url: 'https://www.ilsole24ore.com/rss/mondo.xml',         country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-right', reliability: 8.4, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
-  { id: 'lastampa_mondo',   source: 'La Stampa',             url: 'https://www.lastampa.it/rss/esteri',                country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 7.9, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
+  // La Stampa rimosso: il loro feed.lastampa.it ha un handshake TLS difettoso (alert
+  // tlsv1 internal error 80) che fa crashare rss-parser. Riattivare quando lato server
+  // sistemano il certificato/handshake. Verificato 2026-05-23.
   { id: 'fattoquotidiano',  source: 'Il Fatto Quotidiano',   url: 'https://www.ilfattoquotidiano.it/feed/',            country: 'Italy', region: 'europa', type: 'mainstream', bias: 'left',         reliability: 7.2, aiValue: 'medium', antiBiasValue: 'medium', scope: 'national' },
-  { id: 'huffpost_it',      source: 'HuffPost Italia',       url: 'https://www.huffingtonpost.it/feeds/index.xml',     country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 7.5, aiValue: 'medium', antiBiasValue: 'medium', scope: 'national' },
-  { id: 'skytg24_mondo',    source: 'Sky TG24',              url: 'https://tg24.sky.it/mondo/rss.xml',                 country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 8.0, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
-  { id: 'adnkronos',        source: 'Adnkronos',             url: 'https://www.adnkronos.com/rss/world_rss.php',       country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 7.8, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
+  { id: 'huffpost_it',      source: 'HuffPost Italia',       url: 'https://www.huffingtonpost.it/rss',                 country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 7.5, aiValue: 'medium', antiBiasValue: 'medium', scope: 'national' },
+  { id: 'skytg24_mondo',    source: 'Sky TG24',              url: 'https://tg24.sky.it/rss/tg24.xml',                  country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 8.0, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
+  { id: 'adnkronos',        source: 'Adnkronos',             url: 'https://www.adnkronos.com/RSS_Esteri.xml',          country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 7.8, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
   { id: 'messaggero_mondo', source: 'Il Messaggero',         url: 'https://www.ilmessaggero.it/rss/mondo.xml',         country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center',       reliability: 7.7, aiValue: 'high',   antiBiasValue: 'high',   scope: 'national' },
   { id: 'open_online',      source: 'Open Online',           url: 'https://www.open.online/feed/',                     country: 'Italy', region: 'europa', type: 'mainstream', bias: 'center-left',  reliability: 7.6, aiValue: 'medium', antiBiasValue: 'medium', scope: 'national' },
 
@@ -337,7 +339,7 @@ const FEED_DEFAULT_CATEGORY: Record<string, string> = {
   al_jazeera: 'esteri', dw_world: 'esteri', france24: 'esteri',
   guardian_world: 'esteri', nyt_world: 'esteri', scmp: 'esteri', rt_world: 'esteri',
   ansa_mondo: 'esteri', corriere_esteri: 'esteri', repubblica_mondo: 'esteri',
-  sole24ore_mondo: 'esteri', lastampa_mondo: 'esteri', skytg24_mondo: 'esteri',
+  sole24ore_mondo: 'esteri', skytg24_mondo: 'esteri',
   adnkronos: 'esteri', messaggero_mondo: 'esteri',
   ansamed_it: 'esteri', ansamed_ar: 'esteri',
   ansa_nuovaeuropa_it: 'esteri', ansa_nuovaeuropa_en: 'esteri',
