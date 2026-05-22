@@ -363,6 +363,10 @@ const FEED_DEFAULT_CATEGORY: Record<string, string> = {
   ars_technica: 'tecnologia', techcrunch: 'tecnologia', mit_tech: 'tecnologia',
   wired: 'tecnologia', hacker_news: 'tecnologia', bleeping: 'tecnologia',
   ansa_tech: 'tecnologia', lapresse_techno: 'tecnologia',
+  // Feed tematici tech da lib/feeds-it.ts
+  sole_tech: 'tecnologia', internetto: 'tecnologia', androidiani: 'tecnologia',
+  spaziogames: 'tecnologia', whatstech: 'tecnologia',
+  fsf_news: 'tecnologia', linux_journal: 'tecnologia', nintendo_life: 'tecnologia',
 
   // ─── Sport ───────────────────────────────────────────────────────────────
   ansa_sport: 'sport', ansa_calcio: 'sport', ansa_golf: 'sport',
@@ -370,27 +374,41 @@ const FEED_DEFAULT_CATEGORY: Record<string, string> = {
   lapresse_nfl: 'sport', lapresse_tennis: 'sport', lapresse_baseball: 'sport',
   lapresse_basketball: 'sport', lapresse_golf: 'sport',
   lapresse_combat: 'sport', lapresse_cyclisme: 'sport',
+  // Feed sport italiani da lib/feeds-it.ts (prima cadevano nel fallback euristico
+  // -> "cronaca" -> sparivano dalla home box Sport)
+  gazzetta_home: 'sport', sole_sport: 'sport',
 
   // ─── Salute ──────────────────────────────────────────────────────────────
   who_news: 'salute', ansa_salute: 'salute',
   lapresse_sante_a: 'salute', lapresse_societe_sante: 'salute',
+  sole_salute: 'salute',
 
   // ─── Scienza ─────────────────────────────────────────────────────────────
   nasa_news: 'scienza', ansa_scienza: 'scienza', lapresse_sciences: 'scienza',
+  oggi_scienza: 'scienza', sapere_scienza: 'scienza',
 
   // ─── Ambiente ────────────────────────────────────────────────────────────
   ansa_ambiente: 'ambiente', lapresse_environnement: 'ambiente',
+  ansa_terragusto: 'ambiente',
+
+  // ─── Economia (feed tematici da lib/feeds-it.ts) ─────────────────────────
+  sole_finanza: 'economia', sole_tributi: 'economia',
+  sole_risparmio: 'economia', sole_management: 'economia',
 
   // ─── Cultura ─────────────────────────────────────────────────────────────
   ansa_cultura: 'cultura', ansa_cultura_t: 'cultura',
   ansa_cinema: 'cultura', ansa_viaggi: 'cultura',
   lapresse_cinema: 'cultura', lapresse_medias: 'cultura',
+  // Feed cultura/lifestyle italiani da lib/feeds-it.ts
+  ansa_cultura_v2: 'cultura', sole_cultura: 'cultura', sole_arteconomy: 'cultura',
+  sole_moda: 'cultura', sole_food: 'cultura', sole_viaggi: 'cultura',
+  musicoff: 'cultura', giallo_zaffer: 'cultura',
 
   // ─── Cronaca (locale italiana + La Presse locale Quebec) ─────────────────
   snopes: 'cronaca',
   ansa_cronaca: 'cronaca', ansa_motori: 'cronaca', ansa_terra_gusto: 'cronaca',
   ansa_abruzzo: 'cronaca', ansa_basilicata: 'cronaca', ansa_calabria: 'cronaca',
-  ansa_campania: 'cronaca', ansa_emiliaromagna: 'cronaca', ansa_fvg: 'cronaca',
+  ansa_campania: 'cronaca', ansa_emiliaromagna: 'cronaca', ansa_emilia: 'cronaca', ansa_fvg: 'cronaca',
   ansa_lazio: 'cronaca', ansa_liguria: 'cronaca', ansa_lombardia: 'cronaca',
   ansa_marche: 'cronaca', ansa_molise: 'cronaca', ansa_piemonte: 'cronaca',
   ansa_puglia: 'cronaca', ansa_sardegna: 'cronaca', ansa_sicilia: 'cronaca',
