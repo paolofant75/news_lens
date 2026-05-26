@@ -1,0 +1,6 @@
+Facebook id autentificator 
+
+id app
+1685718319341491
+chiave segreta 
+f509e926594401c3c1b2e3a4fec419c3

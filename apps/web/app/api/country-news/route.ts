@@ -64,11 +64,8 @@ export async function GET(req: NextRequest) {
     geo: geoClassify(a.title, a.summary),
   }))
 
-  // Cache singolo articolo per consentire alla pagina /articolo/<id> di trovare
-  // il titolo nella lingua di pubblicazione della fonte
-  for (const a of enriched) {
-    cacheSet(`art:${a.id}`, JSON.stringify(a), ARTICLE_BY_ID_TTL).catch(() => {})
-  }
+  // RIMOSSO: salvataggio singolo articolo riduce il numero di comandi Redis
+  // La pagina /articolo/<id> userà la ricerca nella cache bulk invece
 
   await cacheSet(cacheKey, JSON.stringify(enriched), TTL)
   return NextResponse.json({ cached: false, articles: enriched, country: country.nameIt })

@@ -1,0 +1,104 @@
+Rss homepage di ANSA.it | https://www.ansa.it/sito/ansait_rss.xml
+Rss di Cronaca | https://www.ansa.it/sito/notizie/cronaca/cronaca_rss.xml
+Rss di Politica | https://www.ansa.it/sito/notizie/politica/politica_rss.xml
+Rss di Mondo | https://www.ansa.it/sito/notizie/mondo/mondo_rss.xml
+Rss di Economia | https://www.ansa.it/sito/notizie/economia/economia_rss.xml
+Rss di Calcio | https://www.ansa.it/sito/notizie/sport/calcio/calcio_rss.xml
+Rss di Sport | https://www.ansa.it/sito/notizie/sport/sport_rss.xml
+Rss di Cinema | https://www.ansa.it/sito/notizie/cultura/cinema/cinema_rss.xml
+Rss di Cultura e Tendenze | https://www.ansa.it/sito/notizie/cultura/cultura_rss.xml
+Rss di Top News | https://www.ansa.it/sito/notizie/topnews/topnews_rss.xml
+Rss di Foto | https://www.ansa.it/sito/photogallery/foto_rss.xml
+Rss di Video | https://www.ansa.it/sito/videogallery/video_rss.xml
+Rss di Motori | https://www.ansa.it/canale_motori/notizie/motori_rss.xml
+Rss di Terra&Gusto | https://www.ansa.it/canale_terraegusto/notizie/terraegusto_rss.xml
+Rss di Salute&Benessere | https://www.ansa.it/canale_saluteebenessere/notizie/saluteebenessere_rss.xml
+Rss di Scienza | https://www.ansa.it/canale_scienza_tecnica/notizie/scienzaetecnica_rss.xml
+Rss di ANSA Viaggi | https://www.ansa.it/canale_viaggi/notizie/viaggiart_rss.xml
+Rss di Lifestyle | https://www.ansa.it/canale_lifestyle/notizie/lifestyle_rss.xml
+Rss di Tecnologia | https://www.ansa.it/canale_tecnologia/notizie/tecnologia_rss.xml
+Rss di Golf | https://www.ansa.it/golf/notizie/golf_rss.xml
+RSS di Abruzzo | https://www.ansa.it/abruzzo/notizie/abruzzo_rss.xml
+RSS di Basilicata | https://www.ansa.it/basilicata/notizie/basilicata_rss.xml
+RSS di Calabria | https://www.ansa.it/calabria/notizie/calabria_rss.xml
+RSS di Campania | https://www.ansa.it/campania/notizie/campania_rss.xml
+RSS di Emilia Romagna | https://www.ansa.it/emiliaromagna/notizie/emiliaromagna_rss.xml
+RSS di Friuli Venezia Giulia | https://www.ansa.it/friuliveneziagiulia/notizie/friuliveneziagiulia_rss.xml
+RSS di Lazio | https://www.ansa.it/lazio/notizie/lazio_rss.xml
+RSS di Liguria | https://www.ansa.it/liguria/notizie/liguria_rss.xml
+RSS di Lombardia | https://www.ansa.it/lombardia/notizie/lombardia_rss.xml
+RSS di Marche | https://www.ansa.it/marche/notizie/marche_rss.xml
+RSS di Molise | https://www.ansa.it/molise/notizie/molise_rss.xml
+RSS di Piemonte | https://www.ansa.it/piemonte/notizie/piemonte_rss.xml
+RSS di Puglia | https://www.ansa.it/puglia/notizie/puglia_rss.xml
+RSS di Sardegna | https://www.ansa.it/sardegna/notizie/sardegna_rss.xml
+RSS di Sicilia | https://www.ansa.it/sicilia/notizie/sicilia_rss.xml
+RSS di Toscana | https://www.ansa.it/toscana/notizie/toscana_rss.xml
+RSS di Trentino Alto Adige/Suedtirol | https://www.ansa.it/trentino/notizie/trentino_rss.xml
+RSS di Umbria | https://www.ansa.it/umbria/notizie/umbria_rss.xml
+RSS di Valle d'Aosta | https://www.ansa.it/valledaosta/notizie/valledaosta_rss.xml
+RSS di Veneto | https://www.ansa.it/veneto/notizie/veneto_rss.xml
+Rss di ANSA English | https://www.ansa.it/english/news/english_nr_rss.xml
+RSS di ANSA Europa UE | https://www.ansa.it/europa/notizie/rss.xml
+RSS di ANSAMed | https://www.ansa.it/ansamed/it/rss.xml
+RSS di أنسامد | https://www.ansa.it/ansamednew/ar/notizie/ansamedar_nr_rss.xml
+Rss di ANSA Nuova Europa (IT) | https://www.ansa.it/nuova_europa/it/rss.xml
+Rss di ANSA Nuova Europa (EN) | https://www.ansa.it/nuova_europa/en/rss.xml
+Rss di ANSA Brasil | https://www.ansa.it/brasil/noticias/ind_nr_rss.xml
+Rss di ANSA Latina | https://www.ansa.it/americalatina/noticia/al_nr_rss.xml
+Rss di ANSA China 中国 | https://www.ansa.it/china/notizie/china_nr_rss.xml
+
+https://www.lapresse.ca/actualites/rss
+https://www.lapresse.ca/actualites/environnement/rss
+https://www.lapresse.ca/actualites/politique/rss
+https://www.lapresse.ca/actualites/national/rss
+https://www.lapresse.ca/actualites/sante/rss
+https://www.lapresse.ca/actualites/education/rss
+https://www.lapresse.ca/actualites/enquetes/rss
+https://www.lapresse.ca/actualites/regional/rss
+https://www.lapresse.ca/actualites/insolite/rss
+https://www.lapresse.ca/actualites/sciences/rss
+ 
+
+LA PRESSE – BUSINESS
+https://www.lapresse.ca/affaires/rss
+https://www.lapresse.ca/affaires/economie/rss
+https://www.lapresse.ca/affaires/entreprises/rss
+https://www.lapresse.ca/affaires/techno/rss
+https://www.lapresse.ca/affaires/finances-personnelles/rss
+https://www.lapresse.ca/affaires/medias/rss
+https://www.lapresse.ca/affaires/pme/rss
+https://www.lapresse.ca/affaires/portfolio/rss
+https://www.lapresse.ca/affaires/grande-entrevue/rss
+https://www.lapresse.ca/affaires/tetes-daffiche/rss
+ 
+
+LA PRESSE – INTERNATIONAL
+https://www.lapresse.ca/international/rss
+https://www.lapresse.ca/international/etats-unis/rss
+https://www.lapresse.ca/international/europe/rss
+https://www.lapresse.ca/international/moyen-orient/rss
+https://www.lapresse.ca/international/asie-et-oceanie/rss
+https://www.lapresse.ca/international/afrique/rss
+https://www.lapresse.ca/international/amerique-latine/rss
+https://www.lapresse.ca/international/caraibes/rss
+ 
+
+LA PRESSE – SPORTS
+https://www.lapresse.ca/sports/rss
+https://www.lapresse.ca/sports/hockey/rss
+https://www.lapresse.ca/sports/soccer/rss
+https://www.lapresse.ca/sports/football/rss
+https://www.lapresse.ca/sports/tennis/rss
+https://www.lapresse.ca/sports/baseball/rss
+https://www.lapresse.ca/sports/basketball/rss
+https://www.lapresse.ca/sports/golf/rss
+https://www.lapresse.ca/sports/sports-de-combat/rss
+https://www.lapresse.ca/sports/cyclisme/rss
+https://www.lapresse.ca/sports/rss
+ 
+
+LA PRESSE – SOCIETY
+https://www.lapresse.ca/societe/sante/rss
+https://www.lapresse.ca/cinema/rss
+

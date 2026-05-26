@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Set-Location \"d:\\\\New_lens_veritas\\\\packages\\\\news-pipeline\"; $proc = Start-Process -FilePath \"node\" -ArgumentList \"--use-system-ca .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs src/index.ts\" -NoNewWindow -PassThru -RedirectStandardOutput \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\pipeline-test2.log\" -RedirectStandardError \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\pipeline-test2-err.log\"; Start-Sleep -Seconds 35; Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue; Get-Content \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\pipeline-test2.log\" -ErrorAction SilentlyContinue; Get-Content \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\pipeline-test2-err.log\" -ErrorAction SilentlyContinue | Select-Object -Last 10)",
+      "PowerShell(Set-Location \"d:\\\\New_lens_veritas\\\\packages\\\\news-pipeline\"; $env:BYPASS_SSL = \"1\"; $proc = Start-Process -FilePath \"node\" -ArgumentList \"--use-system-ca .\\\\node_modules\\\\tsx\\\\dist\\\\cli.mjs src/index.ts\" -NoNewWindow -PassThru -RedirectStandardOutput \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\pipeline-test3.log\" -RedirectStandardError \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\pipeline-test3-err.log\" -Environment @{BYPASS_SSL=\"1\"}; Start-Sleep -Seconds 40; Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue; Get-Content \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\pipeline-test3.log\" -ErrorAction SilentlyContinue; Write-Host \"---ERR---\"; Get-Content \"C:\\\\Users\\\\paolo\\\\AppData\\\\Local\\\\Temp\\\\pipeline-test3-err.log\" -ErrorAction SilentlyContinue | Select-Object -Last 5)",
+      "Bash(git checkout *)",
+      "Bash(pnpm --version)"
+    ]
+  }
+}

@@ -7,10 +7,8 @@ import { fetchGdeltArticles } from './gdelt'
 
 // v5: +75 feed (ANSA estese + La Presse Canada), invalida cache post-deploy
 const ARTICLES_FRESH_KEY = 'nlv_articles_v5'
-const ARTICLES_STALE_KEY = 'nlv_articles_v5_stale'
-const ARTICLES_CACHE_TTL = 600   // 10 min fresh
-const ARTICLES_STALE_TTL = 1800  // 30 min stale
-const ARTICLE_BY_ID_TTL = 86400  // 24h: cache singolo articolo per lookup da URL
+const ARTICLES_CACHE_TTL = 1800  // 30 min fresh (aumentato da 600)
+const ARTICLE_BY_ID_TTL = 3600   // 1h: ridotto da 86400 per ridurre comandi Redis
 // Per-feed health snapshot: aggiornato ad ogni fetchArticlesFresh, consumato dall'admin dashboard
 export const FEEDS_STATUS_KEY = 'nlv_feeds_status_v1'
 const FEEDS_STATUS_TTL = 3600    // 1h: vogliamo conservare l'ultimo esito anche se il refresh fallisce
@@ -581,19 +579,13 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
   // Dedup livello 2 — semantica (Jaccard bigrammi), riconosce "stessa storia, parole diverse"
   const articles = dedupSameStory(sorted)
 
-  // Indicizza ogni articolo su Redis per lookup veloce dalla pagina /articolo/[id]
-  // Bulk via Upstash pipeline: una singola HTTP request per tutti i SET.
-  // Il vecchio loop senza await apriva un socket per articolo (~500) causando EMFILE.
-  await cacheSetMany(
-    articles.map((a) => ({
-      key: `art:${a.id}`,
-      value: JSON.stringify(a),
-      ttlSeconds: ARTICLE_BY_ID_TTL,
-    })),
-  ).catch(() => {})
+  // RIMOSSO: indicizzazione articoli individuali causa 500 write/refresh
+  // La chiave bulk ARTICLES_FRESH_KEY è sufficiente per tutti gli accessi
+  // Se serve lookup da URL, usare binary search sulla lista invece di Redis key
 
   // Flush stato per-feed: l'admin dashboard lo legge per mostrare ultimo fetch ed errori
-  cacheSet(FEEDS_STATUS_KEY, JSON.stringify(perFeedStatus), FEEDS_STATUS_TTL).catch(() => {})
+  // Ridotto TTL da 3600 a 1800 per ridurre numero di write
+  cacheSet(FEEDS_STATUS_KEY, JSON.stringify(perFeedStatus), 1800).catch(() => {})
 
   return articles
 }
@@ -601,33 +593,19 @@ export async function fetchArticlesFresh(): Promise<Article[]> {
 // Invalida cache feed homepage/news (fresh + stale). Gli articoli singoli
 // art:<id> restano in cache 24h per consentire la pagina /articolo/[id]
 export async function invalidateArticleCache(): Promise<void> {
-  await Promise.all([
-    cacheDel(ARTICLES_FRESH_KEY).catch(() => {}),
-    cacheDel(ARTICLES_STALE_KEY).catch(() => {}),
-  ])
+  // Cache semplificata: una sola chiave da invalidare
+  await cacheDel(ARTICLES_FRESH_KEY).catch(() => {})
 }
 
 export async function fetchArticles(): Promise<Article[]> {
-  // 1. fresh cache (<10 min)
+  // Cache semplificata: una sola chiave con TTL lungo (30min)
   try {
-    const fresh = await cacheGet(ARTICLES_FRESH_KEY)
-    if (fresh) return JSON.parse(fresh) as Article[]
+    const cached = await cacheGet(ARTICLES_FRESH_KEY)
+    if (cached) return JSON.parse(cached) as Article[]
   } catch { }
-  // 2. stale cache (<30 min) + background refresh (non-blocking)
-  try {
-    const stale = await cacheGet(ARTICLES_STALE_KEY)
-    if (stale) {
-      fetchArticlesFresh().then(f => {
-        cacheSet(ARTICLES_FRESH_KEY, JSON.stringify(f), ARTICLES_CACHE_TTL).catch(() => {})
-        cacheSet(ARTICLES_STALE_KEY, JSON.stringify(f), ARTICLES_STALE_TTL).catch(() => {})
-      }).catch(() => {})
-      return JSON.parse(stale) as Article[]
-    }
-  } catch { }
-  // 3. cold fetch — writes both keys
+  // Cold fetch — write singola chiave
   const articles = await fetchArticlesFresh()
   cacheSet(ARTICLES_FRESH_KEY, JSON.stringify(articles), ARTICLES_CACHE_TTL).catch(() => {})
-  cacheSet(ARTICLES_STALE_KEY, JSON.stringify(articles), ARTICLES_STALE_TTL).catch(() => {})
   return articles
 }
 

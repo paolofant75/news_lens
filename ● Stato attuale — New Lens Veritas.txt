@@ -1,0 +1,64 @@
+● Stato attuale — New Lens Veritas (20/05/2026)
+
+  Progetto
+
+  Monorepo Turborepo + pnpm in D:\New_lens_veritas, branch feature/ai-classifier.
+
+  ---
+  Cosa è stato fatto oggi
+
+  Scaffold agenti AI — commit 7a6d13f — tutto in packages/ai/src/:
+
+  ┌───────────────────────────────┬────────────────────────────────────────────────────────────────────────┐
+  │             File              │                               Contenuto                                │
+  ├───────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ types.ts                      │ AgentStatus, AgentRun, AgentStep, AgentInput, AgentOutput              │
+  ├───────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ client.ts                     │ Singleton Anthropic, DEFAULT_MODEL = "claude-sonnet-4-6"               │
+  ├───────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ base.ts                       │ Classe astratta BaseAgent<I,O> riusabile dai futuri 8 agenti           │
+  ├───────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ runtime.ts                    │ runAgent() — timeout 30s, retry x2 (backoff 1s/3s), tracking su Prisma │
+  ├───────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ index.ts                      │ Export pubblico                                                        │
+  ├───────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ src/__tests__/runtime.test.ts │ 5/5 test passati (EchoAgent, timeout, errori)                          │
+  └───────────────────────────────┴────────────────────────────────────────────────────────────────────────┘
+
+  Schema Prisma aggiornato — packages/db/prisma/schema.prisma — aggiunti modelli AgentRun + AgentStep.
+
+  DB package — packages/db/index.ts — ora esporta singleton PrismaClient.
+
+  apps/web — aggiunta dipendenza "@news-lens-veritas/ai": "workspace:*" (non usata in produzione, USE_AI_CLASSIFIER=false).
+
+  ---
+  Una cosa rimasta in sospeso
+
+  Migration Prisma non eseguita — la porta 5432 di Supabase non è raggiungibile da questa rete. Quando sei pronto:
+  cd D:\New_lens_veritas\packages\db
+  pnpm prisma migrate dev --name add_agent_runs
+  In alternativa, puoi applicarla direttamente dal Supabase Dashboard → SQL Editor.
+
+  ---
+  Stato build
+
+  ┌─────────────────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │          Check          │                                                    Stato                                                    │
+  ├─────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ pnpm test (packages/ai) │ ✅ 5/5                                                                                                      │
+  ├─────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ Type-check packages/ai  │ ✅                                                                                                          │
+  ├─────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ Compile apps/web        │ ✅                                                                                                          │
+  ├─────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ news-pipeline build     │ ❌ bug pre-esistente (trailing comma riga 35, non nostro)                                                   │
+  ├─────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ apps/web full build     │ ❌ pre-esistente (chiave Supabase formato sb_publishable_ non riconosciuto da @supabase/supabase-js@2.49.4) │
+  └─────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ---
+  Prossimi passi logici
+
+  1. Eseguire la migration Prisma (quando in rete con accesso a Supabase)
+  2. Creare il primo agente concreto che estende BaseAgent
+  3. Cablare l'agente nell'app (USE_AI_CLASSIFIER=true)

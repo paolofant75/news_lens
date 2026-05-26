@@ -49,15 +49,19 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   const palette = cookieStore.get('nlv_palette')?.value ?? 'noir'
   const aiConsent = cookieStore.get('nlv_ai_consent')?.value === '1'
 
-  // Cache-first lookup: se l'articolo e' stato indicizzato durante il fetch
-  // del feed, usiamo il titolo nella lingua nativa della fonte invece della
-  // traduzione visualizzata dall'utente.
+  // Cache-first lookup: ricerca nella cache bulk (ARTICLES_FRESH_KEY)
+  // per usare il titolo nella lingua nativa della fonte.
   let query = ''
   let searchQuery = ''
   let cachedArticle: Article | null = null
   try {
-    const raw = await cacheGet(`art:${id}`)
-    if (raw) cachedArticle = JSON.parse(raw) as Article
+    // Prova a cercare nella cache bulk (fallback ottimizzato per ridurre comandi)
+    const { cacheGet: redisGet } = await import('../../../lib/redis')
+    const rawBulk = await redisGet('nlv_articles_v5')
+    if (rawBulk) {
+      const articles = JSON.parse(rawBulk) as Article[]
+      cachedArticle = articles.find(a => a.id === id) ?? null
+    }
   } catch {
     cachedArticle = null
   }

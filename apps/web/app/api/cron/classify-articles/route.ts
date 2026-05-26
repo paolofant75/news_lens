@@ -37,9 +37,7 @@ export const maxDuration = 60
 
 // Stessa chiave usata da fetchArticlesFresh / refresh-feeds
 const ARTICLES_FRESH_KEY = 'nlv_articles_v5'
-const ARTICLES_STALE_KEY = 'nlv_articles_v5_stale'
-const ARTICLES_CACHE_TTL = 600     // 10 min, come refresh-feeds
-const ARTICLES_STALE_TTL = 1800    // 30 min
+const ARTICLES_CACHE_TTL = 1800    // 30 min, sincronizzato con refresh-feeds
 
 const BATCH_SIZE = 25         // articoli per esecuzione cron
 const CONCURRENCY = 5         // chiamate Anthropic parallele
@@ -149,11 +147,8 @@ export async function GET(req: NextRequest) {
     }
   })
 
-  // 6) Riscrivi cache (fresh + stale, stessa coppia di refresh-feeds)
-  await Promise.all([
-    cacheSet(ARTICLES_FRESH_KEY, JSON.stringify(newPool), ARTICLES_CACHE_TTL),
-    cacheSet(ARTICLES_STALE_KEY, JSON.stringify(newPool), ARTICLES_STALE_TTL),
-  ])
+  // 6) Riscrivi cache (una sola chiave, ridotto numero di comandi)
+  await cacheSet(ARTICLES_FRESH_KEY, JSON.stringify(newPool), ARTICLES_CACHE_TTL)
 
   const aiOk = aiResults.filter((r) => r && r.ok).length
   const aiErr = aiResults.filter((r) => r && !r.ok).length

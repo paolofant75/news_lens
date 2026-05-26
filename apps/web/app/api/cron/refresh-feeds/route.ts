@@ -4,9 +4,7 @@ import { cacheSet } from '../../../../lib/redis'
 
 // v5: deve combaciare con la chiave usata in lib/rss.ts
 const ARTICLES_FRESH_KEY = 'nlv_articles_v5'
-const ARTICLES_STALE_KEY = 'nlv_articles_v5_stale'
-const ARTICLES_CACHE_TTL = 600
-const ARTICLES_STALE_TTL = 1800
+const ARTICLES_CACHE_TTL = 1800  // 30 min (aumentato da 600)
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -16,9 +14,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const articles = await fetchArticlesFresh()
-  await Promise.all([
-    cacheSet(ARTICLES_FRESH_KEY, JSON.stringify(articles), ARTICLES_CACHE_TTL),
-    cacheSet(ARTICLES_STALE_KEY, JSON.stringify(articles), ARTICLES_STALE_TTL),
-  ])
+  // Una sola write (ARTICLES_STALE_KEY rimosso per ridurre comandi)
+  await cacheSet(ARTICLES_FRESH_KEY, JSON.stringify(articles), ARTICLES_CACHE_TTL)
   return NextResponse.json({ ok: true, count: articles.length })
 }
