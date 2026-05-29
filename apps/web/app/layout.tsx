@@ -7,6 +7,7 @@ import ThemeStore from '../components/theme-store'
 import MobileNav from '../components/mobile-nav'
 import CookieBanner from '../components/cookie-banner'
 import LegalFooter from '../components/legal-footer'
+import RequestInfoFab from '../components/request-info-fab'
 import { AuthProvider } from '../components/auth-provider'
 import { cookies } from 'next/headers'
 
@@ -77,6 +78,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <LegalFooter />
             <MobileNav />
             <CookieBanner />
+            <RequestInfoFab />
           </AuthProvider>
         </ClientThemeProvider>
       </body>

@@ -66,4 +66,6 @@ export const IconStar     = (p: IconProps) => <Icon {...p} path="m12 2 3.09 6.26
 export const IconBreaking = (p: IconProps) => <Icon {...p} path="M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12ZM12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
 export const IconArrow    = (p: IconProps) => <Icon {...p} path="M5 12h14M13 6l6 6-6 6" />
 export const IconArrowDown = (p: IconProps) => <Icon {...p} path="M12 5v14M19 12l-7 7-7-7" />
-export const IconPlay     = (p: IconProps) => <Icon {...p} path="M6 4v16l14-8L6 4Z" />
+export const IconPlay            = (p: IconProps) => <Icon {...p} path="M6 4v16l14-8L6 4Z" />
+export const IconMessageCircle   = (p: IconProps) => <Icon {...p} path="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+export const IconSend            = (p: IconProps) => <Icon {...p} path="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7Z" />

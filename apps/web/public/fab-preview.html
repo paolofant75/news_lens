@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FAB Preview – Lens Veritas</title>
+<style>
+  /* ── Noir theme (default) ── */
+  :root {
+    --bg:       #0a0a0a;
+    --bg-s:     #111111;
+    --bg-card:  #161616;
+    --border:   #222222;
+    --text:     #f1f1f1;
+    --text-2:   #9ca3af;
+    --text-3:   #6b7280;
+    --accent:   #ff0000;
+    --font-h:   'Newsreader', Georgia, serif;
+    --font-b:   'IBM Plex Sans', system-ui, sans-serif;
+  }
+  /* Arctic theme toggle */
+  body.arctic {
+    --bg:       #ffffff;
+    --bg-s:     #f8fafc;
+    --bg-card:  #f1f5f9;
+    --border:   #e2e8f0;
+    --text:     #0f172a;
+    --text-2:   #475569;
+    --text-3:   #94a3b8;
+    --accent:   #0f4c81;
+  }
+  /* Bureau theme toggle */
+  body.bureau {
+    --bg:       #f7f4ef;
+    --bg-s:     #edeae3;
+    --bg-card:  #f2ede6;
+    --border:   #d4cfc7;
+    --text:     #1a1a1a;
+    --text-2:   #5c4f42;
+    --text-3:   #9c8878;
+    --accent:   #2e7eff;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-b);
+    min-height: 100vh;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  /* ── Fake page content ── */
+  .page-bg {
+    padding: 40px 24px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .fake-label {
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 12px;
+  }
+  .fake-headline {
+    font-family: var(--font-h);
+    font-size: clamp(22px, 4vw, 34px);
+    font-weight: 600;
+    line-height: 1.22;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .fake-body { color: var(--text-2); font-size: 15px; line-height: 1.7; }
+  .fake-body p + p { margin-top: 14px; }
+
+  /* ── Theme switcher ── */
+  .theme-bar {
+    position: fixed;
+    top: 16px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 10px;
+    z-index: 200;
+  }
+  .theme-bar button {
+    font-size: 11px; font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-3);
+    transition: all .15s;
+  }
+  .theme-bar button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* ── FAB ── */
+  .fab {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2);
+    z-index: 62;
+    transition: transform .15s, box-shadow .15s;
+    outline: none;
+  }
+  .fab:hover { transform: scale(1.08); box-shadow: 0 12px 40px rgba(0,0,0,.4); }
+  .fab:active { transform: scale(0.93); }
+  .fab svg { transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+  .fab.open svg { transform: rotate(45deg); }
+
+  /* Pulse ring */
+  .fab::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-ring 2s ease-out infinite;
+    pointer-events: none;
+  }
+  .fab.open::after { display: none; }
+  @keyframes pulse-ring {
+    0%   { transform: scale(1);   opacity: .45; }
+    100% { transform: scale(1.65); opacity: 0; }
+  }
+
+  /* ── Panel ── */
+  .panel {
+    position: fixed;
+    bottom: 92px; right: 24px;
+    width: 340px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.2);
+    z-index: 61;
+    overflow: hidden;
+    transform-origin: bottom right;
+    transition: opacity .22s, transform .22s cubic-bezier(.34,1.2,.64,1);
+    opacity: 0;
+    transform: scale(0.94) translateY(16px);
+    pointer-events: none;
+  }
+  .panel.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px 20px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-title {
+    font-family: var(--font-h);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .panel-subtitle {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+  .btn-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-3); padding: 2px;
+    line-height: 0; margin-left: 12px; margin-top: 1px;
+    transition: color .15s;
+  }
+  .btn-close:hover { color: var(--text); }
+
+  .panel-body { padding: 16px 20px 20px; }
+
+  .textarea-wrap { position: relative; }
+  textarea {
+    width: 100%;
+    resize: none;
+    border-radius: 12px;
+    padding: 12px 14px;
+    padding-bottom: 24px;
+    font-size: 13px;
+    line-height: 1.55;
+    background: var(--bg-s);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-b);
+    outline: none;
+    transition: border-color .15s;
+    display: block;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text-3); }
+  .char-count {
+    position: absolute;
+    bottom: 8px; right: 12px;
+    font-size: 10px;
+    color: var(--text-3);
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .btn-send {
+    margin-top: 12px;
+    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px; font-weight: 600;
+    border: none; cursor: pointer;
+    transition: opacity .15s;
+    font-family: var(--font-b);
+  }
+  .btn-send:hover { opacity: .88; }
+  .btn-send:disabled { opacity: .4; cursor: default; }
+</style>
+</head>
+<body>
+
+<!-- Theme switcher -->
+<div class="theme-bar">
+  <button class="active" onclick="setTheme('noir',this)">Noir</button>
+  <button onclick="setTheme('bureau',this)">Bureau</button>
+  <button onclick="setTheme('arctic',this)">Arctic</button>
+</div>
+
+<!-- Fake article -->
+<div class="page-bg" style="margin-top:80px">
+  <p class="fake-label">World · Breaking News</p>
+  <h1 class="fake-headline">Global Leaders Convene Emergency Summit<br>on Artificial Intelligence Governance</h1>
+  <div class="fake-body">
+    <p>Representatives from over 60 nations gathered in Geneva this week for an emergency summit aimed at establishing international norms around the development and deployment of large-scale AI systems, amid growing concerns about disinformation, autonomous weapons, and economic disruption.</p>
+    <p>The summit, convened by the United Nations, follows a series of high-profile incidents in which AI-generated content was used to manipulate public opinion ahead of elections in multiple countries. Delegates are expected to adopt a non-binding framework by Friday.</p>
+    <p>Critics argue that any framework lacking enforcement mechanisms will be insufficient, while industry groups have warned against regulations that could stifle innovation and cede ground to authoritarian states with fewer restrictions.</p>
+  </div>
+</div>
+
+<!-- Panel -->
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <div>
+      <div class="panel-title">What would you like to know?</div>
+      <div class="panel-subtitle">We'll look into it and get back to you.</div>
+    </div>
+    <button class="btn-close" onclick="togglePanel()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="panel-body">
+    <div class="textarea-wrap">
+      <textarea id="inquiry" rows="4" placeholder="Su cosa vuoi scoprire la verità?" oninput="updateChar(this)" maxlength="500"></textarea>
+      <span class="char-count" id="charCount">500</span>
+    </div>
+    <button class="btn-send" id="btnSend" onclick="sendRequest()" disabled>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
+      Send Request
+    </button>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab" onclick="togglePanel()" aria-label="Request more details">
+  <svg id="fabIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+  </svg>
+</button>
+
+<script>
+  const msgIcon = `<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>`;
+  const closeIcon = `<path d="M18 6 6 18M6 6l12 12"/>`;
+
+  function togglePanel() {
+    const panel = document.getElementById('panel');
+    const fab   = document.getElementById('fab');
+    const icon  = document.getElementById('fabIcon');
+    const isOpen = panel.classList.contains('visible');
+    panel.classList.toggle('visible');
+    fab.classList.toggle('open');
+    icon.innerHTML = isOpen ? msgIcon : closeIcon;
+    if (!isOpen) document.getElementById('inquiry').focus();
+  }
+
+  function updateChar(el) {
+    const left = 500 - el.value.length;
+    document.getElementById('charCount').textContent = left;
+    document.getElementById('charCount').style.color = left < 50 ? 'var(--accent)' : 'var(--text-3)';
+    document.getElementById('btnSend').disabled = el.value.trim() === '';
+  }
+
+  function sendRequest() {
+    const btn = document.getElementById('btnSend');
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Sending…';
+    setTimeout(() => {
+      btn.innerHTML = '✓ Request sent!';
+      btn.style.opacity = '.6';
+      setTimeout(() => {
+        document.getElementById('inquiry').value = '';
+        document.getElementById('charCount').textContent = '500';
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7Z"/></svg> Send Request`;
+        btn.disabled = true;
+        btn.style.opacity = '';
+        togglePanel();
+      }, 1800);
+    }, 1200);
+  }
+
+  function setTheme(theme, btn) {
+    document.body.className = theme === 'noir' ? '' : theme;
+    document.querySelectorAll('.theme-bar button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') {
+    const p = document.getElementById('panel');
+    if (p.classList.contains('visible')) togglePanel();
+  }});
+</script>
+</body>
+</html>

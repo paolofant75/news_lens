@@ -28,6 +28,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cacheGet, cacheSet } from '../../../../lib/redis'
 import { classifierCronShouldRun } from '../../../../lib/classifier-mode'
+import { calcImportanceScore } from '../../../../lib/importance'
 import { runAgent } from '@news-lens-veritas/ai'
 import { categoryClassifier, getCachedClassificationsMany } from '@news-lens-veritas/ai/category-classifier'
 import type { ClassificationOutput } from '@news-lens-veritas/ai/category-classifier'
@@ -94,8 +95,12 @@ export async function GET(req: NextRequest) {
   try { pool = JSON.parse(raw) as Article[] }
   catch { return NextResponse.json({ ok: false, error: 'pool corrupted' }, { status: 500 }) }
 
-  // 2) Articoli da classificare (no aiCategory ancora)
-  const toClassify = pool.filter((a) => !a.aiCategory).slice(0, BATCH_SIZE)
+  // 2) Articoli da classificare (no aiCategory ancora): ordina per importanza
+  // prima di selezionare i top-BATCH_SIZE per evitare di sprecare token AI su notizie secondarie.
+  const toClassify = pool
+    .filter((a) => !a.aiCategory)
+    .sort((a, b) => calcImportanceScore(b) - calcImportanceScore(a))
+    .slice(0, BATCH_SIZE)
   if (toClassify.length === 0) {
     return NextResponse.json({ ok: true, processed: 0, cached: pool.length, errors: 0, reason: 'tutto gia\' classificato' })
   }

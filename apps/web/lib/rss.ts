@@ -74,23 +74,37 @@ function jaccardSim(a: Set<string>, b: Set<string>): number {
 
 // Rimuove articoli che raccontano la stessa storia di un altro gia tenuto.
 // Input: array ordinato per data DESC (i piu recenti vincono).
+// Popola coverageCount: quante fonti diverse coprono la stessa storia.
 function dedupSameStory(sorted: Article[]): Article[] {
   const kept: Article[] = []
   const keptBigrams: Set<string>[] = []
+  const coverageCount = new Map<number, number>() // index in kept -> count
+
   for (const a of sorted) {
     const bg = titleBigrams(a.title)
-    let dup = false
+    let dupIdx = -1
+
     for (let i = keptBigrams.length - 1; i >= 0; i--) {
       if (jaccardSim(bg, keptBigrams[i]) >= SAME_STORY_THRESHOLD) {
-        dup = true
+        dupIdx = i
         break
       }
     }
-    if (!dup) {
-      kept.push(a)
+
+    if (dupIdx === -1) {
+      // Nuova storia
+      const idx = kept.length
+      kept.push({ ...a, coverageCount: 1 })
       keptBigrams.push(bg)
+      coverageCount.set(idx, 1)
+    } else {
+      // Duplicato: incrementa il conteggio del leader
+      const currentCount = coverageCount.get(dupIdx) ?? 1
+      coverageCount.set(dupIdx, currentCount + 1)
+      kept[dupIdx].coverageCount = currentCount + 1
     }
   }
+
   return kept
 }
 
@@ -146,6 +160,8 @@ export type Article = {
   sourceScope?: 'local' | 'national' | 'international'
   sourceCountry?: string
   sourceGlobalTier?: 1 | 2 | 3
+  // Deduplicazione: quante fonti diverse coprono la stessa storia
+  coverageCount?: number
   // ─── Campi AI (popolati dal cron /api/cron/classify-articles) ──────────────
   // Tutti opzionali per retrocompatibilita': la cache Redis nlv_articles_v5 ha
   // articoli pre-AI per ~ore dopo il deploy. Quando l'AI flag e' off, questi
