@@ -1,4 +1,5 @@
 import PageLayout from '../../components/page-layout'
+import { IconAlert } from '../../components/icons'
 
 export const metadata = {
   title: 'Termini di Servizio — Lens Veritas',
@@ -51,7 +52,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--text)' }}>3. Contenuto AI — limitazioni e disclaimer</h2>
             <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.3)' }}>
-              <p className="font-medium mb-1" style={{ color: 'var(--text)' }}>⚠ Contenuto generato da intelligenza artificiale</p>
+              <p className="inline-flex items-center gap-2 font-medium mb-1" style={{ color: 'var(--text)' }}><IconAlert size={14} /> Contenuto generato da intelligenza artificiale</p>
               <p>
                 L&apos;Articolo Consolidato Veritas e le analisi di bias sono generati automaticamente da modelli AI (Claude di Anthropic). Tali contenuti possono contenere imprecisioni, omissioni o errori. Lens Veritas non garantisce l&apos;accuratezza, la completezza o l&apos;attualità delle analisi AI. Non utilizzare queste informazioni come unica fonte per decisioni importanti.
               </p>

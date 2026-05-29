@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../components/auth-provider'
 import { getSupabaseClient } from '../../lib/supabase-client'
 import { useRouter } from 'next/navigation'
+import { IconBook, IconSearch } from '../../components/icons'
 
 type Read   = { article_title: string; article_link: string; category: string; geo: string; source: string; read_at: string }
 type Search = { query: string; searched_at: string }
@@ -116,11 +117,11 @@ export default function ProfiloPage() {
         <div className="flex gap-2 mb-4">
           {(['reads', 'searches'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-opacity"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity"
               style={tab === t
                 ? { background: 'var(--accent)', color: '#000' }
                 : { background: 'var(--bg-s)', color: 'var(--text-3)' }}>
-              {t === 'reads' ? `📖 Articoli letti (${reads.length})` : `🔍 Ricerche (${searches.length})`}
+              {t === 'reads' ? <><IconBook size={14} /> Articoli letti ({reads.length})</> : <><IconSearch size={14} /> Ricerche ({searches.length})</>}
             </button>
           ))}
         </div>

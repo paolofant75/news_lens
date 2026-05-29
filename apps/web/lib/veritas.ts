@@ -203,8 +203,30 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
       rawArticles = await runSearches(essential, essentialTerms)
     }
   }
+
+  // NUOVA FEATURE: aggiungi articoli di contesto/background per approfondimenti
+  let contextArticles: SearchArticle[] = []
+  let oppositeArticles: SearchArticle[] = []
+  if (rawArticles.length >= 3) {
+    // Solo se abbiamo già buoni risultati principali
+    try {
+      const [ctx, opp] = await Promise.all([
+        searchRelatedContext(query, terms),
+        searchOppositeViewpoints(query, terms),
+      ])
+      contextArticles = ctx
+      oppositeArticles = opp
+      console.log(`[veritas] found ${contextArticles.length} context articles and ${oppositeArticles.length} opposite viewpoint articles`)
+    } catch (e) {
+      console.warn('[veritas] context/opposite search failed:', (e as Error).message)
+    }
+  }
+
+  // Combina articoli principali + contesto + prospettive opposte
+  const allArticles = [...rawArticles, ...contextArticles, ...oppositeArticles]
+
   // Riassegna a "searches"-like flow per non riscrivere tutto sotto
-  const all0 = rawArticles
+  const all0 = allArticles
 
   // Keyword di rilevanza ricavate da TUTTE le lingue espanse + query originale
   // (l'espansione multilingua produce articoli in lingue diverse, quindi serve il
@@ -242,20 +264,92 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
       })
   const all = relevant.length >= 3 ? relevant : rawResults
 
-  // Deduplica per URL (stessa notizia da API diverse)
-  const byUrl = new Map<string, SearchArticle>()
-  for (const x of all) {
-    if (!byUrl.has(x.link)) byUrl.set(x.link, x)
-  }
+  // Utilizza la nuova funzione di deduplica e ranking
+  const finalArticles = deduplicateAndRankArticles(all, query)
 
   // Deduplica per source (una per testata)
   const bySource = new Map<string, SearchArticle>()
-  for (const x of byUrl.values()) {
+  for (const x of finalArticles) {
     const key = x.source.toLowerCase().trim()
     if (!bySource.has(key)) bySource.set(key, x)
   }
 
-  return Array.from(bySource.values()).slice(0, 16)
+  // Ritorna fino a 30 articoli (aumentato per includere prospettive opposte)
+  return Array.from(bySource.values()).slice(0, 30)
+}
+
+// Funzione aggiuntiva: cerca articoli di contesto/background su argomenti correlati
+async function searchRelatedContext(query: string, terms: MultiLangTerms): Promise<SearchArticle[]> {
+  // Estrai 2-3 keyword principali dalla query originale
+  const keywords = extractEssentialKeywords(query).split(' ')
+  
+  // Genera query di contesto per background/history/analysis di ogni keyword
+  const contextQueries = keywords.slice(0, 2).flatMap(kw => [
+    `${kw} background history`,
+    `${kw} analysis context`,
+  ])
+
+  const searches = await Promise.allSettled(
+    contextQueries.flatMap(cq => [
+      searchGNews(cq, 'en'),
+      searchGNews(cq, 'it'),
+    ])
+  )
+
+  return searches
+    .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
+    .flatMap((r) => r.value)
+    .slice(0, 8) // Limita a max 8 articoli di contesto
+}
+
+// Funzione per cercare prospettive alternative/opposte
+async function searchOppositeViewpoints(query: string, terms: MultiLangTerms): Promise<SearchArticle[]> {
+  const keywords = extractEssentialKeywords(query).split(' ')
+  
+  // Genera query con termini che cercano critique, dibattiti, obiezioni
+  const oppositeQueries = keywords.slice(0, 2).flatMap(kw => [
+    `${kw} critique criticism`,
+    `${kw} debate controversy`,
+    `${kw} contro against`,
+    `${kw} obiezioni opposition`,
+  ])
+
+  const searches = await Promise.allSettled(
+    oppositeQueries.flatMap(oq => [
+      searchGNews(oq, 'en'),
+      searchGNews(oq, 'it'),
+    ])
+  )
+
+  return searches
+    .filter((r): r is PromiseFulfilledResult<SearchArticle[]> => r.status === 'fulfilled')
+    .flatMap((r) => r.value)
+    .slice(0, 6) // Limita a max 6 articoli di prospettive opposte
+}
+
+// Funzione ausiliaria: deduplica e ordina articoli per rilevanza
+function deduplicateAndRankArticles(articles: SearchArticle[], mainQuery: string): SearchArticle[] {
+  const STOP = new Set(['del', 'della', 'delle', 'dei', 'and', 'the', 'for', 'with', 'over', 'from', 'into'])
+  const mainKeywords = mainQuery
+    .toLowerCase()
+    .split(/[\s,\.;:!\?]+/)
+    .filter(w => w.length >= 3 && !STOP.has(w))
+
+  // Deduplica per URL
+  const byUrl = new Map<string, SearchArticle>()
+  for (const x of articles) {
+    if (!byUrl.has(x.link)) byUrl.set(x.link, x)
+  }
+
+  // Ordina per relevance score (numero di keyword matches nel titolo)
+  const scored = Array.from(byUrl.values()).map(article => ({
+    article,
+    score: mainKeywords.filter(kw => article.title.toLowerCase().includes(kw)).length,
+  }))
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .map(s => s.article)
 }
 
 export async function analyzeWithVeritas(query: string, articles: SearchArticle[], lang = 'it'): Promise<VeritasResult> {

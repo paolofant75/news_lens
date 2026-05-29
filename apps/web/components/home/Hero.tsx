@@ -1,11 +1,29 @@
 // Sezione Hero — above the fold.
-// Headline serif grande, sottotitolo sans, 2 CTA, strip metriche mono.
+// Headline serif grande, sottotitolo sans, 2 CTA, strip metriche mono cliccabile,
+// footnote esplicativa del claim DOPAMINE-FREE, chevron 'SCORRI' che invita all'esplorazione.
 
 import TrackedCTA from './TrackedCTA'
 
+// Voci della strip metriche — ognuna ancora-link verso la sezione corrispondente
+// della pagina, cosi' funziona come mini-tabella dei contenuti.
+const STRIP = [
+  { label: '30+ FONTI',                       href: '#methodology' },
+  { label: '9 AGENTI AI',                     href: '#methodology' },
+  { label: 'BIAS MISURATO SU OGNI ARTICOLO',  href: '#features' },
+  { label: 'DOPAMINE-FREE*',                  href: '#principles' },
+]
+
 export default function Hero() {
   return (
-    <section className="fade-in" style={{ paddingTop: 96, paddingBottom: 96 }}>
+    <section className="fade-in" style={{ paddingTop: 96, paddingBottom: 48 }}>
+      {/* Keyframe per l'animazione del chevron 'SCORRI' — hoisted da React */}
+      <style>{`
+        @keyframes lv-scroll-hint {
+          0%, 100% { transform: translateY(0); opacity: 0.55; }
+          50%      { transform: translateY(6px); opacity: 1; }
+        }
+      `}</style>
+
       <div className="mx-auto px-6" style={{ maxWidth: 1200 }}>
 
         {/* Eyebrow micro-label */}
@@ -45,38 +63,78 @@ export default function Hero() {
           di ogni notizia.
         </p>
 
-        {/* CTA */}
-        <div className="flex flex-wrap items-center gap-4 mb-20">
-          <TrackedCTA source="hero" variant="primary" label="Entra nel feed" />
+        {/* CTA — gerarchia invertita: primario 'Come funziona' (invita a scoprire),
+            secondario 'Entra nel feed' (accesso diretto per chi e' gia' convinto). */}
+        <div className="flex flex-wrap items-center gap-4 mb-16">
           <a
             href="#methodology"
             className="inline-flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-sm transition-opacity hover:opacity-85"
             style={{
-              background: 'transparent',
-              color: 'var(--text)',
-              border: '1px solid rgba(255,255,255,0.18)',
+              background: 'var(--accent)',
+              color: '#0a0a0a',
+              border: '1px solid var(--accent)',
             }}
           >
-            Come funziona
+            Come funziona →
           </a>
+          <TrackedCTA source="hero" variant="secondary" label="Entra nel feed" showArrow={false} />
         </div>
 
-        {/* Strip metriche mono — sotto la fold-line */}
+        {/* Strip metriche — ora cliccabile, ogni voce scrolla alla sezione corrispondente */}
         <div
-          className="mono text-xs flex flex-wrap gap-x-6 gap-y-2 pt-8"
+          className="mono text-xs flex flex-wrap items-center gap-x-6 gap-y-2 pt-8"
           style={{
             color: 'var(--text-3)',
             borderTop: '1px solid var(--border)',
             letterSpacing: '0.04em',
           }}
         >
-          <span>30+ FONTI</span>
-          <span style={{ color: 'var(--text-3)' }}>·</span>
-          <span>9 AGENTI AI</span>
-          <span style={{ color: 'var(--text-3)' }}>·</span>
-          <span>ANALISI BIAS PER OGNI ARTICOLO</span>
-          <span style={{ color: 'var(--text-3)' }}>·</span>
-          <span>0 ALGORITMI DI ENGAGEMENT</span>
+          {STRIP.map((item, i) => (
+            <span key={item.label} className="flex items-center gap-x-6">
+              <a
+                href={item.href}
+                className="hover:opacity-70 transition-opacity"
+                style={{ color: 'var(--text-3)' }}
+              >
+                {item.label}
+              </a>
+              {i < STRIP.length - 1 && <span aria-hidden="true">·</span>}
+            </span>
+          ))}
+        </div>
+
+        {/* Footnote esplicativa del claim DOPAMINE-FREE */}
+        <p
+          className="mono mt-3"
+          style={{
+            fontSize: 11,
+            color: 'var(--text-3)',
+            opacity: 0.65,
+            letterSpacing: '0.02em',
+            lineHeight: 1.5,
+          }}
+        >
+          * <span style={{ color: 'var(--text-2)' }}>dopamine-free:</span>{' '}
+          nessun algoritmo che ti spinge a leggere oltre, nessuna notifica manipolatoria,
+          nessuno scroll infinito. Solo le notizie che cerchi.
+        </p>
+
+        {/* Scroll affordance — chevron animato che invita all'esplorazione */}
+        <div className="flex justify-center mt-14 mb-2">
+          <a
+            href="#problem"
+            aria-label="Scorri per scoprire di piu'"
+            className="mono flex flex-col items-center gap-2 hover:opacity-100 transition-opacity"
+            style={{
+              color: 'var(--text-3)',
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              animation: 'lv-scroll-hint 2.4s ease-in-out infinite',
+            }}
+          >
+            <span>SCORRI</span>
+            <span style={{ fontSize: 18, lineHeight: 1 }}>↓</span>
+          </a>
         </div>
 
       </div>

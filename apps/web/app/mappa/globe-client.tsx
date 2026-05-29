@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { IconScale, IconClose } from '../../components/icons'
 
 type GlobePoint = {
   id: string
@@ -64,7 +65,7 @@ export default function GlobeClient({ points }: Props) {
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
             <span style="width:7px;height:7px;border-radius:50%;background:${d.color};flex-shrink:0;"></span>
             <span style="font-size:10px;color:${d.color};font-weight:700;text-transform:uppercase;letter-spacing:1px;">${d.label}</span>
-            <span style="font-size:9px;color:#4b5563;margin-left:auto;">★ ${d.reliability}</span>
+            <span style="font-size:9px;color:#4b5563;margin-left:auto;">rel ${d.reliability}</span>
           </div>
           <div style="font-size:12px;color:#e5e7eb;line-height:1.5;margin-bottom:5px;">${d.title.slice(0, 130)}${d.title.length > 130 ? '…' : ''}</div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -166,16 +167,16 @@ export default function GlobeClient({ points }: Props) {
                   <span className="text-xs px-1.5 py-0.5 rounded font-mono" style={{ background: selected.color + '22', color: selected.color }}>
                     {selected.category}
                   </span>
-                  <span className="text-xs ml-auto" style={{ color: 'var(--text-3)' }}>{selected.source} · ★ {selected.reliability}</span>
+                  <span className="text-xs ml-auto" style={{ color: 'var(--text-3)' }}>{selected.source} · rel {selected.reliability}</span>
                 </div>
                 <p className="font-semibold leading-snug mb-3" style={{ color: 'var(--text)' }}>{selected.title}</p>
                 <div className="flex gap-3">
                   <a
                     href={`/articolo/${selected.id}`}
-                    className="text-xs px-4 py-1.5 rounded-lg font-medium transition-opacity hover:opacity-80"
+                    className="inline-flex items-center gap-1.5 text-xs px-4 py-1.5 rounded-lg font-medium transition-opacity hover:opacity-80"
                     style={{ background: 'var(--accent)', color: '#000' }}
                   >
-                    ⚖️ Analisi Veritas
+                    <IconScale size={14} /> Analisi Veritas
                   </a>
                   <a
                     href={selected.link}
@@ -190,10 +191,11 @@ export default function GlobeClient({ points }: Props) {
               </div>
               <button
                 onClick={() => setSelected(null)}
-                className="text-lg leading-none flex-shrink-0 transition-opacity hover:opacity-70"
+                className="flex-shrink-0 transition-opacity hover:opacity-70"
                 style={{ color: 'var(--text-3)' }}
+                aria-label="Chiudi"
               >
-                ✕
+                <IconClose size={18} />
               </button>
             </div>
           </div>

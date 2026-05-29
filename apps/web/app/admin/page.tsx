@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getSupabaseClient } from '../../lib/supabase-client'
 import { useAuth } from '../../components/auth-provider'
+import { IconLock, IconRefresh, IconAlert, IconCheck, IconClose } from '../../components/icons'
 
 const ADMIN_EMAIL = 'fantinel.paolo@gmail.com'
 
@@ -148,7 +149,9 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
         <div className="max-w-md text-center">
-          <div className="text-5xl mb-4">🔒</div>
+          <div className="flex justify-center mb-4" style={{ color: 'var(--text-3)' }}>
+            <IconLock size={44} />
+          </div>
           <h1 className="text-xl font-bold mb-3">Accesso negato</h1>
           <p className="text-sm" style={{ color: 'var(--text-2)' }}>Questa pagina e&apos; riservata all&apos;amministratore. Loggato come {user.email}.</p>
         </div>
@@ -180,8 +183,8 @@ export default function AdminDashboard() {
               {user.email} · Provider AI: <strong style={{ color: 'var(--accent)' }}>{data.health.aiProvider}</strong> · Aggiornato {new Date(data.generatedAt).toLocaleTimeString('it-IT')}
             </p>
           </div>
-          <button onClick={fetchData} className="px-4 py-2 rounded-lg text-sm font-semibold" style={{ background: 'var(--accent)', color: '#000' }}>
-            🔄 Aggiorna
+          <button onClick={fetchData} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold" style={{ background: 'var(--accent)', color: '#000' }}>
+            <IconRefresh size={14} /> Aggiorna
           </button>
         </div>
 
@@ -211,7 +214,7 @@ export default function AdminDashboard() {
             <span className="text-[11px] font-mono" style={{ color: data.feeds.hasStatusSnapshot ? 'var(--text-3)' : '#ef4444' }}>
               {data.feeds.hasStatusSnapshot
                 ? <>Ultimo fetch globale: <strong style={{ color: 'var(--text-2)' }}>{fmtAgo(data.feeds.lastSnapshotAt)}</strong> ({fmtClock(data.feeds.lastSnapshotAt)})</>
-                : <>⚠ Nessuno snapshot fetch ancora registrato — la cron <code>/api/cron/refresh-feeds</code> non e&apos; mai partita o ha fallito</>
+                : <><IconAlert size={11} className="inline-block align-text-bottom" /> Nessuno snapshot fetch ancora registrato — la cron <code>/api/cron/refresh-feeds</code> non e&apos; mai partita o ha fallito</>
               }
             </span>
           </div>
@@ -269,8 +272,8 @@ export default function AdminDashboard() {
                       <td className="px-3 py-2 font-semibold">
                         {f.source}
                         {f.fetchError && (
-                          <div className="text-[10px] font-normal mt-0.5 truncate max-w-[260px]" style={{ color: '#ef4444' }} title={f.fetchError}>
-                            ⚠ {f.fetchError}
+                          <div className="inline-flex items-center gap-1 text-[10px] font-normal mt-0.5 truncate max-w-[260px]" style={{ color: '#ef4444' }} title={f.fetchError}>
+                            <IconAlert size={10} /> {f.fetchError}
                           </div>
                         )}
                       </td>
@@ -429,7 +432,7 @@ export default function AdminDashboard() {
                     <td className="px-3 py-2">{r.context ?? '—'}</td>
                     <td className="px-3 py-2 text-right">{r.input_tokens}</td>
                     <td className="px-3 py-2 text-right">{r.output_tokens}</td>
-                    <td className="px-3 py-2 text-center">{r.success ? '✓' : <span style={{ color: '#ef4444' }}>✗</span>}</td>
+                    <td className="px-3 py-2 text-center">{r.success ? <IconCheck size={12} className="inline-block" /> : <IconClose size={12} className="inline-block" style={{ color: '#ef4444' }} />}</td>
                   </tr>
                 ))}
                 {data.usage.recent.length === 0 && (
@@ -588,13 +591,13 @@ function ClassifierCompareSection() {
                     {it.match.scoreDelta > 0 ? `+${it.match.scoreDelta}` : it.match.scoreDelta}
                   </td>
                   <td className="px-3 py-2 text-center">
-                    <span style={{ color: it.legacy.isWorldEligible ? '#22c55e' : '#ef4444' }}>{it.legacy.isWorldEligible ? '✓' : '✗'}</span>
+                    <span className="inline-flex" style={{ color: it.legacy.isWorldEligible ? '#22c55e' : '#ef4444' }}>{it.legacy.isWorldEligible ? <IconCheck size={12} /> : <IconClose size={12} />}</span>
                   </td>
                   <td className="px-3 py-2 text-center">
-                    <span style={{ color: it.ai.isWorldEligible ? '#22c55e' : '#ef4444' }}>{it.ai.isWorldEligible ? '✓' : '✗'}</span>
+                    <span className="inline-flex" style={{ color: it.ai.isWorldEligible ? '#22c55e' : '#ef4444' }}>{it.ai.isWorldEligible ? <IconCheck size={12} /> : <IconClose size={12} />}</span>
                   </td>
                   <td className="px-3 py-2 text-[10px] max-w-[280px]" style={{ color: 'var(--text-3)' }}>
-                    {it.ai.error ? <span style={{ color: '#ef4444' }}>⚠ {it.ai.error}</span> : (it.ai.reasoning ?? '—')}
+                    {it.ai.error ? <span className="inline-flex items-center gap-1" style={{ color: '#ef4444' }}><IconAlert size={11} /> {it.ai.error}</span> : (it.ai.reasoning ?? '—')}
                   </td>
                 </tr>
               ))}

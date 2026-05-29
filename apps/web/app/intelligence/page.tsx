@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import IntelligenceParams from '../../components/intelligence-params'
 import SourceReliabilityBadge from '../../components/source-reliability-badge'
 import type { IntelligenceReport, IntelligenceParams as IParams, TimelineEvent } from '../../lib/intelligence'
+import { IconCheck, IconAlert, IconSettings, IconFlag, IconChevronRight } from '../../components/icons'
 
 const DEFAULT_PARAMS: IParams = {
   depth_level: 'deep',
@@ -43,7 +44,9 @@ function LoadingTerminal({ step }: { step: number }) {
     <div className="rounded-xl p-5 font-mono text-sm space-y-1.5" style={{ background: '#050510', border: '1px solid var(--border)' }}>
       {LOADING_STEPS.slice(0, step + 1).map((s, i) => (
         <div key={i} className="flex items-center gap-2">
-          <span style={{ color: i < step ? '#22c55e' : 'var(--accent)' }}>{i < step ? '✓' : '›'}</span>
+          <span className="inline-flex" style={{ color: i < step ? '#22c55e' : 'var(--accent)' }}>
+            {i < step ? <IconCheck size={14} /> : <IconChevronRight size={14} />}
+          </span>
           <span style={{ color: i < step ? 'var(--text-3)' : 'var(--text)' }}>{s}</span>
           {i === step && <span className="animate-pulse" style={{ color: 'var(--accent)' }}>_</span>}
         </div>
@@ -136,10 +139,11 @@ export default function IntelligencePage() {
             </button>
             <button
               onClick={() => setShowParams(!showParams)}
-              className="px-4 py-3 rounded-xl text-sm transition-opacity hover:opacity-80"
+              className="inline-flex items-center justify-center px-4 py-3 rounded-xl text-sm transition-opacity hover:opacity-80"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
+              aria-label="Parametri"
             >
-              ⚙
+              <IconSettings size={16} />
             </button>
           </div>
 
@@ -330,8 +334,8 @@ export default function IntelligencePage() {
                         const vColor = c.verdict === 'confirmed' ? '#22c55e' : c.verdict === 'disputed' ? '#f59e0b' : '#94a3b8'
                         return (
                           <div key={i} className="flex items-start gap-2">
-                            <span className="text-xs font-bold flex-shrink-0" style={{ color: vColor }}>
-                              {c.verdict === 'confirmed' ? '✓' : c.verdict === 'disputed' ? '⚠' : '?'}
+                            <span className="inline-flex flex-shrink-0 mt-0.5" style={{ color: vColor }}>
+                              {c.verdict === 'confirmed' ? <IconCheck size={14} /> : c.verdict === 'disputed' ? <IconAlert size={14} /> : <span className="text-xs font-bold">?</span>}
                             </span>
                             <div>
                               <p className="text-xs" style={{ color: 'var(--text)' }}>{c.claim}</p>
@@ -357,7 +361,7 @@ export default function IntelligencePage() {
                       </span>
                     </div>
                     {report.disinformation_scan.red_flags.map((f, i) => (
-                      <p key={i} className="text-xs mb-1" style={{ color: 'var(--text-2)' }}>⚑ {f}</p>
+                      <p key={i} className="inline-flex items-center gap-1 text-xs mb-1" style={{ color: 'var(--text-2)' }}><IconFlag size={12} /> {f}</p>
                     ))}
                     {report.disinformation_scan.propaganda_techniques.map((t, i) => (
                       <p key={i} className="text-xs mb-1" style={{ color: '#f59e0b' }}>◈ {t}</p>

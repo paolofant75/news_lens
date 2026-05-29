@@ -77,13 +77,16 @@ export async function GET(req: NextRequest) {
   // 1) Pool corrente
   const raw = await cacheGet(ARTICLES_FRESH_KEY)
   if (!raw) {
+    // Pool ancora non popolato: non e' un errore, refresh-feeds gira ogni 5min.
+    // 200 cosi' GitHub Actions non rosseggia. ok:false segnala lo stato a chi legge il body.
     return NextResponse.json({
       ok: false,
+      waiting: true,
       processed: 0,
       cached: 0,
       errors: 0,
       reason: 'pool vuoto, aspetta cron refresh-feeds',
-    }, { status: 503 })
+    })
   }
 
   let pool: Article[]

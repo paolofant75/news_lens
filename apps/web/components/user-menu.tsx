@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from './auth-provider'
 import AuthModal from './auth-modal'
 import { isSupabaseConfigured } from '../lib/supabase-client'
+import { IconUser, IconSearch, IconBook } from './icons'
 
 export default function UserMenu() {
   const { user, loading, signOut } = useAuth()
@@ -66,17 +67,17 @@ export default function UserMenu() {
             <a href="/profilo" onClick={() => setShowDropdown(false)}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm transition-opacity hover:opacity-70"
               style={{ color: 'var(--text-2)' }}>
-              <span>👤</span> Il mio profilo
+              <IconUser size={14} /> Il mio profilo
             </a>
             <a href="/profilo#ricerche" onClick={() => setShowDropdown(false)}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm transition-opacity hover:opacity-70"
               style={{ color: 'var(--text-2)' }}>
-              <span>🔍</span> Cronologia ricerche
+              <IconSearch size={14} /> Cronologia ricerche
             </a>
             <a href="/profilo#letti" onClick={() => setShowDropdown(false)}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm transition-opacity hover:opacity-70"
               style={{ color: 'var(--text-2)' }}>
-              <span>📖</span> Articoli letti
+              <IconBook size={14} /> Articoli letti
             </a>
 
             <div className="my-1" style={{ borderBottom: '1px solid var(--border)' }} />

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import LayoutToggle from './layout-toggle'
 import { getSupabaseClient } from '../lib/supabase-client'
 import SourceReliabilityBadge from './source-reliability-badge'
+import { IconScale } from './icons'
 
 async function trackRead(article: { title: string; link: string; category: string; geo: string; source: string }) {
   try {
@@ -122,8 +123,8 @@ export default function NewsArticleGrid({
                   </div>
                 </a>
                 <div className="px-5 pb-4 flex items-center justify-between pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-                  <a href={`/articolo/${id}`} className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
-                    ⚖️ Veritas
+                  <a href={`/articolo/${id}`} className="inline-flex items-center gap-1 text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--accent)' }}>
+                    <IconScale size={11} /> Veritas
                   </a>
                   <a href={article.link} target="_blank" rel="noopener noreferrer" className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--text-3)' }}>
                     Originale ↗

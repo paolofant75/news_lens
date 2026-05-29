@@ -12,6 +12,7 @@ const PRINCIPLES = [
 export default function Principles() {
   return (
     <section
+      id="principles"
       className="fade-in"
       style={{
         paddingTop: 96,

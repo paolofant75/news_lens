@@ -6,22 +6,22 @@ import { cookies } from 'next/headers'
 import PageLayout from '../../components/page-layout'
 import { TAXONOMY, getAllKeywords } from '../../lib/taxonomy'
 import NewsArticleGrid from '../../components/news-article-grid'
-import { IconGlobe, IconMap, IconMapPin } from '../../components/icons'
+import { IconGlobe, IconMap, IconMapPin, IconMosque, IconWaves, IconCompass, IconLeaf, IconGlobe2, IconLandmark } from '../../components/icons'
 
 const CATEGORIES = [
-  { label: 'Tutte', slug: '', icon: '' },
-  { label: 'Ultime notizie', slug: 'breaking', icon: '🔴' },
-  { label: 'Esteri', slug: 'esteri', icon: '🌍' },
-  { label: 'Cronaca', slug: 'cronaca', icon: '📰' },
-  { label: 'Politica', slug: 'politica', icon: '🏛️' },
-  { label: 'Economia', slug: 'economia', icon: '📈' },
-  { label: 'Sport', slug: 'sport', icon: '⚽' },
-  { label: 'Tecnologia', slug: 'tecnologia', icon: '🤖' },
-  { label: 'Conflitti', slug: 'conflitti', icon: '⚔️' },
-  { label: 'Scienza', slug: 'scienza', icon: '🔬' },
-  { label: 'Salute', slug: 'salute', icon: '🏥' },
-  { label: 'Ambiente', slug: 'ambiente', icon: '🌿' },
-  { label: 'Cultura', slug: 'cultura', icon: '🎭' },
+  { label: 'Tutte', slug: '' },
+  { label: 'Ultime notizie', slug: 'breaking' },
+  { label: 'Esteri', slug: 'esteri' },
+  { label: 'Cronaca', slug: 'cronaca' },
+  { label: 'Politica', slug: 'politica' },
+  { label: 'Economia', slug: 'economia' },
+  { label: 'Sport', slug: 'sport' },
+  { label: 'Tecnologia', slug: 'tecnologia' },
+  { label: 'Conflitti', slug: 'conflitti' },
+  { label: 'Scienza', slug: 'scienza' },
+  { label: 'Salute', slug: 'salute' },
+  { label: 'Ambiente', slug: 'ambiente' },
+  { label: 'Cultura', slug: 'cultura' },
 ]
 
 const SPORTS = [
@@ -91,15 +91,16 @@ const SPORT_KEYWORDS: Record<string, string[]> = {
   mma: ['mma', 'ufc', 'mixed martial arts'],
 }
 
-const GEO = [
-  { label: 'Tutte',          slug: '',             flag: '∞'  },
-  { label: 'Mondo',          slug: 'mondo',        flag: '🌐' },  // terminale geopolitico: applica applyWorldFilter
-  { label: 'Europa',         slug: 'europa',       flag: '🇪🇺' },
-  { label: 'Americhe',       slug: 'americhe',     flag: '🌎' },
-  { label: 'Medio Oriente',  slug: 'medio-oriente',flag: '🕌' },
-  { label: 'Asia',           slug: 'asia',         flag: '🌏' },
-  { label: 'Africa',         slug: 'africa',       flag: '🌍' },
-  { label: 'Oceania',        slug: 'oceania',      flag: '🌊' },
+type IconComp = (p: { size?: number; className?: string }) => React.ReactElement
+const GEO: { label: string; slug: string; Icon: IconComp | null }[] = [
+  { label: 'Tutte',          slug: '',             Icon: null },
+  { label: 'Mondo',          slug: 'mondo',        Icon: IconGlobe },  // terminale geopolitico: applica applyWorldFilter
+  { label: 'Europa',         slug: 'europa',       Icon: IconLandmark },
+  { label: 'Americhe',       slug: 'americhe',     Icon: IconCompass },
+  { label: 'Medio Oriente',  slug: 'medio-oriente',Icon: IconMosque },
+  { label: 'Asia',           slug: 'asia',         Icon: IconGlobe2 },
+  { label: 'Africa',         slug: 'africa',       Icon: IconLeaf },
+  { label: 'Oceania',        slug: 'oceania',      Icon: IconWaves },
 ]
 
 export const revalidate = 120
@@ -208,7 +209,7 @@ export default async function NewsPage({
                 ? { background: 'var(--accent)', color: '#fff' }
                 : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
             >
-              <span className="text-xl leading-none">{g.flag}</span>
+              {g.Icon ? <g.Icon size={20} className="opacity-80" /> : <span className="text-xl leading-none">∞</span>}
               <span className="leading-tight mt-1">{g.label}</span>
               <span className="opacity-60 text-[10px]">{geoCounts[g.slug]}</span>
             </a>
@@ -238,7 +239,7 @@ export default async function NewsPage({
                     ? { background: 'var(--accent)', color: '#000' }
                     : { background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border)' }}
                 >
-                  <span>{g.flag}</span>
+                  {g.Icon ? <g.Icon size={14} className="opacity-80" /> : <span>∞</span>}
                   <span>{g.label}</span>
                   <span className="opacity-50" style={{ fontSize: 10 }}>{geoCounts[g.slug]}</span>
                 </a>

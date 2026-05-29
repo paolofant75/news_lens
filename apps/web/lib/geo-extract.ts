@@ -86,15 +86,21 @@ export function getCountryOrFallback(title: string, summary: string, geo: string
 }
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  breaking:    '#ef4444',
-  conflitti:   '#f97316',
-  politica:    '#3b82f6',
-  economia:    '#10b981',
-  tecnologia:  '#a855f7',
-  scienza:     '#06b6d4',
-  salute:      '#14b8a6',
-  ambiente:    '#22c55e',
-  sport:       '#eab308',
-  cultura:     '#ec4899',
-  cronaca:     '#94a3b8',
+  breaking:       '#ef4444',
+  geopolitics:    '#f97316',
+  ai_tech:        '#a855f7',
+  economy:        '#10b981',
+  finance:        '#0ea5e9',
+  health_science: '#06b6d4',
+  sport:          '#eab308',
+  // Fallback per le vecchie categorie
+  conflitti:      '#f97316',
+  politica:       '#3b82f6',
+  economia:       '#10b981',
+  tecnologia:     '#a855f7',
+  scienza:        '#06b6d4',
+  salute:         '#14b8a6',
+  ambiente:       '#22c55e',
+  cultura:        '#ec4899',
+  cronaca:        '#94a3b8',
 }

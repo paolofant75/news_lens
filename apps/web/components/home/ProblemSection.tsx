@@ -21,7 +21,7 @@ const POINTS = [
 
 export default function ProblemSection() {
   return (
-    <section className="fade-in" style={{ paddingTop: 96, paddingBottom: 96 }}>
+    <section id="problem" className="fade-in" style={{ paddingTop: 96, paddingBottom: 96 }}>
       <div className="mx-auto px-6" style={{ maxWidth: 1200 }}>
 
         <p

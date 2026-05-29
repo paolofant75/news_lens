@@ -10,7 +10,6 @@ const NAV = [
   { href: '/news',    Icon: IconNewspaper, label: 'Notizie' },
   { href: '/veritas', Icon: IconScale,     label: 'Veritas' },
   { href: '/mappa',   Icon: IconGlobe,     label: 'Mappa'   },
-  { href: '/profilo', Icon: IconUser,      label: 'Profilo' },
 ]
 
 const NODE_ICONS: Record<string, React.ReactNode> = {

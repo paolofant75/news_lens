@@ -6,6 +6,7 @@ import type { VeritasResult } from '../../lib/veritas'
 import LoadingQuote from '../../components/loading-quote'
 import Approfondimenti from '../../components/approfondimenti'
 import { getSupabaseClient } from '../../lib/supabase-client'
+import { IconScale, IconNewspaper } from '../../components/icons'
 
 async function trackSearch(query: string) {
   try {
@@ -89,8 +90,8 @@ export default function VeritasPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-1" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
-            ⚖️ Veritas
+          <h1 className="inline-flex items-center gap-2 text-3xl font-bold mb-1" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
+            <IconScale size={28} /> Veritas
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-2)' }}>
             Cerca una notizia o incolla un URL — Claude analizza tutte le fonti e rileva i bias
@@ -135,10 +136,10 @@ export default function VeritasPage() {
             {/* Articolo consolidato */}
             <div className="rounded-2xl p-8" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)' }}>
               <div className="flex items-center gap-3 mb-5">
-                <span className="text-2xl">📰</span>
+                <IconNewspaper size={22} className="opacity-80" />
                 <div>
                   <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>
-                    Articolo Consolidato — Veritas
+                    Articolo Verificato — Lens Veritas
                   </h2>
                   <p className="text-xs" style={{ color: 'var(--text-3)' }}>
                     Sintesi imparziale · {result.sources.length} fonti

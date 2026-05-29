@@ -1,25 +1,33 @@
 // Dashboard a riquadri stile Google News: 6 box per categoria, ognuno con 4 articoli (2x2).
-// Vista MONDO: tutto il pool passa per applyWorldFilter prima del grouping
-// -> niente cronaca regionale italiana, niente sport locali, niente affari Quebec.
-// Notizie nazionali (ANSA Politica, Corriere Esteri, ecc.) entrano solo se globalImpactScore >= 6.
+// NB: NON applichiamo applyWorldFilter qui — i box mostrano news per categoria,
+// inclusi sport/cronaca nazionali. Il filtro Mondo resta solo sul tab "Mondo"
+// (vedi news/page.tsx) e sulla mappa globale.
 
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { fetchArticles, type Article } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { sortByPreferredLang } from '../../lib/lang-priority'
-import { applyWorldFilter } from '../../lib/world-filter'
+import {
+  IconGlobe,
+  IconNewspaper,
+  IconLandmark,
+  IconTrending,
+  IconBall,
+  IconCpu,
+} from '../../components/icons'
 
-type BoxDef = { slug: string; label: string; icon: string }
+type IconComp = (p: { size?: number; className?: string }) => React.ReactElement
+type BoxDef = { slug: string; label: string; Icon: IconComp }
 
 // Ordine richiesto dall'utente: Esteri -> Cronaca -> Politica -> Economia -> Sport -> Tecnologia
 const BOXES: BoxDef[] = [
-  { slug: 'esteri',     label: 'Esteri',     icon: '🌍' },
-  { slug: 'cronaca',    label: 'Cronaca',    icon: '📰' },
-  { slug: 'politica',   label: 'Politica',   icon: '🏛️' },
-  { slug: 'economia',   label: 'Economia',   icon: '📈' },
-  { slug: 'sport',      label: 'Sport',      icon: '⚽' },
-  { slug: 'tecnologia', label: 'Tecnologia', icon: '🤖' },
+  { slug: 'esteri',     label: 'Esteri',     Icon: IconGlobe },
+  { slug: 'cronaca',    label: 'Cronaca',    Icon: IconNewspaper },
+  { slug: 'politica',   label: 'Politica',   Icon: IconLandmark },
+  { slug: 'economia',   label: 'Economia',   Icon: IconTrending },
+  { slug: 'sport',      label: 'Sport',      Icon: IconBall },
+  { slug: 'tecnologia', label: 'Tecnologia', Icon: IconCpu },
 ]
 
 const ARTICLES_PER_BOX = 4
@@ -40,12 +48,10 @@ export default async function CategoryBoxes() {
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
 
-  const allRaw = await fetchArticles()
-  // Filtro Mondo: applicato a monte. Tutto il pool che entra nei box e' world-eligible.
-  // Cap soft 12/paese (piu' permissivo del default 8 perche' qui poi splittiamo per categoria).
-  // applyWorldFilter e' async per supportare la classificazione AI (USE_AI_CLASSIFIER=true);
-  // in modalita' Legacy l'await e' praticamente gratis (microtask boundary).
-  const all = await applyWorldFilter(allRaw, { capPerCountry: 12 })
+  // I box categoria devono mostrare tutto il pool nazionale (sport, cronaca, ecc.),
+  // non solo cio' che e' world-eligible. Il filtro Mondo era qui prima e droppava
+  // sistematicamente lo sport nazionale (score=0, scope=national) lasciando il box vuoto.
+  const all = await fetchArticles()
 
   // Indicizza per categoria, prendendo i 4 piu recenti per ognuna nella lingua preferita
   const byCategory = new Map<string, Article[]>()
@@ -87,7 +93,7 @@ export default async function CategoryBoxes() {
             {/* Header del box: categoria + count + "Vedi tutto" */}
             <header className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2">
-                <span className="text-base leading-none">{box.icon}</span>
+                <box.Icon size={16} className="opacity-70" />
                 <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--text)', fontFamily: 'var(--font-h)' }}>
                   {box.label}
                 </h2>

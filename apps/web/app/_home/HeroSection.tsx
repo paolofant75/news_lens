@@ -8,6 +8,7 @@ import { cookies, headers } from 'next/headers'
 import { CATEGORY_COLORS } from '../../lib/geo-extract'
 import HeroStatsCarousel from '../../components/hero-stats-carousel'
 import RefreshFeedButton from '../../components/refresh-feed-button'
+import { IconScale } from '../../components/icons'
 
 export default async function HeroSection() {
   const cookieStore = await cookies()
@@ -115,10 +116,10 @@ export default async function HeroSection() {
               <div className="flex gap-3 flex-wrap">
                 <Link
                   href={`/articolo/${article.id}`}
-                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
                   style={{ background: 'var(--accent)' }}
                 >
-                  ⚖️ Analisi Veritas
+                  <IconScale size={16} /> Analisi Veritas
                 </Link>
                 <a
                   href={article.link}
