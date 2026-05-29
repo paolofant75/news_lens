@@ -6,8 +6,8 @@ import { articleId } from './encode'
 import { fetchGdeltArticles } from './gdelt'
 import { ITALIAN_FEEDS } from './feeds-it'
 
-// v5: +75 feed (ANSA estese + La Presse Canada), invalida cache post-deploy
-const ARTICLES_FRESH_KEY = 'nlv_articles_v5'
+// v6: bump forzato per invalidare nlv_articles_v5 congelata senza TTL in Upstash
+const ARTICLES_FRESH_KEY = 'nlv_articles_v6'
 const ARTICLES_CACHE_TTL = 1800  // 30 min fresh (aumentato da 600)
 const ARTICLE_BY_ID_TTL = 3600   // 1h: ridotto da 86400 per ridurre comandi Redis
 // Per-feed health snapshot: aggiornato ad ogni fetchArticlesFresh, consumato dall'admin dashboard

@@ -5,5 +5,15 @@
   "functions": {
     "app/api/cron/refresh-feeds/route.ts": { "maxDuration": 60 },
     "app/api/cron/classify-articles/route.ts": { "maxDuration": 60 }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/refresh-feeds",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/classify-articles",
+      "schedule": "*/30 * * * *"
+    }
+  ]
 }
