@@ -18,9 +18,10 @@ type Props = {
   five_ws: FiveWs
   title: string
   palette?: string
+  vertical?: boolean
 }
 
-export default function FiveWsCard({ five_ws, title, palette }: Props) {
+export default function FiveWsCard({ five_ws, title, palette, vertical }: Props) {
   return (
     <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
       {/* Header */}
@@ -29,20 +30,20 @@ export default function FiveWsCard({ five_ws, title, palette }: Props) {
           <span className="font-bold text-base" style={{ color: '#fff', fontFamily: 'var(--font-h)' }}>
             Five Ws
           </span>
-          <span className="text-xs opacity-70" style={{ color: '#fff' }}>· Essenza della notizia</span>
+          {!vertical && <span className="text-xs opacity-70" style={{ color: '#fff' }}>· Essenza della notizia</span>}
         </div>
         <InfographicDownload title={title} five_ws={five_ws} palette={palette} />
       </div>
 
       {/* Grid 5Ws */}
-      <div className="grid grid-cols-1 sm:grid-cols-5" style={{ background: 'var(--bg-card)' }}>
+      <div className={`grid ${vertical ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-5'}`} style={{ background: 'var(--bg-card)' }}>
         {LABELS.map(({ key, Icon, label }, i) => (
           <div
             key={key}
             className="p-4"
             style={{
-              borderRight: i < 4 ? '1px solid var(--border)' : 'none',
-              borderBottom: '0',
+              borderRight: !vertical && i < 4 ? '1px solid var(--border)' : 'none',
+              borderBottom: vertical && i < 4 ? '1px solid var(--border)' : 'none',
             }}
           >
             <div className="flex items-center gap-1.5 mb-2" style={{ color: 'var(--accent)' }}>

@@ -192,8 +192,10 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
         {/* Query */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white mb-1">Analisi: <span className="text-blue-400">{query}</span></h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text)' }}>
+            Analisi: <span style={{ color: 'var(--accent)' }}>{query}</span>
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--text-3)' }}>
             {totalSources} fonti analizzate da Veritas{langLabel}
             {searchQuery !== query && (
               <span className="ml-2 opacity-60">(ricerca: &ldquo;{searchQuery}&rdquo;)</span>
@@ -201,23 +203,75 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
           </p>
         </div>
 
-        {/* Five Ws Card */}
-        {result.five_ws?.who && (
-          <div className="mb-8">
-            <FiveWsCard five_ws={result.five_ws} title={query} palette={palette} />
+        {/* Grid principale: Five Ws | Articolo | Statistiche */}
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 mb-12">
+
+          {/* SINISTRA — Five Ws verticale */}
+          <div className="lg:col-span-1 order-last lg:order-first">
+            {result.five_ws?.who && (
+              <FiveWsCard five_ws={result.five_ws} title={query} palette={palette} vertical />
+            )}
           </div>
-        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+          {/* CENTRO — Articolo ampliato */}
+          <div className="lg:col-span-4">
+            <div className="rounded-3xl p-8 lg:p-10 h-full shadow-2xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)' }}>
+              <div className="flex items-start gap-3 mb-6">
+                <IconNewspaper size={22} className="opacity-70 mt-1 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-2xl font-bold mb-1" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>
+                    Articolo Consolidato Veritas
+                  </h2>
+                  <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+                    Sintesi su cui {totalSources} {totalSources === 1 ? 'fonte converge' : 'fonti convergono'} · Le fonti di ogni affermazione sono indicate come pillole sotto ogni paragrafo
+                  </p>
+                  <p className="text-[10px] mt-1.5 px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'var(--bg-s)', color: 'var(--text-3)', border: '1px solid var(--border)' }}>
+                    <IconSparkle size={10} /> Generato da AI (Claude) · EU AI Act art. 50
+                  </p>
+                  <div className="mt-3">
+                    <AudioReader text={result.articolo_consolidato} lang={lang} />
+                  </div>
+                </div>
+              </div>
 
-          {/* SINISTRA — Statistiche correlate */}
-          <div className="lg:col-span-1 order-last lg:order-first flex flex-row lg:flex-col gap-3 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
-            <p className="hidden lg:block text-xs font-semibold uppercase tracking-widest mb-1 shrink-0" style={{ color: 'var(--text-3)' }}>
-              Statistiche
-            </p>
+              <div className="text-base leading-relaxed">
+                {result.articolo_consolidato ? (
+                  <ArticleWithCitations text={result.articolo_consolidato} sources={result.sources} />
+                ) : (
+                  <p className="text-sm italic" style={{ color: 'var(--text-3)' }}>
+                    Analisi Veritas non disponibile per questa notizia — le fonti trovate non contengono contenuto sufficiente per produrre un articolo consolidato.
+                  </p>
+                )}
+              </div>
+
+              {sourcesWithAnalysis.length > 0 && (
+                <div className="mt-8 pt-6 grid grid-cols-3 gap-4 text-center" style={{ borderTop: '1px solid var(--border)' }}>
+                  <div>
+                    <p className="text-2xl font-bold text-green-400">
+                      {Math.round(sourcesWithAnalysis.reduce((s, x) => s + (x.analisi?.completezza ?? 0), 0) / sourcesWithAnalysis.length)}%
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Completezza media</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-yellow-400">
+                      {Math.round(sourcesWithAnalysis.reduce((s, x) => s + (x.analisi?.bias ?? 0), 0) / sourcesWithAnalysis.length)}%
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Bias medio</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--accent)' }}>{totalSources}</p>
+                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Fonti analizzate</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* DESTRA — Statistiche correlate */}
+          <div className="lg:col-span-1 flex flex-col gap-3">
+            <p className="text-xs font-semibold uppercase tracking-widest opacity-50">Dati</p>
             {relevantStats.map((stat) => (
-              <div key={stat.id} className="rounded-xl p-3 shrink-0 lg:shrink w-52 lg:w-auto"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <div key={stat.id} className="rounded-xl p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                 <p className="text-[10px] font-semibold uppercase tracking-wide mb-1 leading-tight" style={{ color: 'var(--text-3)' }}>
                   {stat.label}
                 </p>
@@ -240,120 +294,66 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
             ))}
           </div>
 
-          {/* CENTRO — Articolo consolidato */}
-          <div className="lg:col-span-3">
-            <div className="rounded-2xl p-7 h-full" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)' }}>
-              <div className="flex items-center gap-3 mb-5">
-                <IconNewspaper size={22} className="opacity-80" />
-                <div>
-                  <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-h)', color: 'var(--accent)' }}>Articolo Consolidato Veritas</h2>
-                  <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-                    Sintesi su cui {totalSources} {totalSources === 1 ? 'fonte converge' : 'fonti convergono'} · Le fonti di ogni affermazione sono indicate come pillole sotto ogni paragrafo
-                  </p>
-                  <p className="text-[10px] mt-1 px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: 'var(--bg-s)', color: 'var(--text-3)', border: '1px solid var(--border)' }}>
-                    <IconSparkle size={10} /> Generato da AI (Claude) · EU AI Act art. 50
-                  </p>
-                  <div className="mt-2">
-                    <AudioReader text={result.articolo_consolidato} lang={lang} />
+        </div>
+
+        {/* SOTTO — Fonti analizzate (griglia orizzontale) */}
+        <div className="pt-10" style={{ borderTop: '1px solid var(--border)' }}>
+          <h2 className="text-xl font-bold mb-6 flex items-center gap-2" style={{ fontFamily: 'var(--font-h)' }}>
+            <IconScale size={20} className="opacity-50" /> Fonti Analizzate — Dalla più affidabile
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {sourcesWithAnalysis.map(({ src, analisi }, i) => (
+              <div
+                key={i}
+                className="rounded-2xl p-5 transition-all hover:scale-[1.02]"
+                style={i === 0
+                  ? { background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.4)' }
+                  : { background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex flex-col min-w-0 flex-1 pr-2">
+                    {i === 0 && <span className="text-[10px] font-bold text-green-500 uppercase mb-1">Affidabilità Massima</span>}
+                    <span className="font-bold text-sm" style={{ color: 'var(--text)' }}>{src.source}</span>
                   </div>
+                  <a href={src.link} target="_blank" rel="noopener noreferrer" className="shrink-0 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                    <IconSearch size={14} className="text-blue-400" />
+                  </a>
                 </div>
-              </div>
-              {result.articolo_consolidato ? (
-                <ArticleWithCitations text={result.articolo_consolidato} sources={result.sources} />
-              ) : (
-                <p className="text-sm italic" style={{ color: 'var(--text-3)' }}>
-                  Analisi Veritas non disponibile per questa notizia — le fonti trovate non contengono contenuto sufficiente per produrre un articolo consolidato.
-                </p>
-              )}
 
-              {/* Statistiche aggregate */}
-              {sourcesWithAnalysis.length > 0 && (
-                <div className="mt-6 pt-5 grid grid-cols-3 gap-4 text-center" style={{ borderTop: '1px solid var(--border)' }}>
-                  <div>
-                    <p className="text-2xl font-bold text-green-400">
-                      {Math.round(sourcesWithAnalysis.reduce((s, x) => s + (x.analisi?.completezza ?? 0), 0) / sourcesWithAnalysis.length)}%
-                    </p>
-                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Completezza media</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-yellow-400">
-                      {Math.round(sourcesWithAnalysis.reduce((s, x) => s + (x.analisi?.bias ?? 0), 0) / sourcesWithAnalysis.length)}%
-                    </p>
-                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Bias medio</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold" style={{ color: 'var(--accent)' }}>{totalSources}</p>
-                    <p className="text-xs" style={{ color: 'var(--text-3)' }}>Fonti analizzate</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+                <p className="text-xs mb-4 line-clamp-2 leading-snug" style={{ color: 'var(--text-3)' }}>{src.title}</p>
 
-          {/* DESTRA — Fonti ordinate per score */}
-          <div className="lg:col-span-2 order-first lg:order-last">
-            <h2 className="text-base font-bold mb-4" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
-              Fonti — dalla più completa e imparziale
-            </h2>
-
-            <div className="space-y-3 max-h-[680px] overflow-y-auto pr-1">
-              {sourcesWithAnalysis.map(({ src, analisi }, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl p-4 transition-all"
-                  style={i === 0
-                    ? { background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.5)' }
-                    : { background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-                >
-                  {/* Badge posizione */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      {i === 0 && <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-green-800 text-green-200"><IconCheck size={11} /> Migliore</span>}
-                      <span className="font-semibold text-sm text-white">{src.source}</span>
-                    </div>
-                    <a href={src.link} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:underline">
-                      Apri ↗
-                    </a>
-                  </div>
-
-                  {/* Titolo */}
-                  <p className="text-xs text-gray-400 mb-3 line-clamp-2">{src.title}</p>
-
-                  {/* Barre */}
-                  <div className="space-y-2 mb-3">
+                {analisi && (
+                  <div className="space-y-3">
                     <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-500">Completezza</span>
-                        <span className="text-green-400 font-medium">{analisi!.completezza}%</span>
+                      <div className="flex justify-between text-xs mb-1" style={{ color: 'var(--text-3)' }}>
+                        <span>Completezza</span>
+                        <span className="text-green-400">{analisi.completezza}%</span>
                       </div>
-                      <BiasBar value={analisi!.completezza} color="bg-green-500" />
+                      <BiasBar value={analisi.completezza} color="bg-green-500" />
                     </div>
                     <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-500">Bias</span>
-                        <span className={`font-medium ${analisi!.bias <= 20 ? 'text-green-400' : analisi!.bias <= 50 ? 'text-yellow-400' : 'text-red-400'}`}>
-                          {analisi!.bias}%
+                      <div className="flex justify-between text-xs mb-1" style={{ color: 'var(--text-3)' }}>
+                        <span>Bias</span>
+                        <span className={analisi.bias <= 20 ? 'text-green-400' : analisi.bias <= 50 ? 'text-yellow-400' : 'text-red-400'}>
+                          {analisi.bias}%
                         </span>
                       </div>
-                      <BiasBar value={analisi!.bias} color={biasColor(analisi!.bias)} />
+                      <BiasBar value={analisi.bias} color={biasColor(analisi.bias)} />
+                    </div>
+                    <div className="flex items-start gap-2 pt-1">
+                      <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${badgeClass(analisi.tipo_bias)}`}>
+                        {analisi.tipo_bias}
+                      </span>
+                      <p className="text-xs leading-snug" style={{ color: 'var(--text-3)' }}>{analisi.nota}</p>
                     </div>
                   </div>
-
-                  {/* Badge tipo + nota */}
-                  <div className="flex items-start gap-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${badgeClass(analisi!.tipo_bias)}`}>
-                      {analisi!.tipo_bias}
-                    </span>
-                    <p className="text-xs text-gray-500 leading-snug">{analisi!.nota}</p>
-                  </div>
-                </div>
-              ))}
-
-            </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Due prospettive — prima degli approfondimenti: confrontare le letture è più importante */}
+        {/* Due prospettive */}
         {showProspettive && (
           <ProspettiveCard
             poleA={{ src: poleA.src, analisi: poleA.analisi! }}
@@ -363,10 +363,11 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
         {/* Approfondimenti */}
         {result.approfondimenti?.length > 0 && (
-          <div className="mt-2 px-0">
+          <div className="mt-6">
             <Approfondimenti items={result.approfondimenti} />
           </div>
         )}
+
       </div>
     </div>
   )

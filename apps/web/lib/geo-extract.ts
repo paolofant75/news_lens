@@ -87,7 +87,6 @@ export function getCountryOrFallback(title: string, summary: string, geo: string
 
 export const CATEGORY_COLORS: Record<string, string> = {
   breaking:       '#ef4444',
-  breaking:       '#ef4444',
   geopolitics:    '#f97316',
   ai_tech:        '#a855f7',
   economy_finance: '#10b981',

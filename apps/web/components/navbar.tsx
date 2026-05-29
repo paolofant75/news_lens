@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
-// Link is used for the logo only
 import LangSelector from './lang-selector'
 import TweaksPanel from './tweaks-panel'
 import UserMenu from './user-menu'
+import { IconScale } from './icons'
 
 export default async function Navbar() {
   const cookieStore = await cookies()
@@ -34,7 +34,14 @@ export default async function Navbar() {
         </Link>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/veritas"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-opacity hover:opacity-80"
+            style={{ background: 'var(--accent)', color: '#fff' }}
+          >
+            <IconScale size={14} /> Analisi Veritas
+          </Link>
           <LangSelector current={lang} />
           <TweaksPanel palette={palette} font={font} />
           <UserMenu />
