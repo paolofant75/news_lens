@@ -9,32 +9,36 @@ export type TaxNode = {
 
 export const TAXONOMY: TaxNode[] = [
   {
-    id: 'breaking', label: 'Breaking News', level: 1, type: 'static',
-    keywords: ['breaking', 'urgent', 'alert', 'just in', 'crisis', 'emergency', 'disaster'],
+    id: 'breaking', label: '🚨 Breaking News', level: 1, type: 'static',
+    keywords: ['breaking', 'urgent', 'alert', 'just in', 'crisis', 'emergency', 'disaster', 'breaking news'],
   },
   {
-    id: 'geopolitics', label: 'Geopolitica', level: 1, type: 'static',
-    keywords: ['geopolitics', 'diplomatic', 'conflict', 'war', 'military', 'troops', 'usa', 'russia', 'china', 'europe', 'middle east', 'israel', 'gaza'],
+    id: 'geopolitics', label: '🌍 Geopolitica', level: 1, type: 'static',
+    keywords: ['geopolitics', 'diplomatic', 'conflict', 'war', 'military', 'troops', 'usa', 'russia', 'china', 'europe', 'middle east', 'israel', 'gaza', 'nato', 'united nations'],
   },
   {
-    id: 'ai_tech', label: 'AI Tech', level: 1, type: 'static',
-    keywords: ['artificial intelligence', 'technology', 'tech', 'software', 'digital', 'ai', 'llm', 'openai', 'claude', 'gemini', 'hack', 'cybersecurity', 'apple', 'google', 'meta', 'microsoft', 'amazon', 'nvidia'],
+    id: 'ai_tech', label: '💡 AI & Tecnologia', level: 1, type: 'static',
+    keywords: ['artificial intelligence', 'technology', 'tech', 'software', 'digital', 'ai', 'llm', 'openai', 'claude', 'gemini', 'hack', 'cybersecurity', 'apple', 'google', 'meta', 'microsoft', 'amazon', 'nvidia', 'startup', 'innovation'],
   },
   {
-    id: 'economy', label: 'Economia', level: 1, type: 'static',
-    keywords: ['economy', 'trade', 'gdp', 'business', 'market', 'commerce', 'commercial'],
+    id: 'economy_finance', label: '💰 Economia & Finanza', level: 1, type: 'static',
+    keywords: ['economy', 'trade', 'gdp', 'business', 'market', 'commerce', 'commercial', 'finance', 'financial', 'stock', 'banking', 'bank', 'crypto', 'bitcoin', 'ethereum', 'investment', 'inflation', 'recession', 'euro', 'dollaro'],
   },
   {
-    id: 'finance', label: 'Finanza', level: 1, type: 'static',
-    keywords: ['finance', 'financial', 'market', 'stock', 'banking', 'bank', 'crypto', 'bitcoin', 'ethereum', 'investment', 'inflation'],
+    id: 'health_science', label: '🏥 Salute & Scienza', level: 1, type: 'static',
+    keywords: ['health', 'science', 'research', 'medical', 'disease', 'epidemic', 'pandemic', 'vaccine', 'climate', 'physics', 'astronomy', 'environment', 'sustainability', 'medicine'],
   },
   {
-    id: 'health_science', label: 'Salute e Scienza', level: 1, type: 'static',
-    keywords: ['health', 'science', 'research', 'medical', 'disease', 'epidemic', 'pandemic', 'vaccine', 'climate', 'physics', 'astronomy'],
+    id: 'sport', label: '⚽ Sport', level: 1, type: 'static',
+    keywords: ['sport', 'football', 'soccer', 'tennis', 'basket', 'olympics', 'champions', 'serie a', 'premier league', 'la liga', 'nba', 'motogp', 'f1', 'calcio', 'juventus', 'milan'],
   },
   {
-    id: 'sport', label: 'Sport', level: 1, type: 'static',
-    keywords: ['sport', 'football', 'soccer', 'tennis', 'basket', 'olympics', 'champions', 'serie a', 'premier league', 'la liga', 'nba', 'motogp', 'f1'],
+    id: 'culture', label: '🎬 Cultura & Società', level: 1, type: 'static',
+    keywords: ['culture', 'art', 'music', 'cinema', 'film', 'television', 'entertainment', 'society', 'social', 'trends', 'celebrities', 'fashion', 'design', 'theater', 'literature', 'museo', 'arte'],
+  },
+  {
+    id: 'local_news', label: '📍 Cronaca Locale', level: 1, type: 'static',
+    keywords: ['local', 'regional', 'city', 'region', 'province', 'territorio', 'comunale', 'regione', 'cronaca', 'news locali'],
   },
 ]
 

@@ -10,54 +10,38 @@ const CATEGORY_WEIGHTS: Record<string, CategoryWeights> = {
     primary: ['breaking news', 'breaking:', 'urgent', 'alert:', 'just in'],
     secondary: ['developing', 'update:', 'live:'],
   },
-  // Esteri: cattura affari internazionali / diplomazia / politica estera quando il feed
-  // di origine non e' gia stato classificato come "esteri" tramite FEED_DEFAULT_CATEGORY
-  esteri: {
-    saturate: 30,
-    primary: ['foreign minister', 'ambassador', 'un security council', 'eu summit', 'nato summit', 'g7 summit', 'g20 summit', 'state department', 'foreign policy'],
-    secondary: ['esteri', 'foreign affairs', 'international', 'diplomatic', 'embassy', 'consulate', 'bilateral', 'treaty', 'sanctions', 'geopolitical'],
+  // Geopolitica: unifica esteri, conflitti e politica
+  geopolitics: {
+    saturate: 35,
+    primary: ['war', 'airstrike', 'invasion', 'ceasefire', 'missile strike', 'bombing', 'troops deployed', 'military offensive', 'election', 'prime minister', 'president signs', 'parliament votes', 'foreign minister', 'ambassador', 'un security council', 'nato summit', 'sanctions imposed', 'treaty signed'],
+    secondary: ['conflict', 'attack', 'military', 'troops', 'bomb', 'battle', 'killed', 'fighting', 'casualties', 'hostilities', 'weapons', 'government', 'minister', 'senate', 'vote', 'political', 'diplomat', 'legislation', 'congress', 'coalition', 'referendum', 'summit', 'bilateral', 'international', 'diplomatic', 'foreign affairs', 'geopolitical'],
   },
-  conflitti: {
-    saturate: 40,
-    primary: ['war', 'airstrike', 'invasion', 'ceasefire', 'missile strike', 'bombing', 'troops deployed', 'military offensive'],
-    secondary: ['conflict', 'attack', 'military', 'troops', 'bomb', 'battle', 'killed', 'fighting', 'casualties', 'hostilities', 'weapons', 'artillery', 'drone strike', 'occupation'],
-  },
-  politica: {
-    saturate: 40,
-    primary: ['election', 'prime minister', 'president signs', 'parliament votes', 'diplomatic talks', 'sanctions imposed', 'treaty signed'],
-    secondary: ['government', 'minister', 'senate', 'vote', 'political', 'diplomat', 'legislation', 'congress', 'coalition', 'referendum', 'summit', 'bilateral'],
-  },
-  economia: {
+  // Economia & Finanza
+  economy_finance: {
     saturate: 40,
     primary: ['interest rate', 'gdp growth', 'stock market', 'trade war', 'inflation rate', 'central bank', 'financial crisis', 'tariff'],
-    secondary: ['economy', 'market', 'trade', 'finance', 'inflation', 'bank', 'crypto', 'bitcoin', 'recession', 'investment', 'unemployment', 'currency', 'oil price'],
+    secondary: ['economy', 'market', 'trade', 'finance', 'inflation', 'bank', 'crypto', 'bitcoin', 'recession', 'investment', 'unemployment', 'currency', 'oil price', 'stock', 'financial'],
   },
-  tecnologia: {
+  // AI & Tecnologia
+  ai_tech: {
     saturate: 35,
     primary: ['artificial intelligence', 'ai model', 'chatgpt', 'openai', 'machine learning', 'cybersecurity breach', 'data breach', 'tech giant'],
-    secondary: ['technology', 'digital', 'software', 'startup', 'apple', 'google', 'meta', 'microsoft', 'nvidia', 'cyber', 'algorithm', 'quantum', 'chip', 'semiconductor'],
+    secondary: ['technology', 'digital', 'software', 'startup', 'apple', 'google', 'meta', 'microsoft', 'nvidia', 'cyber', 'algorithm', 'quantum', 'chip', 'semiconductor', 'tech'],
   },
-  scienza: {
-    saturate: 35,
-    primary: ['scientific study', 'new research', 'space mission', 'nasa launches', 'discovery scientists', 'clinical trial', 'peer reviewed'],
-    secondary: ['science', 'research', 'study', 'space', 'nasa', 'discovery', 'physics', 'biology', 'asteroid', 'planet', 'experiment', 'genome', 'fossil'],
+  // Salute & Scienza: unifica scienza, salute e ambiente
+  health_science: {
+    saturate: 32,
+    primary: ['scientific study', 'new research', 'space mission', 'nasa launches', 'discovery scientists', 'clinical trial', 'health warning', 'disease outbreak', 'vaccine approved', 'pandemic', 'climate change', 'global warming', 'carbon emissions'],
+    secondary: ['science', 'research', 'study', 'space', 'nasa', 'discovery', 'physics', 'biology', 'asteroid', 'planet', 'experiment', 'genome', 'fossil', 'health', 'medical', 'disease', 'vaccine', 'hospital', 'cancer', 'virus', 'covid', 'mental health', 'treatment', 'drug', 'mortality', 'epidemic', 'climate', 'environment', 'carbon', 'emissions', 'renewable', 'pollution'],
   },
-  salute: {
-    saturate: 35,
-    primary: ['health warning', 'disease outbreak', 'vaccine approved', 'pandemic', 'who warns', 'public health emergency', 'drug approval'],
-    secondary: ['health', 'medical', 'disease', 'vaccine', 'hospital', 'cancer', 'virus', 'covid', 'mental health', 'treatment', 'drug', 'mortality', 'epidemic'],
-  },
-  ambiente: {
-    saturate: 35,
-    primary: ['climate change', 'global warming', 'carbon emissions', 'renewable energy', 'wildfire', 'flood', 'deforestation', 'cop28', 'net zero'],
-    secondary: ['climate', 'environment', 'carbon', 'emissions', 'renewable', 'drought', 'pollution', 'glacier', 'sea level', 'ecosystem', 'species extinction'],
-  },
+  // Sport
   sport: {
     saturate: 40,
     primary: ['champions league', 'world cup', 'premier league', 'serie a', 'nba finals', 'grand slam', 'formula 1', 'olympic games', 'europa league', 'superbowl'],
     secondary: ['football', 'soccer', 'tennis', 'championship', 'league', 'nba', 'nfl', 'fifa', 'tournament', 'match', 'goal', 'player', 'team wins', 'squad'],
   },
-  cultura: {
+  // Cultura & Società
+  culture: {
     saturate: 30,
     primary: ['oscar winner', 'grammy award', 'book prize', 'film festival', 'exhibition opens', 'concert tour', 'bestseller'],
     secondary: ['culture', 'art', 'film', 'music', 'book', 'award', 'festival', 'cinema', 'literature', 'theater', 'artist', 'director', 'album'],
@@ -94,7 +78,7 @@ export function classifyArticle(title: string, summary: string): ClassificationR
   if (topScore >= 45) {
     return { category: topCat, confidence: topScore, scores }
   }
-  return { category: 'cronaca', confidence: topScore, scores }
+  return { category: 'local_news', confidence: topScore, scores }
 }
 
 /**

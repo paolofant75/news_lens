@@ -362,27 +362,28 @@ const FEED_DEFAULT_CATEGORY: Record<string, string> = {
   lapresse_mo: 'esteri', lapresse_asia_oc: 'esteri', lapresse_afrique: 'esteri',
   lapresse_amlat: 'esteri', lapresse_caraibes: 'esteri',
 
-  // ─── Politica ────────────────────────────────────────────────────────────
-  ansa_politica: 'politica', ansa_europa: 'politica',
-  bellingcat: 'politica', politifact: 'politica',
-  brookings: 'politica', rand: 'politica',
-  lapresse_politique: 'politica',
+  // ─── Geopolitica (ex Politica) ───────────────────────────────────────────
+  ansa_politica: 'geopolitics', ansa_europa: 'geopolitics',
+  bellingcat: 'geopolitics', politifact: 'geopolitics',
+  brookings: 'geopolitics', rand: 'geopolitics',
+  lapresse_politique: 'geopolitics',
 
-  // ─── Economia ────────────────────────────────────────────────────────────
-  ansa_economia: 'economia', cointelegraph: 'economia',
-  lapresse_affaires: 'economia', lapresse_economie: 'economia',
-  lapresse_entreprises: 'economia', lapresse_finperso: 'economia',
-  lapresse_pme: 'economia', lapresse_portfolio: 'economia',
-  lapresse_grande_ent: 'economia', lapresse_tetes: 'economia',
+  // ─── Economia & Finanza ──────────────────────────────────────────────────
+  ansa_economia: 'economy_finance', cointelegraph: 'economy_finance',
+  lapresse_affaires: 'economy_finance', lapresse_economie: 'economy_finance',
+  lapresse_entreprises: 'economy_finance', lapresse_finperso: 'economy_finance',
+  lapresse_pme: 'economy_finance', lapresse_portfolio: 'economy_finance',
+  lapresse_grande_ent: 'economy_finance', lapresse_tetes: 'economy_finance',
+  sole_finanza: 'economy_finance', sole_tributi: 'economy_finance',
+  sole_risparmio: 'economy_finance', sole_management: 'economy_finance',
 
-  // ─── Tecnologia ──────────────────────────────────────────────────────────
-  ars_technica: 'tecnologia', techcrunch: 'tecnologia', mit_tech: 'tecnologia',
-  wired: 'tecnologia', hacker_news: 'tecnologia', bleeping: 'tecnologia',
-  ansa_tech: 'tecnologia', lapresse_techno: 'tecnologia',
-  // Feed tematici tech da lib/feeds-it.ts
-  sole_tech: 'tecnologia', internetto: 'tecnologia', androidiani: 'tecnologia',
-  spaziogames: 'tecnologia', whatstech: 'tecnologia',
-  fsf_news: 'tecnologia', linux_journal: 'tecnologia', nintendo_life: 'tecnologia',
+  // ─── AI & Tecnologia ─────────────────────────────────────────────────────
+  ars_technica: 'ai_tech', techcrunch: 'ai_tech', mit_tech: 'ai_tech',
+  wired: 'ai_tech', hacker_news: 'ai_tech', bleeping: 'ai_tech',
+  ansa_tech: 'ai_tech', lapresse_techno: 'ai_tech',
+  sole_tech: 'ai_tech', internetto: 'ai_tech', androidiani: 'ai_tech',
+  spaziogames: 'ai_tech', whatstech: 'ai_tech',
+  fsf_news: 'ai_tech', linux_journal: 'ai_tech', nintendo_life: 'ai_tech',
 
   // ─── Sport ───────────────────────────────────────────────────────────────
   ansa_sport: 'sport', ansa_calcio: 'sport', ansa_golf: 'sport',
@@ -390,49 +391,38 @@ const FEED_DEFAULT_CATEGORY: Record<string, string> = {
   lapresse_nfl: 'sport', lapresse_tennis: 'sport', lapresse_baseball: 'sport',
   lapresse_basketball: 'sport', lapresse_golf: 'sport',
   lapresse_combat: 'sport', lapresse_cyclisme: 'sport',
-  // Feed sport italiani da lib/feeds-it.ts (prima cadevano nel fallback euristico
-  // -> "cronaca" -> sparivano dalla home box Sport)
   gazzetta_home: 'sport', sole_sport: 'sport',
 
-  // ─── Salute ──────────────────────────────────────────────────────────────
-  who_news: 'salute', ansa_salute: 'salute',
-  lapresse_sante_a: 'salute', lapresse_societe_sante: 'salute',
-  sole_salute: 'salute',
+  // ─── Salute & Scienza ────────────────────────────────────────────────────
+  who_news: 'health_science', ansa_salute: 'health_science',
+  lapresse_sante_a: 'health_science', lapresse_societe_sante: 'health_science',
+  sole_salute: 'health_science',
+  nasa_news: 'health_science', ansa_scienza: 'health_science', lapresse_sciences: 'health_science',
+  oggi_scienza: 'health_science', sapere_scienza: 'health_science',
+  ansa_ambiente: 'health_science', lapresse_environnement: 'health_science',
+  ansa_terragusto: 'health_science',
 
-  // ─── Scienza ─────────────────────────────────────────────────────────────
-  nasa_news: 'scienza', ansa_scienza: 'scienza', lapresse_sciences: 'scienza',
-  oggi_scienza: 'scienza', sapere_scienza: 'scienza',
+  // ─── Cultura & Società ───────────────────────────────────────────────────
+  ansa_cultura: 'culture', ansa_cultura_t: 'culture',
+  ansa_cinema: 'culture', ansa_viaggi: 'culture',
+  lapresse_cinema: 'culture', lapresse_medias: 'culture',
+  ansa_cultura_v2: 'culture', sole_cultura: 'culture', sole_arteconomy: 'culture',
+  sole_moda: 'culture', sole_food: 'culture', sole_viaggi: 'culture',
+  musicoff: 'culture', giallo_zaffer: 'culture',
 
-  // ─── Ambiente ────────────────────────────────────────────────────────────
-  ansa_ambiente: 'ambiente', lapresse_environnement: 'ambiente',
-  ansa_terragusto: 'ambiente',
-
-  // ─── Economia (feed tematici da lib/feeds-it.ts) ─────────────────────────
-  sole_finanza: 'economia', sole_tributi: 'economia',
-  sole_risparmio: 'economia', sole_management: 'economia',
-
-  // ─── Cultura ─────────────────────────────────────────────────────────────
-  ansa_cultura: 'cultura', ansa_cultura_t: 'cultura',
-  ansa_cinema: 'cultura', ansa_viaggi: 'cultura',
-  lapresse_cinema: 'cultura', lapresse_medias: 'cultura',
-  // Feed cultura/lifestyle italiani da lib/feeds-it.ts
-  ansa_cultura_v2: 'cultura', sole_cultura: 'cultura', sole_arteconomy: 'cultura',
-  sole_moda: 'cultura', sole_food: 'cultura', sole_viaggi: 'cultura',
-  musicoff: 'cultura', giallo_zaffer: 'cultura',
-
-  // ─── Cronaca (locale italiana + La Presse locale Quebec) ─────────────────
-  snopes: 'cronaca',
-  ansa_cronaca: 'cronaca', ansa_motori: 'cronaca', ansa_terra_gusto: 'cronaca',
-  ansa_abruzzo: 'cronaca', ansa_basilicata: 'cronaca', ansa_calabria: 'cronaca',
-  ansa_campania: 'cronaca', ansa_emiliaromagna: 'cronaca', ansa_emilia: 'cronaca', ansa_fvg: 'cronaca',
-  ansa_lazio: 'cronaca', ansa_liguria: 'cronaca', ansa_lombardia: 'cronaca',
-  ansa_marche: 'cronaca', ansa_molise: 'cronaca', ansa_piemonte: 'cronaca',
-  ansa_puglia: 'cronaca', ansa_sardegna: 'cronaca', ansa_sicilia: 'cronaca',
-  ansa_toscana: 'cronaca', ansa_trentino: 'cronaca', ansa_umbria: 'cronaca',
-  ansa_vda: 'cronaca', ansa_veneto: 'cronaca',
-  lapresse_actu: 'cronaca', lapresse_national: 'cronaca',
-  lapresse_education: 'cronaca', lapresse_enquetes: 'cronaca',
-  lapresse_regional: 'cronaca', lapresse_insolite: 'cronaca',
+  // ─── Cronaca Locale ──────────────────────────────────────────────────────
+  snopes: 'local_news',
+  ansa_cronaca: 'local_news', ansa_motori: 'local_news', ansa_terra_gusto: 'local_news',
+  ansa_abruzzo: 'local_news', ansa_basilicata: 'local_news', ansa_calabria: 'local_news',
+  ansa_campania: 'local_news', ansa_emiliaromagna: 'local_news', ansa_emilia: 'local_news', ansa_fvg: 'local_news',
+  ansa_lazio: 'local_news', ansa_liguria: 'local_news', ansa_lombardia: 'local_news',
+  ansa_marche: 'local_news', ansa_molise: 'local_news', ansa_piemonte: 'local_news',
+  ansa_puglia: 'local_news', ansa_sardegna: 'local_news', ansa_sicilia: 'local_news',
+  ansa_toscana: 'local_news', ansa_trentino: 'local_news', ansa_umbria: 'local_news',
+  ansa_vda: 'local_news', ansa_veneto: 'local_news',
+  lapresse_actu: 'local_news', lapresse_national: 'local_news',
+  lapresse_education: 'local_news', lapresse_enquetes: 'local_news',
+  lapresse_regional: 'local_news', lapresse_insolite: 'local_news',
 }
 
 function categorize(feedId: string, title: string, summary: string): string {

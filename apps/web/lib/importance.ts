@@ -1,19 +1,16 @@
 import type { Article } from './rss'
 
 // Pesi per categoria: determina rilevanza editoriale
+// Basato su TAXONOMY (lib/taxonomy.ts)
 const CATEGORY_WEIGHT: Record<string, number> = {
-  breaking: 1.0,
-  conflitti: 0.8,
-  politica: 0.8,
-  esteri: 0.8,
-  economia: 0.6,
-  tecnologia: 0.6,
-  scienza: 0.4,
-  salute: 0.4,
-  ambiente: 0.4,
-  sport: 0.2,
-  cultura: 0.2,
-  cronaca: 0.2,
+  breaking: 1.0,           // Massima priorità
+  geopolitics: 0.9,        // Alto impatto globale
+  ai_tech: 0.7,            // Impatto futuro
+  economy_finance: 0.7,    // Rilevanza economica
+  health_science: 0.6,     // Impatto pubblico
+  sport: 0.3,              // Entertainment
+  culture: 0.4,            // Engagement culturale
+  local_news: 0.5,         // Rilevanza territoriale
 }
 
 /**
