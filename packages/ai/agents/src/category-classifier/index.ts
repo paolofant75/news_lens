@@ -19,6 +19,7 @@ export { SYSTEM_PROMPT } from './system-prompt'
 export {
   buildCacheKey,
   getCachedClassification,
+  getCachedClassificationsMany,
   setCachedClassification,
   CACHE_TTL_SECONDS,
 } from './cache'

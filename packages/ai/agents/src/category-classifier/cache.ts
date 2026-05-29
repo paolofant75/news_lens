@@ -66,6 +66,36 @@ export async function getCachedClassification(
 }
 
 /**
+ * Bulk lookup per articoli multipli. Usa MGET per un solo comando Redis
+ * invece di tanti GET singoli. Usato nel cron classify-articles per il
+ * pre-check cache: riduce di ~100K azioni/mese (25 GET -> 1 MGET).
+ */
+export async function getCachedClassificationsMany(
+  articles: Array<{ id: string; title: string; summary: string }>,
+): Promise<Map<string, ClassificationOutput>> {
+  if (articles.length === 0) return new Map()
+
+  const keys = articles.map(a => buildCacheKey(a.title, a.summary))
+  const result = await redisCall([['MGET', ...keys]])
+  if (!result) return new Map()
+
+  const hits = new Map<string, ClassificationOutput>()
+  const values = result[0] as (string | null)[]
+
+  for (let i = 0; i < articles.length; i++) {
+    const raw = values[i]
+    if (typeof raw !== 'string') continue
+    try {
+      const classification = JSON.parse(raw) as ClassificationOutput
+      hits.set(articles[i].id, classification)
+    } catch {
+      // skip malformed entries
+    }
+  }
+  return hits
+}
+
+/**
  * Scrive in cache fire-and-forget. Errori silenziati: la classificazione e' gia'
  * stata fatta, non vogliamo bloccare il return per un problema di Redis.
  */

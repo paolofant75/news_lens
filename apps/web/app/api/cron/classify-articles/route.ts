@@ -29,7 +29,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cacheGet, cacheSet } from '../../../../lib/redis'
 import { classifierCronShouldRun } from '../../../../lib/classifier-mode'
 import { runAgent } from '@news-lens-veritas/ai'
-import { categoryClassifier, getCachedClassification } from '@news-lens-veritas/ai/category-classifier'
+import { categoryClassifier, getCachedClassificationsMany } from '@news-lens-veritas/ai/category-classifier'
+import type { ClassificationOutput } from '@news-lens-veritas/ai/category-classifier'
 import type { Article } from '../../../../lib/rss'
 
 export const runtime = 'nodejs'
@@ -100,17 +101,14 @@ export async function GET(req: NextRequest) {
   }
 
   // 3) Pre-check cache (alcuni articoli identici a stessi titolo/summary potrebbero
-  // gia' essere classificati anche se nuovi nel pool). Risparmia chiamate AI.
-  const cacheHits = new Map<string, Awaited<ReturnType<typeof getCachedClassification>>>()
-  await Promise.all(toClassify.map(async (a) => {
-    const c = await getCachedClassification(a.title, a.summary)
-    if (c) cacheHits.set(a.id, c)
-  }))
+  // gia' essere classificati anche se nuovi nel pool). Usa MGET per un comando
+  // singolo invece di tanti GET (riduce ~100K azioni/mese: 25 GET -> 1 MGET).
+  const cacheHits = await getCachedClassificationsMany(toClassify)
 
   // 4) Solo gli articoli con cache miss vanno via runAgent (telemetria DB + retry)
   const needAI = toClassify.filter((a) => !cacheHits.has(a.id))
 
-  type RunResult = { id: string; ok: boolean; data?: Awaited<ReturnType<typeof getCachedClassification>>; error?: string }
+  type RunResult = { id: string; ok: boolean; data?: ClassificationOutput; error?: string }
 
   const aiResults = await processInChunks<typeof needAI[number], RunResult>(needAI, CONCURRENCY, async (a) => {
     const res = await runAgent(categoryClassifier, {
