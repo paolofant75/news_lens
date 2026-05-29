@@ -18,16 +18,17 @@ import {
 } from '../../components/icons'
 
 type IconComp = (p: { size?: number; className?: string }) => React.ReactElement
-type BoxDef = { slug: string; label: string; Icon: IconComp }
+// slug = parametro URL (/news?categoria=politica), categoryName = valore interno Article.category
+type BoxDef = { slug: string; categoryName: string; label: string; Icon: IconComp }
 
 // Ordine richiesto dall'utente: Esteri -> Cronaca -> Politica -> Economia -> Sport -> Tecnologia
 const BOXES: BoxDef[] = [
-  { slug: 'esteri',     label: 'Esteri',     Icon: IconGlobe },
-  { slug: 'cronaca',    label: 'Cronaca',    Icon: IconNewspaper },
-  { slug: 'politica',   label: 'Politica',   Icon: IconLandmark },
-  { slug: 'economia',   label: 'Economia',   Icon: IconTrending },
-  { slug: 'sport',      label: 'Sport',      Icon: IconBall },
-  { slug: 'tecnologia', label: 'Tecnologia', Icon: IconCpu },
+  { slug: 'esteri',     categoryName: 'esteri',          label: 'Esteri',     Icon: IconGlobe },
+  { slug: 'cronaca',    categoryName: 'local_news',       label: 'Cronaca',    Icon: IconNewspaper },
+  { slug: 'politica',   categoryName: 'geopolitics',      label: 'Politica',   Icon: IconLandmark },
+  { slug: 'economia',   categoryName: 'economy_finance',  label: 'Economia',   Icon: IconTrending },
+  { slug: 'sport',      categoryName: 'sport',            label: 'Sport',      Icon: IconBall },
+  { slug: 'tecnologia', categoryName: 'ai_tech',          label: 'Tecnologia', Icon: IconCpu },
 ]
 
 const ARTICLES_PER_BOX = 4
@@ -56,7 +57,7 @@ export default async function CategoryBoxes() {
   // Indicizza per categoria, prendendo i 4 piu recenti per ognuna nella lingua preferita
   const byCategory = new Map<string, Article[]>()
   for (const box of BOXES) {
-    const filtered = all.filter((a) => a.category === box.slug)
+    const filtered = all.filter((a) => a.category === box.categoryName)
     const ordered = sortByPreferredLang(filtered, lang)
     byCategory.set(box.slug, ordered.slice(0, ARTICLES_PER_BOX))
   }
@@ -83,7 +84,7 @@ export default async function CategoryBoxes() {
           ...a,
           displayTitle: translated[start + i]?.title ?? a.title,
         }))
-        const total = all.filter((a) => a.category === box.slug).length
+        const total = all.filter((a) => a.category === box.categoryName).length
         return (
           <section
             key={box.slug}

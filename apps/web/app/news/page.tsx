@@ -141,8 +141,26 @@ export default async function NewsPage({
   // applyWorldFilter e' async per supportare la classificazione AI (USE_AI_CLASSIFIER=true).
   const pool = area === 'mondo' ? await applyWorldFilter(allArticles, { capPerCountry: 8 }) : allArticles
 
+  // Mappa slug URL (es. "politica") → nome interno categoria (es. "geopolitics").
+  // Necessario dopo il revamp categorie (commit 6a913bb) che ha rinominato i valori interni.
+  const CATEGORY_MAP: Record<string, string> = {
+    cronaca:    'local_news',
+    politica:   'geopolitics',
+    economia:   'economy_finance',
+    tecnologia: 'ai_tech',
+    conflitti:  'geopolitics',
+    scienza:    'health_science',
+    salute:     'health_science',
+    ambiente:   'health_science',
+    cultura:    'culture',
+    sport:      'sport',
+    esteri:     'esteri',
+    breaking:   'breaking',
+  }
+  const internalCat = categoria ? (CATEGORY_MAP[categoria] ?? categoria) : ''
+
   const filteredRaw = pool.filter((a) => {
-    const catOk = !categoria || a.category === categoria
+    const catOk = !categoria || a.category === internalCat
     // Per area=mondo NON facciamo piu' il match letterale su a.geo: applyWorldFilter ha gia'
     // selezionato l'eligible set, e accettiamo articoli da qualunque continente (e' il senso del Mondo).
     const geoOk = !area || area === 'mondo' || a.geo === area

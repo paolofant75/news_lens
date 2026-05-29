@@ -86,11 +86,13 @@ export default function NewsArticleGrid({
                 {/* Hover preview popup — solo desktop (pointer:fine) */}
                 {article.summary && (
                   <div
-                    className="art-preview absolute bottom-full left-0 right-0 z-50 mb-2 rounded-xl p-4"
+                    className="art-preview absolute bottom-full z-50 mb-3 rounded-xl p-4"
                     style={{
+                      left: '50%',
+                      width: 'min(360px, 90vw)',
                       background: 'var(--text)',
                       border: '1px solid var(--accent)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
+                      boxShadow: '0 16px 48px rgba(0,0,0,0.4)',
                     }}
                   >
                     <div className="flex items-center gap-2 mb-2">
@@ -113,9 +115,6 @@ export default function NewsArticleGrid({
                   <h2 className="font-semibold mb-2 leading-snug line-clamp-3" style={{ fontFamily: 'var(--font-h)', color: 'var(--text)' }}>
                     {article.title}
                   </h2>
-                  {article.summary && (
-                    <p className="text-sm line-clamp-2 mb-3" style={{ color: 'var(--text-2)' }}>{article.summary}</p>
-                  )}
                   <div className="flex flex-wrap items-center gap-1.5">
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>{article.category}</span>
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-s)', color: 'var(--text-3)' }}>{article.geo}</span>

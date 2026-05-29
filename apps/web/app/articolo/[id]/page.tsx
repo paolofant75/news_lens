@@ -199,7 +199,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
         {/* Query */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text)' }}>
-            Analisi: <span style={{ color: 'var(--accent)' }}>{query}</span>
+            Analisi: {query}
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-3)' }}>
             {totalSources} fonti analizzate da Veritas{langLabel}

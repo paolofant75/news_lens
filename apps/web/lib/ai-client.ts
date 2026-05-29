@@ -80,55 +80,19 @@ function logUsage(entry: {
   })
 }
 
-export async function aiComplete(opts: {
-  messages: AIMessage[]
-  maxTokens?: number
-  tier?: AITier
-  context?: AIContext
-}): Promise<string> {
-  const provider = getProvider()
-  const tier = opts.tier ?? 'fast'
-  const model = provider.models[tier]
+const ANTHROPIC_MODELS: Record<AITier, string> = {
+  fast: 'claude-haiku-4-5-20251001',
+  smart: 'claude-sonnet-4-6',
+}
+
+async function callAnthropic(
+  opts: { messages: AIMessage[]; maxTokens?: number },
+  tier: AITier,
+  context: AIContext,
+  start: number,
+): Promise<string> {
+  const model = ANTHROPIC_MODELS[tier]
   const maxTokens = opts.maxTokens ?? 1000
-  const context = opts.context ?? 'other'
-  const start = Date.now()
-
-  if (provider.name === 'deepseek') {
-    try {
-      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model,
-          messages: opts.messages,
-          max_tokens: maxTokens,
-          temperature: 0.3,
-        }),
-      })
-      const data = await res.json()
-      const latencyMs = Date.now() - start
-      if (!res.ok) {
-        logUsage({ provider: 'deepseek', model, tier, context, inputTokens: 0, outputTokens: 0, latencyMs, success: false, errorMessage: data?.error?.message ?? `http ${res.status}` })
-        throw new Error(`deepseek http ${res.status}`)
-      }
-      logUsage({
-        provider: 'deepseek', model, tier, context,
-        inputTokens: data.usage?.prompt_tokens ?? 0,
-        outputTokens: data.usage?.completion_tokens ?? 0,
-        latencyMs, success: true,
-      })
-      return data.choices?.[0]?.message?.content ?? ''
-    } catch (e) {
-      const latencyMs = Date.now() - start
-      logUsage({ provider: 'deepseek', model, tier, context, inputTokens: 0, outputTokens: 0, latencyMs, success: false, errorMessage: (e as Error).message })
-      throw e
-    }
-  }
-
-  // Anthropic
   const system = opts.messages.find((m) => m.role === 'system')?.content
   const conv = opts.messages.filter((m) => m.role !== 'system')
   try {
@@ -139,12 +103,7 @@ export async function aiComplete(opts: {
         'anthropic-version': '2023-06-01',
         'content-type': 'application/json',
       },
-      body: JSON.stringify({
-        model,
-        max_tokens: maxTokens,
-        system,
-        messages: conv,
-      }),
+      body: JSON.stringify({ model, max_tokens: maxTokens, system, messages: conv }),
     })
     const data = await res.json()
     const latencyMs = Date.now() - start
@@ -164,6 +123,62 @@ export async function aiComplete(opts: {
     logUsage({ provider: 'anthropic', model, tier, context, inputTokens: 0, outputTokens: 0, latencyMs, success: false, errorMessage: (e as Error).message })
     throw e
   }
+}
+
+export async function aiComplete(opts: {
+  messages: AIMessage[]
+  maxTokens?: number
+  tier?: AITier
+  context?: AIContext
+}): Promise<string> {
+  const provider = getProvider()
+  const tier = opts.tier ?? 'fast'
+  const model = provider.models[tier]
+  const maxTokens = opts.maxTokens ?? 1000
+  const context = opts.context ?? 'other'
+  const start = Date.now()
+
+  if (provider.name === 'deepseek') {
+    let data: Record<string, unknown> | undefined
+    try {
+      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          messages: opts.messages,
+          max_tokens: maxTokens,
+          temperature: 0.3,
+        }),
+      })
+      data = await res.json()
+      const latencyMs = Date.now() - start
+      if (!res.ok) {
+        logUsage({ provider: 'deepseek', model, tier, context, inputTokens: 0, outputTokens: 0, latencyMs, success: false, errorMessage: (data as {error?: {message?: string}})?.error?.message ?? `http ${res.status}` })
+        if (res.status === 402) {
+          console.warn('[ai-client] DeepSeek 402 (crediti esauriti) — fallback automatico Anthropic')
+          return callAnthropic(opts, tier, context, Date.now())
+        }
+        throw new Error(`deepseek http ${res.status}`)
+      }
+      logUsage({
+        provider: 'deepseek', model, tier, context,
+        inputTokens: (data as {usage?: {prompt_tokens?: number}}).usage?.prompt_tokens ?? 0,
+        outputTokens: (data as {usage?: {completion_tokens?: number}}).usage?.completion_tokens ?? 0,
+        latencyMs, success: true,
+      })
+      return (data as {choices?: {message?: {content?: string}}[]}).choices?.[0]?.message?.content ?? ''
+    } catch (e) {
+      const latencyMs = Date.now() - start
+      logUsage({ provider: 'deepseek', model, tier, context, inputTokens: 0, outputTokens: 0, latencyMs, success: false, errorMessage: (e as Error).message })
+      throw e
+    }
+  }
+
+  return callAnthropic(opts, tier, context, start)
 }
 
 export function aiProviderName(): 'deepseek' | 'anthropic' {
