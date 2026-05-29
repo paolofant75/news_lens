@@ -150,6 +150,7 @@ export async function GET(req: NextRequest) {
       aiWorldEligible: out.worldEligible,
       aiConfidence: out.confidence,
       aiFlags: out.flags,
+      aiSeed5W: out.seed5W,  // assente nei payload cache legacy (30gg), gestito da page.tsx con fallback
     }
   })
 

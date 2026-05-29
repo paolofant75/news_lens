@@ -69,7 +69,13 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
 
   if (cachedArticle) {
     query = cachedArticle.title
-    searchQuery = cleanSearchQuery(query)
+    // Se il classifier ha gia' estratto le seed5W, costruisci la query da
+    // (who + what): preserva i nomi propri (es. "Blue Origin esplode razzo")
+    // che cleanSearchQuery genericizzerebbe. Fallback a cleanSearchQuery
+    // per articoli vecchi senza seed5W (cache classifier pre-feature).
+    const seed = cachedArticle.aiSeed5W
+    const seedQuery = seed ? [seed.who, seed.what].map((s) => s.trim()).filter(Boolean).join(' ').trim() : ''
+    searchQuery = seedQuery.length >= 3 ? seedQuery : cleanSearchQuery(query)
   } else {
     // Backward compat: link vecchi base64-title o cache miss
     try {
@@ -114,7 +120,7 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
   }
 
   const [articles, allStats] = await Promise.all([
-    searchAllSources(searchQuery),
+    searchAllSources(searchQuery, cachedArticle?.aiSeed5W),
     fetchGlobalStats(),
   ])
 
@@ -204,17 +210,17 @@ export default async function ArticoloPage({ params }: { params: Promise<{ id: s
         </div>
 
         {/* Grid principale: Five Ws | Articolo | Statistiche */}
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-8 gap-6 mb-12">
 
-          {/* SINISTRA — Five Ws verticale */}
-          <div className="lg:col-span-1 order-last lg:order-first">
+          {/* SINISTRA — Five Ws verticale (più larga per leggibilità) */}
+          <div className="lg:col-span-2 order-last lg:order-first">
             {result.five_ws?.who && (
               <FiveWsCard five_ws={result.five_ws} title={query} palette={palette} vertical />
             )}
           </div>
 
           {/* CENTRO — Articolo ampliato */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-5">
             <div className="rounded-3xl p-8 lg:p-10 h-full shadow-2xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent)' }}>
               <div className="flex items-start gap-3 mb-6">
                 <IconNewspaper size={22} className="opacity-70 mt-1 shrink-0" />

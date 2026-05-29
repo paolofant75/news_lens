@@ -31,6 +31,23 @@ export const ClassificationInput = z.object({
 })
 export type ClassificationInput = z.infer<typeof ClassificationInput>
 
+// ── Seed 5W: ancora semantica per ricerca approfondita ───────────────────────
+// Estratti dal titolo+summary originali. Preservano i nomi propri (es. "Blue
+// Origin", "Jeff Bezos", "Texas") che il vecchio cleanSearchQuery perdeva,
+// evitando il drift della ricerca verso storie diverse ma con keyword simili.
+// Opzionale: la cache classifier legacy (30gg) non contiene questo campo,
+// quindi il consumatore deve gestire l'assenza con un fallback.
+// Niente .default('') sui campi: introdurrebbe divergenza tra tipo input
+// (campo opzionale) e tipo output (campo obbligatorio) di Zod, rompendo la
+// type-equality usata da BaseAgent.getSchema(). Il prompt istruisce l'AI a
+// restituire stringa vuota quando il dato manca.
+export const Seed5W = z.object({
+  who:   z.string().max(120),
+  what:  z.string().max(160),
+  where: z.string().max(120),
+})
+export type Seed5W = z.infer<typeof Seed5W>
+
 // ── Output dell'agente (specifica utente, letterale) ─────────────────────────
 export const ClassificationOutput = z.object({
   primaryCategory: CategoryEnum,
@@ -46,5 +63,7 @@ export const ClassificationOutput = z.object({
   worldEligible: z.boolean(),
   confidence: z.number().min(0).max(1),
   flags: z.array(FlagEnum),
+  // Opzionale per retrocompatibilita' con i payload cachati prima dell'aggiunta
+  seed5W: Seed5W.optional(),
 })
 export type ClassificationOutput = z.infer<typeof ClassificationOutput>

@@ -174,6 +174,10 @@ export type Article = {
   aiWorldEligible?: boolean
   aiConfidence?: number
   aiFlags?: string[]
+  // Seed 5W (Who/What/Where) estratte dal classifier. Usate da page.tsx per
+  // costruire una query di ricerca approfondita che preservi i nomi propri
+  // (evita drift "Blue Origin" -> "rocket explosion" -> risultati SpaceX).
+  aiSeed5W?: { who: string; what: string; where: string }
 }
 
 // Scope+globalTier per il filtro Mondo (vedi lib/world-filter.ts):

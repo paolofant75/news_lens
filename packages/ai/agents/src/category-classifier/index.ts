@@ -11,9 +11,11 @@ export {
   FlagEnum,
   ClassificationInput,
   ClassificationOutput,
+  Seed5W,
   type Category,
   type GeoScope,
   type Flag,
+  type Seed5W as Seed5WT,
 } from './schema'
 export { SYSTEM_PROMPT } from './system-prompt'
 export {

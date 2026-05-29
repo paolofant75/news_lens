@@ -40,19 +40,19 @@ export default function FiveWsCard({ five_ws, title, palette, vertical }: Props)
         {LABELS.map(({ key, Icon, label }, i) => (
           <div
             key={key}
-            className="p-4"
+            className={vertical ? 'p-5' : 'p-4'}
             style={{
               borderRight: !vertical && i < 4 ? '1px solid var(--border)' : 'none',
               borderBottom: vertical && i < 4 ? '1px solid var(--border)' : 'none',
             }}
           >
-            <div className="flex items-center gap-1.5 mb-2" style={{ color: 'var(--accent)' }}>
-              <Icon size={14} />
-              <span className="text-xs font-bold uppercase tracking-widest">
+            <div className="flex items-center gap-2 mb-2.5" style={{ color: 'var(--accent)' }}>
+              <Icon size={vertical ? 16 : 14} />
+              <span className={`${vertical ? 'text-sm' : 'text-xs'} font-bold uppercase tracking-widest`}>
                 {label}
               </span>
             </div>
-            <p className="text-sm leading-snug" style={{ color: 'var(--text)' }}>
+            <p className={`${vertical ? 'text-[15px] leading-relaxed' : 'text-sm leading-snug'}`} style={{ color: 'var(--text)' }}>
               {five_ws[key] || '–'}
             </p>
           </div>

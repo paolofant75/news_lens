@@ -188,7 +188,23 @@ async function runSearches(query: string, terms: MultiLangTerms): Promise<Search
     .flatMap((r) => r.value)
 }
 
-export async function searchAllSources(query: string): Promise<SearchArticle[]> {
+// Seed 5W passate da page.tsx quando l'articolo cliccato e' gia' stato
+// classificato dal cron. Servono a costruire una query focalizzata sui nomi
+// propri e a filtrare il pool finale: se il "who" non compare nell'articolo,
+// quello e' off-topic (anche se matchava genericamente "rocket explosion").
+export type SearchSeed5W = { who: string; what: string; where: string }
+
+// Tokenizza un nome proprio in lemmi confrontabili. "Blue Origin" -> ["blue","origin"].
+// Multi-token: serve perche' alcune fonti scrivono "BlueOrigin" o "Blue-Origin" o solo
+// "Blue Origin's" — confrontiamo per inclusione case-insensitive di ciascun token.
+function whoTokens(who: string): string[] {
+  return who
+    .toLowerCase()
+    .split(/[\s,\.;:!\?\-—–"'«»()\[\]\/]+/)
+    .filter((w) => w.length >= 3)
+}
+
+export async function searchAllSources(query: string, seed5W?: SearchSeed5W): Promise<SearchArticle[]> {
   // Traduci e espandi la query in 6 lingue
   const terms = await expandQueryMultiLang(query)
 
@@ -262,7 +278,26 @@ export async function searchAllSources(query: string): Promise<SearchArticle[]> 
         const haystack = `${x.title} ${x.content}`.toLowerCase()
         return [...allKeywords].some((kw) => haystack.includes(kw))
       })
-  const all = relevant.length >= 3 ? relevant : rawResults
+  const baseAll = relevant.length >= 3 ? relevant : rawResults
+
+  // Filtro hard sui nomi propri: se le seed5W contengono un "who" non vuoto,
+  // l'articolo DEVE menzionarlo. Soluzione al drift "Blue Origin"->"SpaceX":
+  // gli articoli SpaceX non contengono "blue"/"origin" e vengono eliminati.
+  // Fallback graceful: se filtra a meno di 3, torniamo al pool permissivo.
+  const tokens = seed5W?.who ? whoTokens(seed5W.who) : []
+  let all = baseAll
+  if (tokens.length > 0) {
+    const onTopic = baseAll.filter((x) => {
+      const haystack = `${x.title} ${x.content}`.toLowerCase()
+      return tokens.some((tok) => haystack.includes(tok))
+    })
+    if (onTopic.length >= 3) {
+      console.log(`[veritas] seed5W.who="${seed5W!.who}" -> ${onTopic.length}/${baseAll.length} on-topic`)
+      all = onTopic
+    } else {
+      console.warn(`[veritas] seed5W.who="${seed5W!.who}" filter would leave only ${onTopic.length}, falling back to permissive pool`)
+    }
+  }
 
   // Utilizza la nuova funzione di deduplica e ranking
   const finalArticles = deduplicateAndRankArticles(all, query)

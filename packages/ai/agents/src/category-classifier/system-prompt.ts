@@ -35,6 +35,12 @@ Per ogni articolo, decidi:
 
 6. FLAGS: marca dove applicabile: breaking, opinion, data-driven, propaganda-risk, low-info, duplicate-likely.
 
+7. SEED5W (ancora semantica per ricerca approfondita): estrai dal titolo+summary le 3 W chiave per identificare UNIVOCAMENTE la notizia, preservando i NOMI PROPRI cosi' come compaiono (azienda, persona, prodotto, luogo). Servono a costruire una query di ricerca focalizzata che NON dovi verso storie simili ma diverse.
+   - who:   soggetto/i principale/i. Nomi propri se ci sono ("Blue Origin", "Jeff Bezos", "BCE"). MAI sostituire con categorie generiche ("azienda spaziale", "banca centrale"). Stringa vuota se davvero anonimo.
+   - what:  cosa e' successo, 3-6 parole concrete ("esplode razzo New Glenn al lancio", "taglia tassi di 25 punti base"). Niente cliche giornalistici ("scoppia il caos").
+   - where: dove fisicamente o giurisdizionalmente (citta', regione, paese, sede istituzionale). Stringa vuota se non specificato.
+   Lingua: stessa del titolo originale. Sii fedele al testo, NON inventare.
+
 REGOLE FERREE:
 - Non inventare categorie fuori dagli enum dichiarati.
 - Se titolo+summary sono troppo poveri (< 50 caratteri totali) -> flag "low-info" e confidence < 0.5.
