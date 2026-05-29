@@ -1,9 +1,11 @@
 import { fetchArticles, timeAgo, biasColor } from '../../lib/rss'
 import { translateBatch } from '../../lib/translate'
 import { sortByPreferredLang } from '../../lib/lang-priority'
+import { boostByCountry } from '../../lib/country-priority'
 import { applyWorldFilter } from '../../lib/world-filter'
 import { cookies } from 'next/headers'
 import PageLayout from '../../components/page-layout'
+import UnregisteredCountryBannerWrapper from '../../components/unregistered-country-banner-wrapper'
 import { TAXONOMY, getAllKeywords } from '../../lib/taxonomy'
 import NewsArticleGrid from '../../components/news-article-grid'
 import { IconGlobe, IconMap, IconMapPin, IconMosque, IconWaves, IconCompass, IconLeaf, IconGlobe2, IconLandmark } from '../../components/icons'
@@ -113,6 +115,7 @@ export default async function NewsPage({
   const { categoria, area, sport, taxonomy } = await searchParams
   const cookieStore = await cookies()
   const lang = cookieStore.get('nlv_lang')?.value ?? 'it'
+  const country = cookieStore.get('nlv_country')?.value ?? 'IT'
 
   const allArticles = await fetchArticles()
 
@@ -153,14 +156,15 @@ export default async function NewsPage({
   })
 
   const filtered = sortByPreferredLang(filteredRaw, lang)
+  const boosted = boostByCountry(filtered, country)
 
   // Traduci i titoli/summary nella lingua selezionata (max 50, con cache Redis)
   const translated = await translateBatch(
-    filtered.slice(0, 50).map((a) => ({ title: a.title, summary: a.summary, source: a.source })),
+    boosted.slice(0, 50).map((a) => ({ title: a.title, summary: a.summary, source: a.source })),
     lang
   )
   // originalTitle = titolo EN per la ricerca Veritas, displayTitle = titolo tradotto per l'utente
-  const filteredT = filtered.slice(0, 50).map((a, i) => ({
+  const filteredT = boosted.slice(0, 50).map((a, i) => ({
     ...a,
     originalTitle: a.title,
     title: translated[i]?.title ?? a.title,
@@ -226,6 +230,7 @@ export default async function NewsPage({
 
         {/* Contenuto principale */}
         <div className="flex-1 min-w-0 px-4 py-4">
+          <UnregisteredCountryBannerWrapper />
 
           {/* GEO STRIP — solo mobile */}
           <div className="lg:hidden overflow-x-auto pb-2 mb-4 -mx-4 px-4" style={{ borderBottom: '1px solid var(--border)' }}>
@@ -268,8 +273,8 @@ export default async function NewsPage({
           {/* Articoli */}
           <NewsArticleGrid
             articles={filteredT}
-            count={filtered.length}
-            sourceCount={new Set(filtered.map((a) => a.source)).size}
+            count={boosted.length}
+            sourceCount={new Set(boosted.map((a) => a.source)).size}
           />
         </div>
       </div>

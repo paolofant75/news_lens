@@ -9,6 +9,7 @@ import CookieBanner from '../components/cookie-banner'
 import LegalFooter from '../components/legal-footer'
 import RequestInfoFab from '../components/request-info-fab'
 import { AuthProvider } from '../components/auth-provider'
+import { CountryProvider } from '../components/country-provider'
 import { cookies } from 'next/headers'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -72,13 +73,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-full flex flex-col transition-colors" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
         <ClientThemeProvider>
           <AuthProvider>
-            <ThemeStore palette={palette} font={font} />
-            <Navbar />
-            {children}
-            <LegalFooter />
-            <MobileNav />
-            <CookieBanner />
-            <RequestInfoFab />
+            <CountryProvider initialCountry={cookieStore.get('nlv_country')?.value ?? 'IT'}>
+              <ThemeStore palette={palette} font={font} />
+              <Navbar />
+              {children}
+              <LegalFooter />
+              <MobileNav />
+              <CookieBanner />
+              <RequestInfoFab />
+            </CountryProvider>
           </AuthProvider>
         </ClientThemeProvider>
       </body>

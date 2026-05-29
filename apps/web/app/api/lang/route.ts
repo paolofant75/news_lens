@@ -13,5 +13,6 @@ export async function POST(req: NextRequest) {
   if (body.lang) res.cookies.set('nlv_lang', body.lang, COOKIE_OPTS)
   if (body.palette) res.cookies.set('nlv_palette', body.palette, COOKIE_OPTS)
   if (body.font) res.cookies.set('nlv_font', body.font, COOKIE_OPTS)
+  if (body.country) res.cookies.set('nlv_country', body.country, COOKIE_OPTS)
   return res
 }

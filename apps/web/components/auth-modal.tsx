@@ -2,18 +2,22 @@
 
 import { useState } from 'react'
 import { getSupabaseClient } from '../lib/supabase-client'
+import { COUNTRIES } from '../lib/countries'
 import { IconClose } from './icons'
 
 type Mode = 'login' | 'register'
+const G7_CODES = ['US', 'CA', 'GB', 'FR', 'DE', 'IT', 'JP']
 
 export default function AuthModal({ onClose }: { onClose: () => void }) {
   const [mode, setMode]     = useState<Mode>('login')
   const [email, setEmail]   = useState('')
   const [pass, setPass]     = useState('')
   const [name, setName]     = useState('')
+  const [country, setCountry] = useState('IT')
   const [error, setError]   = useState('')
   const [ok, setOk]         = useState('')
   const [busy, setBusy]     = useState(false)
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const sb = getSupabaseClient()
 
   async function submit(e: React.FormEvent) {
@@ -21,11 +25,28 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
     setBusy(true); setError(''); setOk('')
     try {
       if (mode === 'register') {
-        const { error: err } = await sb.auth.signUp({
+        const { data, error: err } = await sb.auth.signUp({
           email, password: pass,
           options: { data: { full_name: name } },
         })
         if (err) throw err
+
+        // Save country to user_preferences
+        if (data.user?.id) {
+          const session = await sb.auth.getSession()
+          const token = session.data.session?.access_token
+          if (token) {
+            await fetch('/api/user/preferences', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ country }),
+            })
+          }
+        }
+
         setOk('Controlla la tua email per confermare la registrazione.')
       } else {
         const { error: err } = await sb.auth.signInWithPassword({ email, password: pass })
@@ -115,6 +136,70 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
           <input required type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="Password"
             className="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none"
             style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text)' }} />
+
+          {mode === 'register' && (
+            <div className="space-y-2">
+              <label className="block text-xs font-medium" style={{ color: 'var(--text-2)' }}>Paese</label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                  className="w-full px-4 py-2.5 rounded-xl text-sm text-left focus:outline-none flex items-center justify-between"
+                  style={{ background: 'var(--bg-s)', border: '1px solid var(--border)', color: 'var(--text)' }}
+                >
+                  {COUNTRIES.find(c => c.code === country)?.nameIt || 'Seleziona paese'}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--text-3)' }}>
+                    <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+
+                {showCountryDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-1 rounded-xl shadow-lg border z-50 max-h-48 overflow-y-auto"
+                    style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                    <div className="p-2 space-y-1">
+                      <p className="text-xs font-semibold px-2 py-1" style={{ color: 'var(--text-2)' }}>G7</p>
+                      {G7_CODES.map(code => {
+                        const c = COUNTRIES.find(x => x.code === code)
+                        return (
+                          <button
+                            key={code}
+                            type="button"
+                            onClick={() => {
+                              setCountry(code)
+                              setShowCountryDropdown(false)
+                            }}
+                            style={country === code ? { background: 'var(--accent)', color: '#fff' } : { color: 'var(--text)' }}
+                            className="w-full px-3 py-2 rounded-lg text-sm text-left hover:opacity-80"
+                          >
+                            {c?.nameIt}
+                          </button>
+                        )
+                      })}
+                      <div className="border-t my-2" style={{ borderColor: 'var(--border)' }}></div>
+                      <p className="text-xs font-semibold px-2 py-1" style={{ color: 'var(--text-2)' }}>Tutti i paesi</p>
+                      {COUNTRIES.filter(c => !G7_CODES.includes(c.code)).slice(0, 20).map(c => (
+                        <button
+                          key={c.code}
+                          type="button"
+                          onClick={() => {
+                            setCountry(c.code)
+                            setShowCountryDropdown(false)
+                          }}
+                          style={country === c.code ? { background: 'var(--accent)', color: '#fff' } : { color: 'var(--text)' }}
+                          className="w-full px-3 py-2 rounded-lg text-sm text-left hover:opacity-80"
+                        >
+                          {c.nameIt}
+                        </button>
+                      ))}
+                      {COUNTRIES.length > 27 && (
+                        <p className="text-xs px-3 py-2" style={{ color: 'var(--text-3)' }}>... e {COUNTRIES.length - 27} altri paesi</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {error && <p className="text-xs text-red-400">{error}</p>}
           {ok    && <p className="text-xs text-green-400">{ok}</p>}

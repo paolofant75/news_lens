@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS user_preferences (
   lang    TEXT DEFAULT 'it',
   palette TEXT DEFAULT 'noir',
   font    TEXT DEFAULT 'geist',
+  country TEXT DEFAULT 'IT',
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
